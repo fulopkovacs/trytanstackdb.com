@@ -7,10 +7,12 @@ import type { Collection } from "@tanstack/db";
 
 function useStreamConnection(
   url: string,
+  // biome-ignore lint/suspicious/noExplicitAny: this is a demo component
   collection: Collection<any, any, any>,
 ) {
   const loadedRef = useRef(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: this is a demo component
   useEffect(() => {
     const fetchData = async () => {
       if (loadedRef.current) return;

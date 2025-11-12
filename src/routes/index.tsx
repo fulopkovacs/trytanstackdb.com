@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { TodoRecord, todosTable } from "@/db/schema";
+import { type TodoRecord, todosTable } from "@/db/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn, useServerFn } from "@tanstack/react-start";
