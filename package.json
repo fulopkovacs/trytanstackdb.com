@@ -11,11 +11,12 @@
     "lint": "biome lint",
     "check": "biome check",
     "deploy": "wrangler deploy",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:pull": "drizzle-kit pull",
-    "db:studio": "drizzle-kit studio"
+    "typecheck": "tsc --noEmit",
+    "db.generate": "drizzle-kit generate",
+    "deploy.prod": "wrangler deploy --env production --minify",
+    "db.local.migrate": "wrangler d1 migrations apply my-test-db",
+    "db.prod.migrate": "wrangler d1 migrations apply my-test-db --remote",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.13.8",
