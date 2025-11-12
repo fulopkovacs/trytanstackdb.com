@@ -1,14 +1,76 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, int, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
-export const todosTable = sqliteTable("todos", {
-  id: integer("id", { mode: "number" }).primaryKey({
-    autoIncrement: true,
-  }),
-  title: text("title").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).default(
-    sql`(unixepoch())`,
-  ),
+/**
+  Stores the creation timestamp in milliseconds since epoch.
+*/
+const createdAtTimestampMs = int("created_at_timestamp_ms").default(
+  sql`(strftime('%s','now') * 1000)`,
+);
+
+const tempDbId = text("temp_db_id")
+  .references(() => tempDbsTable.id, {
+    onDelete: "cascade",
+  })
+  .notNull();
+
+export const usersTable = sqliteTable(
+  "users",
+  {
+    id: text().primaryKey().notNull(), // nanoid
+    name: text().notNull(),
+    age: int().notNull(),
+    email: text().notNull(),
+    tempDbId,
+  },
+  (users) => [
+    index("users_tenant_id_idx").on(users.tempDbId),
+    unique("users_email_unique_tempdbid").on(users.email, users.tempDbId),
+    // tenantEmailUnique: index("users_tenant_email_unique")
+    //   .on(users.tempDbId, users.email)
+    //   .unique(),
+  ],
+);
+
+export type UserRecord = typeof usersTable.$inferSelect;
+
+export const boardsTable = sqliteTable(
+  "boards",
+  {
+    id: text().primaryKey(), // nanoid
+    name: text().notNull(),
+    description: text(),
+    createdAtTimestampMs,
+    tempDbId,
+  },
+  (boards) => [index("boards_tenant_id_idx").on(boards.tempDbId)],
+);
+
+export type BoardRecord = typeof boardsTable.$inferSelect;
+
+export const todoItemsTable = sqliteTable(
+  "todo_items",
+  {
+    id: text().primaryKey(), // nanoid
+    title: text().notNull(),
+    description: text(),
+    createdAtTimestampMs,
+    boardId: text()
+      .references(() => boardsTable.id, { onDelete: "cascade" })
+      .notNull(),
+    tempDbId,
+  },
+  (todoItems) => [
+    index("todo_items_tenant_id_idx").on(todoItems.tempDbId),
+    // TODO: maybe this could be needed
+    // boardIdIdx: index("todo_items_board_id_idx").on(todoItems.boardId),
+  ],
+);
+
+export type TodoItemRecord = typeof todoItemsTable.$inferSelect;
+
+export const tempDbsTable = sqliteTable("temp_dbs", {
+  id: text().primaryKey(), // nanoid
+  createdAtTimestampMs,
+  expiryTimestampMs: int().notNull(),
 });
-
-export type TodoRecord = typeof todosTable.$inferSelect;

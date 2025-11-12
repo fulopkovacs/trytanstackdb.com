@@ -44,6 +44,7 @@
     "drizzle-kit": "^0.30.0",
     "drizzle-orm": "^0.39.0",
     "lucide-react": "^0.544.0",
+    "nanoid": "^5.1.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.0.2",
