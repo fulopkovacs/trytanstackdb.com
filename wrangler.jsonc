@@ -4,6 +4,16 @@
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "vars": {
+    "NODE_ENV": "development"
+  },
+  "env": {
+    "production": {
+      "vars": {
+        "NODE_ENV": "production"
+      }
+    }
+  },
   "d1_databases": [
     {
       "binding": "D1_DB",

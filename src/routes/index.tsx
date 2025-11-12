@@ -1,25 +1,26 @@
-import { db } from "@/db";
-import { type TodoRecord, todosTable } from "@/db/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn, useServerFn } from "@tanstack/react-start";
+import { db } from "@/db";
+import { todoItemsTable } from "@/db/schema";
 
 const getTodos = createServerFn().handler(async () => {
-  const todos = await db.select().from(todosTable);
+  const todos = await db.select().from(todoItemsTable);
   // const todos: string[] = [];
 
   return todos;
 });
 
 const addTodo = createServerFn().handler(async () => {
-  const todo: Omit<TodoRecord, "id"> = {
-    title: `New Todo - ${Date.now}`,
-    createdAt: new Date(),
-  };
+  // const todo: Omit<TodoItemRecord, "id"> = {
+  //   title: `New Todo - ${Date.now}`,
+  //   createdAt: new Date(),
+  // };
 
-  const insertedRecord = await db.insert(todosTable).values(todo).returning();
+  // const insertedRecord = await db.insert(todosTable).values(todo).returning();
 
-  return insertedRecord;
+  // return insertedRecord;
+  return null;
 });
 
 export const Route = createFileRoute("/")({ component: App });
