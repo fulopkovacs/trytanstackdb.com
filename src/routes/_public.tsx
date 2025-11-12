@@ -1,22 +1,15 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getSessionDataFn } from "@/server/functions/getUserFromSessionFn";
 
-export const Route = createFileRoute("/")({
-  component: App,
+export const Route = createFileRoute("/_public")({
   beforeLoad: async () => {
     const sessionData = await getSessionDataFn();
+
+    // Make sure the user is not logged in
     if (sessionData?.user) {
       throw redirect({
         to: "/boards",
       });
-    } else {
-      throw redirect({
-        to: "/login",
-      });
     }
   },
 });
-
-function App() {
-  return <div className="min-h-screen">hello</div>;
-}
