@@ -1,0 +1,25 @@
+{
+  "projectName": "trytanstackdb.com",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "pnpm",
+  "addOnOptions": {
+    "drizzle": {
+      "database": "sqlite"
+    }
+  },
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "cloudflare",
+    "start",
+    "shadcn",
+    "db",
+    "drizzle",
+    "tanstack-query",
+    "form"
+  ]
+}
