@@ -36,7 +36,7 @@ function RouteComponent() {
   return (
     <SidebarProvider>
       <AppSidebar boards={boards} user={user} />
-      <main className="flex flex-1 flex-col">
+      <main className="flex flex-1 flex-col overflow-hidden max-h-screen h-screen">
         <Header />
         <Outlet />
       </main>
