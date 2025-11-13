@@ -5,8 +5,18 @@ import { Header } from "@/components/Header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getBoardsQueryOptions } from "@/server/functions/getBoards";
 
-export const Route = createFileRoute("/_authed/boards")({
+const mockUser = {
+  id: "1",
+  name: "John Doe",
+};
+
+export const Route = createFileRoute("/boards")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    return {
+      user: mockUser,
+    };
+  },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(getBoardsQueryOptions);
 
@@ -27,7 +37,7 @@ function RouteComponent() {
     <SidebarProvider>
       <AppSidebar boards={boards} user={user} />
       <main className="flex flex-1 flex-col">
-        <Header loggedInUser={user} />
+        <Header />
         <Outlet />
       </main>
     </SidebarProvider>

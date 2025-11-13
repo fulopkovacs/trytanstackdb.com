@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_authed/boards/")({
+export const Route = createFileRoute("/boards/")({
   loader: ({ context }) => {
     return {
       user: context.user,

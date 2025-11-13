@@ -9,26 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PublicRouteImport } from './routes/_public'
-import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as BoardsRouteImport } from './routes/boards'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BoardsIndexRouteImport } from './routes/boards.index'
+import { Route as BoardsBoardIdRouteImport } from './routes/boards.$boardId'
 import { Route as ApiTempDbRouteImport } from './routes/api.temp-db'
-import { Route as ApiCreateTestUserRouteImport } from './routes/api.create-test-user'
-import { Route as ApiSplatRouteImport } from './routes/api.$'
-import { Route as AuthedBoardsRouteImport } from './routes/_authed.boards'
-import { Route as PublicLoginIndexRouteImport } from './routes/_public.login.index'
-import { Route as AuthedLogoutIndexRouteImport } from './routes/_authed.logout.index'
-import { Route as AuthedBoardsIndexRouteImport } from './routes/_authed.boards.index'
 import { Route as ApiGetBoardsRouteImport } from './routes/api.get.boards'
-import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
-import { Route as AuthedBoardsBoardIdRouteImport } from './routes/_authed.boards.$boardId'
 
-const PublicRoute = PublicRouteImport.update({
-  id: '/_public',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthedRoute = AuthedRouteImport.update({
-  id: '/_authed',
+const BoardsRoute = BoardsRouteImport.update({
+  id: '/boards',
+  path: '/boards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -36,166 +26,86 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoardsIndexRoute = BoardsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BoardsRoute,
+} as any)
+const BoardsBoardIdRoute = BoardsBoardIdRouteImport.update({
+  id: '/$boardId',
+  path: '/$boardId',
+  getParentRoute: () => BoardsRoute,
+} as any)
 const ApiTempDbRoute = ApiTempDbRouteImport.update({
   id: '/api/temp-db',
   path: '/api/temp-db',
   getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCreateTestUserRoute = ApiCreateTestUserRouteImport.update({
-  id: '/api/create-test-user',
-  path: '/api/create-test-user',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiSplatRoute = ApiSplatRouteImport.update({
-  id: '/api/$',
-  path: '/api/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthedBoardsRoute = AuthedBoardsRouteImport.update({
-  id: '/boards',
-  path: '/boards',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const PublicLoginIndexRoute = PublicLoginIndexRouteImport.update({
-  id: '/login/',
-  path: '/login/',
-  getParentRoute: () => PublicRoute,
-} as any)
-const AuthedLogoutIndexRoute = AuthedLogoutIndexRouteImport.update({
-  id: '/logout/',
-  path: '/logout/',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedBoardsIndexRoute = AuthedBoardsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthedBoardsRoute,
 } as any)
 const ApiGetBoardsRoute = ApiGetBoardsRouteImport.update({
   id: '/api/get/boards',
   path: '/api/get/boards',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthedBoardsBoardIdRoute = AuthedBoardsBoardIdRouteImport.update({
-  id: '/$boardId',
-  path: '/$boardId',
-  getParentRoute: () => AuthedBoardsRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/boards': typeof AuthedBoardsRouteWithChildren
-  '/api/$': typeof ApiSplatRoute
-  '/api/create-test-user': typeof ApiCreateTestUserRoute
+  '/boards': typeof BoardsRouteWithChildren
   '/api/temp-db': typeof ApiTempDbRoute
-  '/boards/$boardId': typeof AuthedBoardsBoardIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/boards/$boardId': typeof BoardsBoardIdRoute
+  '/boards/': typeof BoardsIndexRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
-  '/boards/': typeof AuthedBoardsIndexRoute
-  '/logout': typeof AuthedLogoutIndexRoute
-  '/login': typeof PublicLoginIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/$': typeof ApiSplatRoute
-  '/api/create-test-user': typeof ApiCreateTestUserRoute
   '/api/temp-db': typeof ApiTempDbRoute
-  '/boards/$boardId': typeof AuthedBoardsBoardIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/boards/$boardId': typeof BoardsBoardIdRoute
+  '/boards': typeof BoardsIndexRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
-  '/boards': typeof AuthedBoardsIndexRoute
-  '/logout': typeof AuthedLogoutIndexRoute
-  '/login': typeof PublicLoginIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authed': typeof AuthedRouteWithChildren
-  '/_public': typeof PublicRouteWithChildren
-  '/_authed/boards': typeof AuthedBoardsRouteWithChildren
-  '/api/$': typeof ApiSplatRoute
-  '/api/create-test-user': typeof ApiCreateTestUserRoute
+  '/boards': typeof BoardsRouteWithChildren
   '/api/temp-db': typeof ApiTempDbRoute
-  '/_authed/boards/$boardId': typeof AuthedBoardsBoardIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/boards/$boardId': typeof BoardsBoardIdRoute
+  '/boards/': typeof BoardsIndexRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
-  '/_authed/boards/': typeof AuthedBoardsIndexRoute
-  '/_authed/logout/': typeof AuthedLogoutIndexRoute
-  '/_public/login/': typeof PublicLoginIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/boards'
-    | '/api/$'
-    | '/api/create-test-user'
     | '/api/temp-db'
     | '/boards/$boardId'
-    | '/api/auth/$'
-    | '/api/get/boards'
     | '/boards/'
-    | '/logout'
-    | '/login'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/api/$'
-    | '/api/create-test-user'
-    | '/api/temp-db'
-    | '/boards/$boardId'
-    | '/api/auth/$'
     | '/api/get/boards'
-    | '/boards'
-    | '/logout'
-    | '/login'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/api/temp-db' | '/boards/$boardId' | '/boards' | '/api/get/boards'
   id:
     | '__root__'
     | '/'
-    | '/_authed'
-    | '/_public'
-    | '/_authed/boards'
-    | '/api/$'
-    | '/api/create-test-user'
+    | '/boards'
     | '/api/temp-db'
-    | '/_authed/boards/$boardId'
-    | '/api/auth/$'
+    | '/boards/$boardId'
+    | '/boards/'
     | '/api/get/boards'
-    | '/_authed/boards/'
-    | '/_authed/logout/'
-    | '/_public/login/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthedRoute: typeof AuthedRouteWithChildren
-  PublicRoute: typeof PublicRouteWithChildren
-  ApiSplatRoute: typeof ApiSplatRoute
-  ApiCreateTestUserRoute: typeof ApiCreateTestUserRoute
+  BoardsRoute: typeof BoardsRouteWithChildren
   ApiTempDbRoute: typeof ApiTempDbRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiGetBoardsRoute: typeof ApiGetBoardsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_public': {
-      id: '/_public'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof PublicRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authed': {
-      id: '/_authed'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthedRouteImport
+    '/boards': {
+      id: '/boards'
+      path: '/boards'
+      fullPath: '/boards'
+      preLoaderRoute: typeof BoardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -205,54 +115,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/boards/': {
+      id: '/boards/'
+      path: '/'
+      fullPath: '/boards/'
+      preLoaderRoute: typeof BoardsIndexRouteImport
+      parentRoute: typeof BoardsRoute
+    }
+    '/boards/$boardId': {
+      id: '/boards/$boardId'
+      path: '/$boardId'
+      fullPath: '/boards/$boardId'
+      preLoaderRoute: typeof BoardsBoardIdRouteImport
+      parentRoute: typeof BoardsRoute
+    }
     '/api/temp-db': {
       id: '/api/temp-db'
       path: '/api/temp-db'
       fullPath: '/api/temp-db'
       preLoaderRoute: typeof ApiTempDbRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/api/create-test-user': {
-      id: '/api/create-test-user'
-      path: '/api/create-test-user'
-      fullPath: '/api/create-test-user'
-      preLoaderRoute: typeof ApiCreateTestUserRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/$': {
-      id: '/api/$'
-      path: '/api/$'
-      fullPath: '/api/$'
-      preLoaderRoute: typeof ApiSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authed/boards': {
-      id: '/_authed/boards'
-      path: '/boards'
-      fullPath: '/boards'
-      preLoaderRoute: typeof AuthedBoardsRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_public/login/': {
-      id: '/_public/login/'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof PublicLoginIndexRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_authed/logout/': {
-      id: '/_authed/logout/'
-      path: '/logout'
-      fullPath: '/logout'
-      preLoaderRoute: typeof AuthedLogoutIndexRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/boards/': {
-      id: '/_authed/boards/'
-      path: '/'
-      fullPath: '/boards/'
-      preLoaderRoute: typeof AuthedBoardsIndexRouteImport
-      parentRoute: typeof AuthedBoardsRoute
     }
     '/api/get/boards': {
       id: '/api/get/boards'
@@ -261,69 +143,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGetBoardsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authed/boards/$boardId': {
-      id: '/_authed/boards/$boardId'
-      path: '/$boardId'
-      fullPath: '/boards/$boardId'
-      preLoaderRoute: typeof AuthedBoardsBoardIdRouteImport
-      parentRoute: typeof AuthedBoardsRoute
-    }
   }
 }
 
-interface AuthedBoardsRouteChildren {
-  AuthedBoardsBoardIdRoute: typeof AuthedBoardsBoardIdRoute
-  AuthedBoardsIndexRoute: typeof AuthedBoardsIndexRoute
+interface BoardsRouteChildren {
+  BoardsBoardIdRoute: typeof BoardsBoardIdRoute
+  BoardsIndexRoute: typeof BoardsIndexRoute
 }
 
-const AuthedBoardsRouteChildren: AuthedBoardsRouteChildren = {
-  AuthedBoardsBoardIdRoute: AuthedBoardsBoardIdRoute,
-  AuthedBoardsIndexRoute: AuthedBoardsIndexRoute,
+const BoardsRouteChildren: BoardsRouteChildren = {
+  BoardsBoardIdRoute: BoardsBoardIdRoute,
+  BoardsIndexRoute: BoardsIndexRoute,
 }
 
-const AuthedBoardsRouteWithChildren = AuthedBoardsRoute._addFileChildren(
-  AuthedBoardsRouteChildren,
-)
-
-interface AuthedRouteChildren {
-  AuthedBoardsRoute: typeof AuthedBoardsRouteWithChildren
-  AuthedLogoutIndexRoute: typeof AuthedLogoutIndexRoute
-}
-
-const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedBoardsRoute: AuthedBoardsRouteWithChildren,
-  AuthedLogoutIndexRoute: AuthedLogoutIndexRoute,
-}
-
-const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren)
-
-interface PublicRouteChildren {
-  PublicLoginIndexRoute: typeof PublicLoginIndexRoute
-}
-
-const PublicRouteChildren: PublicRouteChildren = {
-  PublicLoginIndexRoute: PublicLoginIndexRoute,
-}
-
-const PublicRouteWithChildren =
-  PublicRoute._addFileChildren(PublicRouteChildren)
+const BoardsRouteWithChildren =
+  BoardsRoute._addFileChildren(BoardsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthedRoute: AuthedRouteWithChildren,
-  PublicRoute: PublicRouteWithChildren,
-  ApiSplatRoute: ApiSplatRoute,
-  ApiCreateTestUserRoute: ApiCreateTestUserRoute,
+  BoardsRoute: BoardsRouteWithChildren,
   ApiTempDbRoute: ApiTempDbRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiGetBoardsRoute: ApiGetBoardsRoute,
 }
 export const routeTree = rootRouteImport

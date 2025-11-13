@@ -5,7 +5,7 @@ import { TodoBoards } from "@/components/TodoBoards";
 import { mockTasks } from "@/data/mockTasks";
 import { getBoardsQueryOptions } from "@/server/functions/getBoards";
 
-export const Route = createFileRoute("/_authed/boards/$boardId")({
+export const Route = createFileRoute("/boards/$boardId")({
   component: RouteComponent,
 });
 
