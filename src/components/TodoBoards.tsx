@@ -23,6 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { VList } from "virtua";
 
 const statusColumns: StatusColumnType[] = [
   {
@@ -134,11 +135,11 @@ function StatusColumn({
           transition: "background 0.2s",
         }}
       >
-        <div>
-          <SortableContext
-            strategy={verticalListSortingStrategy}
-            items={columnTasks.map((task) => task.id)}
-          >
+        <SortableContext
+          strategy={verticalListSortingStrategy}
+          items={columnTasks.map((task) => task.id)}
+        >
+          <VList>
             {columnTasks.map((task, i) => {
               const showDropIndicator =
                 activeId &&
@@ -161,8 +162,9 @@ function StatusColumn({
             {isOver && activeTask && (
               <DraggedTaskSlot activeTask={activeTask} />
             )}
-          </SortableContext>
-        </div>
+          </VList>
+        </SortableContext>
+        <div></div>
       </CardContent>
     </Card>
   );

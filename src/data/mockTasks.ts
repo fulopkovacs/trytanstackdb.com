@@ -50,17 +50,18 @@ export const mockTasks: Task[] = [
   },
   {
     id: "4",
-    title: "Task 4",
+    title: "Task 4 - but with a lot of text. Really, there is no end to it.",
     status: "todo",
   },
   {
     id: "5",
-    title: "Task 5",
+    title: "Task 5 - Another long task title to test UI handling of long text.",
     status: "in-progress",
   },
   {
     id: "6",
-    title: "Task 6",
+    title:
+      "Task 6 - Long lon glong long long long long long long long long long long title",
     status: "done",
   },
   {
