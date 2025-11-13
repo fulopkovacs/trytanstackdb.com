@@ -15,7 +15,6 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -29,21 +28,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { Button } from "./ui/button";
+import { useLiveQuery } from "@tanstack/react-db";
+import { projectsCollection } from "@/collections/projects";
 
 // } from "@/registry/new-york-v4/ui/sidebar"
 
-type Board = {
-  id: string;
-  name: string;
-};
-
 export function AppSidebar({
-  boards,
   user,
   // onSelect,
 }: {
-  boards: Board[];
   user: {
     name: string;
     id: string;
@@ -51,6 +44,12 @@ export function AppSidebar({
   };
 }) {
   const { toggleSidebar, open } = useSidebar();
+
+  const { data: projects } = useLiveQuery((q) =>
+    q.from({
+      project: projectsCollection,
+    }),
+  );
 
   return (
     <SidebarProvider className="w-auto" open={open} defaultOpen>
@@ -83,19 +82,19 @@ export function AppSidebar({
                     <CollapsibleTrigger asChild className="flex items-center">
                       <SidebarMenuButton className="grow">
                         <FolderClosedIcon />
-                        <span>Boards ({boards.length})</span>
+                        <span>Projects ({projects.length})</span>
                         {/* <SidebarMenuBadge>{boards.length}</SidebarMenuBadge> */}
                         <ChevronDownIcon className="ml-auto transition-transform duration-200 ease-in-out group-data-[state=open]/collapsible:rotate-180" />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {boards.map((board) => (
-                          <SidebarMenuSubItem key={board.id}>
+                        {projects.map((project) => (
+                          <SidebarMenuSubItem key={project.id}>
                             <SidebarMenuSubButton asChild>
                               <Link
-                                to="/boards/$boardId"
-                                params={{ boardId: board.id }}
+                                to="/projects/$projectId"
+                                params={{ projectId: project.id }}
                                 style={
                                   {
                                     // fontWeight:
@@ -105,7 +104,7 @@ export function AppSidebar({
                                   }
                                 }
                               >
-                                {board.name}
+                                {project.name}
                               </Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
@@ -117,7 +116,7 @@ export function AppSidebar({
                 <SidebarMenuItem>
                   <SidebarMenuButton variant={"outline"}>
                     <PlusIcon />
-                    <span>Create new board</span>
+                    <span>Create new project</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

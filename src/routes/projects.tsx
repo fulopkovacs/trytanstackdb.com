@@ -4,13 +4,14 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getBoardsQueryOptions } from "@/server/functions/getBoards";
+import { getProjectsQueryOptions } from "@/server/functions/getProjects";
 
 const mockUser = {
   id: "1",
   name: "John Doe",
 };
 
-export const Route = createFileRoute("/boards")({
+export const Route = createFileRoute("/projects")({
   component: RouteComponent,
   beforeLoad: async () => {
     return {
@@ -18,24 +19,23 @@ export const Route = createFileRoute("/boards")({
     };
   },
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(getBoardsQueryOptions);
+    // await context.queryClient.ensureQueryData(getProjectsQueryOptions);
 
     return {
       user: context.user,
     };
   },
+  ssr: "data-only",
 });
 
 function RouteComponent() {
   const { user } = Route.useLoaderData();
 
-  const {
-    data: { boards },
-  } = useSuspenseQuery(getBoardsQueryOptions);
+  // const { data: projects } = useSuspenseQuery(getProjectsQueryOptions);
 
   return (
     <SidebarProvider>
-      <AppSidebar boards={boards} user={user} />
+      <AppSidebar user={user} />
       <main className="flex flex-1 flex-col overflow-hidden max-h-screen h-screen">
         <Header />
         <Outlet />

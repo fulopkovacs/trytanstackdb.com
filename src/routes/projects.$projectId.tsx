@@ -5,22 +5,20 @@ import { TodoBoards } from "@/components/TodoBoards";
 import { mockTasks } from "@/data/mockTasks";
 import { getBoardsQueryOptions } from "@/server/functions/getBoards";
 
-export const Route = createFileRoute("/boards/$boardId")({
+export const Route = createFileRoute("/projects/$projectId")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { boardId } = Route.useParams();
+  const { projectId } = Route.useParams();
 
-  const {
-    data: { boards },
-  } = useSuspenseQuery(getBoardsQueryOptions);
+  const { data: boards } = useSuspenseQuery(getBoardsQueryOptions);
 
   const boardName = useMemo(() => {
     return (
-      boards.find((board) => board.id === boardId)?.name || "Unknown Board"
+      boards.find((board) => board.id === projectId)?.name || "Unknown Board"
     );
-  }, [boards, boardId]);
+  }, [boards, projectId]);
 
   const tasks = useMemo(() => {
     const limit = 1500;

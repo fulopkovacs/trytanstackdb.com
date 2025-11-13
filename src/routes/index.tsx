@@ -11,6 +11,7 @@ import {
   getTempDbIdFromTheSubdomain,
 } from "@/utils/server";
 import { getHostFromRequest } from "@/utils/server/getHostFromRequest";
+import { expiryTimestampMs } from "@/constants";
 
 const isSubdomainFn = createServerFn().handler(() => {
   const request = getRequest();
@@ -31,7 +32,8 @@ const redirectToNewDemoAppFn = createServerFn().handler(async () => {
     throw new Error(`Cannot create temp DB from a subdomain`);
   }
   const tempDbId = getSubdomainSafeIds();
-  const expiryTimestampMs = Date.now() + 60_000 * 60; // 1 hr
+  // TODO: change this later
+
   try {
     await db.insert(tempDbsTable).values({
       id: tempDbId,
@@ -46,7 +48,7 @@ const redirectToNewDemoAppFn = createServerFn().handler(async () => {
   }
 
   throw redirect({
-    href: `http://${tempDbId}.${host}/boards`,
+    href: `http://${tempDbId}.${host}/projects`,
   });
 });
 
@@ -67,7 +69,7 @@ function App() {
 
   const redirectToNewDemoAppM = useMutation({
     mutationFn: redirectToNewDemoApp,
-    onError: (error) => {
+    onError: () => {
       // TODO: show error message on the UI
     },
   });

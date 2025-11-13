@@ -9,16 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as BoardsRouteImport } from './routes/boards'
+import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BoardsIndexRouteImport } from './routes/boards.index'
-import { Route as BoardsBoardIdRouteImport } from './routes/boards.$boardId'
+import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
 import { Route as ApiTempDbRouteImport } from './routes/api.temp-db'
 import { Route as ApiGetBoardsRouteImport } from './routes/api.get.boards'
 
-const BoardsRoute = BoardsRouteImport.update({
-  id: '/boards',
-  path: '/boards',
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -26,15 +26,15 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BoardsIndexRoute = BoardsIndexRouteImport.update({
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => BoardsRoute,
+  getParentRoute: () => ProjectsRoute,
 } as any)
-const BoardsBoardIdRoute = BoardsBoardIdRouteImport.update({
-  id: '/$boardId',
-  path: '/$boardId',
-  getParentRoute: () => BoardsRoute,
+const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
+  id: '/$projectId',
+  path: '/$projectId',
+  getParentRoute: () => ProjectsRoute,
 } as any)
 const ApiTempDbRoute = ApiTempDbRouteImport.update({
   id: '/api/temp-db',
@@ -49,63 +49,68 @@ const ApiGetBoardsRoute = ApiGetBoardsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/boards': typeof BoardsRouteWithChildren
+  '/projects': typeof ProjectsRouteWithChildren
   '/api/temp-db': typeof ApiTempDbRoute
-  '/boards/$boardId': typeof BoardsBoardIdRoute
-  '/boards/': typeof BoardsIndexRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/projects/': typeof ProjectsIndexRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/temp-db': typeof ApiTempDbRoute
-  '/boards/$boardId': typeof BoardsBoardIdRoute
-  '/boards': typeof BoardsIndexRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/projects': typeof ProjectsIndexRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/boards': typeof BoardsRouteWithChildren
+  '/projects': typeof ProjectsRouteWithChildren
   '/api/temp-db': typeof ApiTempDbRoute
-  '/boards/$boardId': typeof BoardsBoardIdRoute
-  '/boards/': typeof BoardsIndexRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/projects/': typeof ProjectsIndexRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/boards'
+    | '/projects'
     | '/api/temp-db'
-    | '/boards/$boardId'
-    | '/boards/'
+    | '/projects/$projectId'
+    | '/projects/'
     | '/api/get/boards'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/temp-db' | '/boards/$boardId' | '/boards' | '/api/get/boards'
+  to:
+    | '/'
+    | '/api/temp-db'
+    | '/projects/$projectId'
+    | '/projects'
+    | '/api/get/boards'
   id:
     | '__root__'
     | '/'
-    | '/boards'
+    | '/projects'
     | '/api/temp-db'
-    | '/boards/$boardId'
-    | '/boards/'
+    | '/projects/$projectId'
+    | '/projects/'
     | '/api/get/boards'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BoardsRoute: typeof BoardsRouteWithChildren
+  ProjectsRoute: typeof ProjectsRouteWithChildren
   ApiTempDbRoute: typeof ApiTempDbRoute
   ApiGetBoardsRoute: typeof ApiGetBoardsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/boards': {
-      id: '/boards'
-      path: '/boards'
-      fullPath: '/boards'
-      preLoaderRoute: typeof BoardsRouteImport
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -115,19 +120,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/boards/': {
-      id: '/boards/'
+    '/projects/': {
+      id: '/projects/'
       path: '/'
-      fullPath: '/boards/'
-      preLoaderRoute: typeof BoardsIndexRouteImport
-      parentRoute: typeof BoardsRoute
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof ProjectsRoute
     }
-    '/boards/$boardId': {
-      id: '/boards/$boardId'
-      path: '/$boardId'
-      fullPath: '/boards/$boardId'
-      preLoaderRoute: typeof BoardsBoardIdRouteImport
-      parentRoute: typeof BoardsRoute
+    '/projects/$projectId': {
+      id: '/projects/$projectId'
+      path: '/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof ProjectsProjectIdRouteImport
+      parentRoute: typeof ProjectsRoute
     }
     '/api/temp-db': {
       id: '/api/temp-db'
@@ -146,22 +151,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface BoardsRouteChildren {
-  BoardsBoardIdRoute: typeof BoardsBoardIdRoute
-  BoardsIndexRoute: typeof BoardsIndexRoute
+interface ProjectsRouteChildren {
+  ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
 
-const BoardsRouteChildren: BoardsRouteChildren = {
-  BoardsBoardIdRoute: BoardsBoardIdRoute,
-  BoardsIndexRoute: BoardsIndexRoute,
+const ProjectsRouteChildren: ProjectsRouteChildren = {
+  ProjectsProjectIdRoute: ProjectsProjectIdRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
 }
 
-const BoardsRouteWithChildren =
-  BoardsRoute._addFileChildren(BoardsRouteChildren)
+const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
+  ProjectsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BoardsRoute: BoardsRouteWithChildren,
+  ProjectsRoute: ProjectsRouteWithChildren,
   ApiTempDbRoute: ApiTempDbRoute,
   ApiGetBoardsRoute: ApiGetBoardsRoute,
 }

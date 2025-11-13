@@ -2,22 +2,22 @@ import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { boardsTable } from "@/db/schema";
+import { projectsTable } from "@/db/schema";
 import { requireTempId } from "../middlewares/getTempDbIdFromRequest";
 
-export const getBoards = createServerFn()
+export const getProjects = createServerFn()
   .middleware([requireTempId])
   .handler(async ({ context: { tempId } }) => {
     // In a real app, you'd fetch boards from a database here
-    const boards = await db
+    const projects = await db
       .select()
-      .from(boardsTable)
-      .where(eq(boardsTable.tempDbId, tempId));
+      .from(projectsTable)
+      .where(eq(projectsTable.tempDbId, tempId));
 
-    return boards;
+    return projects;
   });
 
-export const getBoardsQueryOptions = queryOptions({
-  queryKey: ["boards"],
-  queryFn: getBoards,
+export const getProjectsQueryOptions = queryOptions({
+  queryKey: ["projects"],
+  queryFn: getProjects,
 });
