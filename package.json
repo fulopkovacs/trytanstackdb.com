@@ -57,6 +57,7 @@
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.6",
     "tw-animate-css": "^1.3.6",
+    "virtua": "^0.46.7",
     "vite-tsconfig-paths": "^5.1.4",
     "zod": "^4.1.11"
   },
