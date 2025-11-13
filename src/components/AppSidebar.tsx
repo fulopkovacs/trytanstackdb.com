@@ -1,5 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { FolderClosedIcon, SidebarIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  FolderClosedIcon,
+  PlusIcon,
+  SidebarIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -10,6 +15,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -18,6 +24,12 @@ import {
   SidebarProvider,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
+import { Button } from "./ui/button";
 
 // } from "@/registry/new-york-v4/ui/sidebar"
 
@@ -48,7 +60,7 @@ export function AppSidebar({
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem className="">
+                <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => {
                       toggleSidebar();
@@ -66,33 +78,47 @@ export function AppSidebar({
             <SidebarGroupLabel>Navigation</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
+                <Collapsible defaultOpen className="group/collapsible">
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild className="flex items-center">
+                      <SidebarMenuButton className="grow">
+                        <FolderClosedIcon />
+                        <span>Boards ({boards.length})</span>
+                        {/* <SidebarMenuBadge>{boards.length}</SidebarMenuBadge> */}
+                        <ChevronDownIcon className="ml-auto transition-transform duration-200 ease-in-out group-data-[state=open]/collapsible:rotate-180" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {boards.map((board) => (
+                          <SidebarMenuSubItem key={board.id}>
+                            <SidebarMenuSubButton asChild>
+                              <Link
+                                to="/boards/$boardId"
+                                params={{ boardId: board.id }}
+                                style={
+                                  {
+                                    // fontWeight:
+                                    //   selectedProject === project ? "bold" : "normal",
+                                    // color:
+                                    //   selectedProject === project ? "#2563eb" : "inherit",
+                                  }
+                                }
+                              >
+                                {board.name}
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
                 <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <FolderClosedIcon />
-                    <span>Boards</span>
+                  <SidebarMenuButton variant={"outline"}>
+                    <PlusIcon />
+                    <span>Create new board</span>
                   </SidebarMenuButton>
-                  <SidebarMenuSub>
-                    {boards.map((board) => (
-                      <SidebarMenuSubItem key={board.id}>
-                        <SidebarMenuSubButton asChild>
-                          <Link
-                            to="/boards/$boardId"
-                            params={{ boardId: board.id }}
-                            style={
-                              {
-                                // fontWeight:
-                                //   selectedProject === project ? "bold" : "normal",
-                                // color:
-                                //   selectedProject === project ? "#2563eb" : "inherit",
-                              }
-                            }
-                          >
-                            {board.name}
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
