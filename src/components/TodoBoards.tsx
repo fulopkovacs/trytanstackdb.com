@@ -15,6 +15,7 @@ import {
 import { forwardRef, useMemo, useState } from "react";
 import type { StatusColumnType, Task } from "@/data/mockTasks";
 import { cn } from "@/lib/utils";
+import { getUpdatedTasks } from "@/utils/getUpdatedTasks";
 import {
   Card,
   CardContent,
@@ -22,7 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { getUpdatedTasks } from "@/utils/getUpdatedTasks";
 
 const statusColumns: StatusColumnType[] = [
   {
@@ -111,7 +111,7 @@ function StatusColumn({
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
-    <Card className="bg-sidebar">
+    <Card className="bg-sidebar flex flex-col flex-1 min-h-0">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <div
@@ -127,38 +127,42 @@ function StatusColumn({
       </CardHeader>
       <CardContent
         ref={setNodeRef}
+        className="overflow-y-auto flex-1"
         style={{
-          minHeight: "100px",
           // TODO: Sometimes the height of the column is jumping
           // background: isOver ? "#e0f7fa" : undefined,
           transition: "background 0.2s",
         }}
       >
-        <SortableContext
-          strategy={verticalListSortingStrategy}
-          items={columnTasks.map((task) => task.id)}
-        >
-          {columnTasks.map((task, i) => {
-            const showDropIndicator =
-              activeId &&
-              overId === task.id &&
-              activeId !== task.id &&
-              // We don't want the drop indicator to be shown
-              // right below the active task
-              activeTaskIndex + 1 !== i;
+        <div>
+          <SortableContext
+            strategy={verticalListSortingStrategy}
+            items={columnTasks.map((task) => task.id)}
+          >
+            {columnTasks.map((task, i) => {
+              const showDropIndicator =
+                activeId &&
+                overId === task.id &&
+                activeId !== task.id &&
+                // We don't want the drop indicator to be shown
+                // right below the active task
+                activeTaskIndex + 1 !== i;
 
-            return (
-              <div key={`${task.id}-wrapper`}>
-                {showDropIndicator && activeTask && (
-                  <DraggedTaskSlot activeTask={activeTask} />
-                )}
-                <DraggableTask task={task} />
-              </div>
-            );
-          })}
-          {/* If column is empty and is being dragged over, show drop indicator */}
-          {isOver && activeTask && <DraggedTaskSlot activeTask={activeTask} />}
-        </SortableContext>
+              return (
+                <div key={`${task.id}-wrapper`}>
+                  {showDropIndicator && activeTask && (
+                    <DraggedTaskSlot activeTask={activeTask} />
+                  )}
+                  <DraggableTask task={task} />
+                </div>
+              );
+            })}
+            {/* If column is empty and is being dragged over, show drop indicator */}
+            {isOver && activeTask && (
+              <DraggedTaskSlot activeTask={activeTask} />
+            )}
+          </SortableContext>
+        </div>
       </CardContent>
     </Card>
   );
@@ -204,26 +208,28 @@ export function TodoBoards({ tasks: initialTasks }: { tasks: Task[] }) {
   };
 
   return (
-    <DndContext
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="grid grid-cols-3 gap-4">
-        {statusColumns.map((column) => (
-          <StatusColumn
-            key={column.id}
-            columnData={column}
-            tasks={tasks}
-            activeId={activeId}
-            overId={overId}
-            activeTask={activeTask}
-          />
-        ))}
-      </div>
-      <DragOverlay>
-        {activeTask ? <TaskBase task={activeTask} /> : null}
-      </DragOverlay>
-    </DndContext>
+    <div className="flex-1 min-h-0">
+      <DndContext
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="grid grid-cols-3 gap-4 h-full min-h-0">
+          {statusColumns.map((column) => (
+            <StatusColumn
+              key={column.id}
+              columnData={column}
+              tasks={tasks}
+              activeId={activeId}
+              overId={overId}
+              activeTask={activeTask}
+            />
+          ))}
+        </div>
+        <DragOverlay>
+          {activeTask ? <TaskBase task={activeTask} /> : null}
+        </DragOverlay>
+      </DndContext>
+    </div>
   );
 }
