@@ -1,8 +1,6 @@
 import { sql } from "drizzle-orm";
 import { index, int, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
-export * from "./auth-schema.ts";
-
 /**
   Stores the creation timestamp in milliseconds since epoch.
 */
