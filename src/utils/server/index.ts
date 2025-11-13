@@ -26,7 +26,6 @@ export class TempDbExpiredError extends Error {
 }
 
 export function getTempDbIdFromTheSubdomain(hostname?: string | null) {
-  console.log({ hostname });
   if (!hostname) return null;
 
   const domainParts = hostname.split(".");

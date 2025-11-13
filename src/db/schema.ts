@@ -34,6 +34,20 @@ export const usersTable = sqliteTable(
 
 export type UserRecord = typeof usersTable.$inferSelect;
 
+export const projectsTable = sqliteTable(
+  "projects",
+  {
+    id: text().primaryKey(), // nanoid
+    name: text().notNull(),
+    description: text().notNull(),
+    createdAtTimestampMs,
+    tempDbId,
+  },
+  (projects) => [index("projects_tenant_id_idx").on(projects.tempDbId)],
+);
+
+export type ProjectRecord = typeof projectsTable.$inferSelect;
+
 export const boardsTable = sqliteTable(
   "boards",
   {
@@ -41,6 +55,9 @@ export const boardsTable = sqliteTable(
     name: text().notNull(),
     description: text(),
     createdAtTimestampMs,
+    projectId: text("project_id")
+      .references(() => projectsTable.id, { onDelete: "cascade" })
+      .notNull(),
     tempDbId,
   },
   (boards) => [index("boards_tenant_id_idx").on(boards.tempDbId)],
