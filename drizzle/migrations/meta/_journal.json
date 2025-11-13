@@ -22,6 +22,13 @@
       "when": 1762983166089,
       "tag": "0002_goofy_calypso",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1763061105797,
+      "tag": "0003_slimy_famine",
+      "breakpoints": true
     }
   ]
 }

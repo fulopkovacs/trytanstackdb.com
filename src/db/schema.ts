@@ -72,5 +72,5 @@ export type TodoItemRecord = typeof todoItemsTable.$inferSelect;
 export const tempDbsTable = sqliteTable("temp_dbs", {
   id: text().primaryKey(), // nanoid
   createdAtTimestampMs,
-  expiryTimestampMs: int().notNull(),
+  expiryTimestampMs: int("expiry_timestamp_ms").notNull(),
 });
