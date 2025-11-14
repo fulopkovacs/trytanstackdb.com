@@ -1,24 +1,29 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { projectsCollection } from "@/collections/projects";
 import { TodoBoards } from "@/components/TodoBoards";
-import { mockTasks } from "@/data/mockTasks";
-import { getBoardsQueryOptions } from "@/server/functions/getBoards";
 
 export const Route = createFileRoute("/projects/$projectId")({
   component: RouteComponent,
+  loader: async ({ context }) => {
+    return {
+      tempDbId: context.tempDbId,
+    };
+  },
 });
 
 function RouteComponent() {
   const { projectId } = Route.useParams();
 
-  const { data: boards } = useSuspenseQuery(getBoardsQueryOptions);
-
-  const boardName = useMemo(() => {
-    return (
-      boards.find((board) => board.id === projectId)?.name || "Unknown Board"
-    );
-  }, [boards, projectId]);
+  const {
+    data: [project],
+  } = useLiveQuery(
+    (q) =>
+      q
+        .from({ project: projectsCollection })
+        .where(({ project }) => eq(project.id, projectId)),
+    [projectId],
+  );
 
   // const tasks = useMemo(() => {
   //   const limit = 1500;
@@ -40,7 +45,7 @@ function RouteComponent() {
   return (
     <div className="px-4 py-2 flex flex-col gap-4 overflow-hidden flex-1 min-h-0">
       <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight text-balance">
-        {boardName}
+        {project?.name || "Project"}
       </h1>
       <TodoBoards projectId={projectId} />
     </div>
