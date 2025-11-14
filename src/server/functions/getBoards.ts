@@ -8,13 +8,10 @@ import { requireTempId } from "../middlewares/getTempDbIdFromRequest";
 export const getBoards = createServerFn()
   .middleware([requireTempId])
   .handler(async ({ context: { tempId } }) => {
-    // In a real app, you'd fetch boards from a database here
-    const boards = await db
+    return await db
       .select()
       .from(boardsTable)
       .where(eq(boardsTable.tempDbId, tempId));
-
-    return boards;
   });
 
 export const getBoardsQueryOptions = queryOptions({

@@ -2,19 +2,19 @@ import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { projectsTable } from "@/db/schema";
+import { todoItemsTable } from "@/db/schema";
 import { requireTempId } from "../middlewares/getTempDbIdFromRequest";
 
-export const getProjects = createServerFn()
+export const getTodoItems = createServerFn()
   .middleware([requireTempId])
   .handler(async ({ context: { tempId } }) => {
     return await db
       .select()
-      .from(projectsTable)
-      .where(eq(projectsTable.tempDbId, tempId));
+      .from(todoItemsTable)
+      .where(eq(todoItemsTable.tempDbId, tempId));
   });
 
-export const getProjectsQueryOptions = queryOptions({
-  queryKey: ["projects"],
-  queryFn: getProjects,
+export const getTodoItemsOptions = queryOptions({
+  queryKey: ["todoItems"],
+  queryFn: getTodoItems,
 });

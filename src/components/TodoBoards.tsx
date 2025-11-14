@@ -12,8 +12,12 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { forwardRef, useMemo, useState } from "react";
-import type { StatusColumnType, Task } from "@/data/mockTasks";
+import { VList } from "virtua";
+import { boardCollection } from "@/collections/boards";
+import { todoItemsCollection } from "@/collections/todoItems";
+import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { getUpdatedTasks } from "@/utils/getUpdatedTasks";
 import {
@@ -23,32 +27,16 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { VList } from "virtua";
 
-const statusColumns: StatusColumnType[] = [
-  {
-    id: "todo",
-    name: "To Do",
-    description: "Tasks that need to be started",
-    color: "#FFB300",
-  },
-  {
-    id: "in-progress",
-    name: "In Progress",
-    description: "Tasks currently being worked on",
-    color: "#1976D2",
-  },
-  {
-    id: "done",
-    name: "Done",
-    description: "Tasks that have been completed",
-    color: "#43A047",
-  },
-];
+const COLUMN_COLORS = {
+  todo: "#FFB300",
+  "in-progress": "#1976D2",
+  done: "#43A047",
+};
 
 const TaskBase = forwardRef<
   HTMLDivElement,
-  { task: Task } & React.HTMLAttributes<HTMLDivElement>
+  { task: TodoItemRecord } & React.HTMLAttributes<HTMLDivElement>
 >(({ task, className, ...props }, ref) => {
   return (
     <div
@@ -64,7 +52,7 @@ const TaskBase = forwardRef<
   );
 });
 
-function DraggableTask({ task }: { task: Task }) {
+function DraggableTask({ task }: { task: TodoItemRecord }) {
   const { attributes, listeners, setNodeRef, isDragging } = useSortable({
     id: task.id,
   });
@@ -80,36 +68,39 @@ function DraggableTask({ task }: { task: Task }) {
   );
 }
 
-function DraggedTaskSlot({ activeTask }: { activeTask: Task }) {
+function DraggedTaskSlot({ activeTask }: { activeTask: TodoItemRecord }) {
   return (
     <TaskBase task={activeTask} className="bg-cyan-100 dark:bg-cyan-950/80" />
   );
 }
 
-function StatusColumn({
-  columnData: { name, id, description, color },
-  tasks,
+function Board({
+  board,
   activeId,
   activeTask,
   overId,
 }: {
-  columnData: StatusColumnType;
-  tasks: Task[];
+  board: BoardRecord;
   activeId: UniqueIdentifier | null;
-  activeTask: Task | null;
+  activeTask: TodoItemRecord | null;
   overId: UniqueIdentifier | null;
 }) {
-  const columnTasks = useMemo(
-    () => tasks.filter((task) => task.status === id),
-    [tasks, id],
+  const { data: todoItems } = useLiveQuery((q) =>
+    q
+      .from({ todoItem: todoItemsCollection })
+      .where(({ todoItem }) => eq(todoItem.boardId, board.id)),
   );
 
+  // There should be a better way to get this
   const activeTaskIndex = useMemo(
-    () => columnTasks.findIndex((t) => t.id === activeId),
-    [columnTasks, activeId],
+    () => todoItems.findIndex((t) => t.id === activeId),
+    [todoItems, activeId],
   );
 
-  const { setNodeRef, isOver } = useDroppable({ id });
+  const { setNodeRef, isOver } = useDroppable({ id: board.id });
+
+  const color =
+    COLUMN_COLORS[board.id as keyof typeof COLUMN_COLORS] || "#999999";
 
   return (
     <Card className="bg-sidebar flex flex-col flex-1 min-h-0">
@@ -121,10 +112,12 @@ function StatusColumn({
             className={cn("h-2 w-2 rounded-full")}
           />
           <div>
-            {name} ({columnTasks.length} tasks)
+            {board.name} ({todoItems.length} tasks)
           </div>
         </CardTitle>
-        <CardDescription className="min-h-10">{description}</CardDescription>
+        <CardDescription className="min-h-10">
+          {board.description}
+        </CardDescription>
       </CardHeader>
       <CardContent
         ref={setNodeRef}
@@ -137,24 +130,24 @@ function StatusColumn({
       >
         <SortableContext
           strategy={verticalListSortingStrategy}
-          items={columnTasks.map((task) => task.id)}
+          items={todoItems.map((task) => task.id)}
         >
           <VList>
-            {columnTasks.map((task, i) => {
+            {todoItems.map((todoItem, i) => {
               const showDropIndicator =
                 activeId &&
-                overId === task.id &&
-                activeId !== task.id &&
+                overId === todoItem.id &&
+                activeId !== todoItem.id &&
                 // We don't want the drop indicator to be shown
                 // right below the active task
                 activeTaskIndex + 1 !== i;
 
               return (
-                <div key={`${task.id}-wrapper`}>
+                <div key={`${todoItem.id}-wrapper`}>
                   {showDropIndicator && activeTask && (
                     <DraggedTaskSlot activeTask={activeTask} />
                   )}
-                  <DraggableTask task={task} />
+                  <DraggableTask task={todoItem} />
                 </div>
               );
             })}
@@ -170,14 +163,24 @@ function StatusColumn({
   );
 }
 
-export function TodoBoards({ tasks: initialTasks }: { tasks: Task[] }) {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+export function TodoBoards({ projectId }: { projectId: string }) {
+  // const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
 
-  const activeTask = useMemo(() => {
-    return tasks.find((t) => t.id === activeId) || null;
-  }, [tasks, activeId]);
+  const { data: boards } = useLiveQuery((q) =>
+    q
+      .from({ board: boardCollection })
+      .where(({ board }) => eq(board.projectId, projectId)),
+  );
+
+  const {
+    data: [activeTask],
+  } = useLiveQuery((q) =>
+    q
+      .from({ todoItem: todoItemsCollection })
+      .where(({ todoItem }) => eq(todoItem.id, activeId)),
+  );
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
@@ -188,25 +191,25 @@ export function TodoBoards({ tasks: initialTasks }: { tasks: Task[] }) {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    setActiveId(null);
-    setOverId(null);
-    const { active, over } = event;
-    if (!over) return;
-    if (active.id === over.id) return;
-
-    // Find the dragged task
-    if (!activeTask) return;
-
-    const updatedTasks = getUpdatedTasks({
-      activeTask,
-      over,
-      tasks,
-      active,
-      statusColumns,
-    });
-    if (updatedTasks) {
-      setTasks(updatedTasks);
-    }
+    // setActiveId(null);
+    // setOverId(null);
+    // const { active, over } = event;
+    // if (!over) return;
+    // if (active.id === over.id) return;
+    //
+    // // Find the dragged task
+    // if (!activeTask) return;
+    //
+    // const updatedTasks = getUpdatedTasks({
+    //   activeTask,
+    //   over,
+    //   tasks,
+    //   active,
+    //   statusColumns,
+    // });
+    // if (updatedTasks) {
+    //   setTasks(updatedTasks);
+    // }
   };
 
   return (
@@ -217,11 +220,10 @@ export function TodoBoards({ tasks: initialTasks }: { tasks: Task[] }) {
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-3 gap-4 h-full min-h-0">
-          {statusColumns.map((column) => (
-            <StatusColumn
-              key={column.id}
-              columnData={column}
-              tasks={tasks}
+          {boards.map((board) => (
+            <Board
+              board={board}
+              key={board.id}
               activeId={activeId}
               overId={overId}
               activeTask={activeTask}
