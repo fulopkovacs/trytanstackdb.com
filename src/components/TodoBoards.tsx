@@ -19,7 +19,6 @@ import { boardCollection } from "@/collections/boards";
 import { todoItemsCollection } from "@/collections/todoItems";
 import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { getUpdatedTasks } from "@/utils/getUpdatedTasks";
 import {
   Card,
   CardContent,
@@ -175,11 +174,13 @@ export function TodoBoards({ projectId }: { projectId: string }) {
   );
 
   const {
-    data: [activeTask],
-  } = useLiveQuery((q) =>
-    q
-      .from({ todoItem: todoItemsCollection })
-      .where(({ todoItem }) => eq(todoItem.id, activeId)),
+    data: [activeTodoItem],
+  } = useLiveQuery(
+    (q) =>
+      q
+        .from({ todoItem: todoItemsCollection })
+        .where(({ todoItem }) => eq(todoItem.id, activeId)),
+    [activeId],
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -191,6 +192,59 @@ export function TodoBoards({ projectId }: { projectId: string }) {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    // Find which column the dragged task is in
+    // const activeBoard = activeTodoItem.boardId;
+
+    if (boards.some((board) => board.id === over.id)) {
+      // This is either an empty column or the last place of a column
+      const newBoardId = over.id;
+
+      // empty column or end of column?
+      const todoItemsInOverBoard = todoItemsCollection.toArray.filter(
+        (item) => item.boardId === newBoardId,
+      );
+
+      // If the column is empty, just change the boardId
+      if (todoItemsInOverBoard.length === 0) {
+        todoItemsCollection.update(active.id, (item) => {
+          item.boardId = newBoardId as string;
+        });
+      } else {
+        console.log("column is not empty");
+        todoItemsCollection.update(active.id, (item) => {
+          item.boardId = newBoardId as string;
+        });
+      }
+
+      // console.log({ todoItemsInOverBoard });
+      //
+      // console.log({
+      //   activeId,
+      //   activeTodoItem,
+      //   activeTodoItemId: activeTodoItem?.id,
+      //   overBoardId: newBoardId,
+      //   overBoard: boards.find((b) => b.id === newBoardId),
+      // });
+      // // Move between columns
+      // todoItemsCollection.update(active.id, (item) => {
+      //   item.boardId = newBoardId as string;
+      // });
+    } else {
+      const overTodoId = todoItemsCollection.toArray.find(
+        (item) => item.id === over.id,
+      );
+
+      if (overTodoId?.boardId === activeTodoItem.boardId) {
+        // update positions within the same column
+        console.log("Reorder within the same column");
+      }
+    }
+
+    // TODO: change the id of the task
     // setActiveId(null);
     // setOverId(null);
     // const { active, over } = event;
@@ -226,12 +280,12 @@ export function TodoBoards({ projectId }: { projectId: string }) {
               key={board.id}
               activeId={activeId}
               overId={overId}
-              activeTask={activeTask}
+              activeTask={activeTodoItem}
             />
           ))}
         </div>
         <DragOverlay>
-          {activeTask ? <TaskBase task={activeTask} /> : null}
+          {activeTodoItem ? <TaskBase task={activeTodoItem} /> : null}
         </DragOverlay>
       </DndContext>
     </div>
