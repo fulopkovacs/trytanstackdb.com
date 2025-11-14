@@ -266,6 +266,14 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     // }
   };
 
+  const sortedBoards = useMemo(
+    () =>
+      boards.sort((a) =>
+        a.name === "Todo" ? -1 : a.name === "In Progress" ? -1 : 1,
+      ),
+    [boards],
+  );
+
   return (
     <div className="flex-1 min-h-0">
       <DndContext
@@ -274,7 +282,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-3 gap-4 h-full min-h-0">
-          {boards.map((board) => (
+          {sortedBoards.map((board) => (
             <Board
               board={board}
               key={board.id}
