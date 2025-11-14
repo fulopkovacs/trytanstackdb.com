@@ -1,10 +1,7 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { getBoardsQueryOptions } from "@/server/functions/getBoards";
-import { getProjectsQueryOptions } from "@/server/functions/getProjects";
 
 const mockUser = {
   id: "1",
