@@ -347,3 +347,33 @@ starting point for you to play around with the features you've installed.
 
 You can learn more about all of the offerings from TanStack in the
 [TanStack documentation](https://tanstack.com).
+
+# Development
+
+List the tables in the db:
+
+```sh
+pnpm wrangler d1 execute my-test-db --command "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN ('sqlite_sequence', 'd1_migrations', '_cf_METADATA');"
+```
+
+Clean the db:
+
+```sh
+pnpm wrangler d1 execute my-test-db --command "delete from boards;delete from temp_dbs;delete from todo_items;delete from users;"
+```
+
+Drop the dbs:
+
+```sh
+pnpm wrangler d1 execute my-test-db --command "drop table todos;"
+pnpm wrangler d1 execute my-test-db --command "drop table projects;"
+pnpm wrangler d1 execute my-test-db --command "drop table users;"
+pnpm wrangler d1 execute my-test-db --command "drop table todo_items;"
+pnpm wrangler d1 execute my-test-db --command "drop table temp_dbs;"
+```
+
+Delete all migrations locally:
+
+```sh
+pnpm wrangler d1 execute my-test-db --command "delete from d1_migrations"
+```
