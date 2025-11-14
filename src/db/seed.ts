@@ -1,19 +1,18 @@
 // Generate a seed script
 import { nanoid } from "nanoid";
-
+import z from "zod";
 // import { env } from "cloudflare:workers";
 import { db } from ".";
 import {
   type BoardRecord,
   boardsTable,
-  ProjectRecord,
+  type ProjectRecord,
   projectsTable,
   type TodoItemRecord,
   todoItemsTable,
   type UserRecord,
   usersTable,
 } from "./schema";
-import z from "zod";
 
 function getMockData(tempDbId: string) {
   const mockUsers: UserRecord[] = [
