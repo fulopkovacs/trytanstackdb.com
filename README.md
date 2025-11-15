@@ -369,6 +369,7 @@ pnpm wrangler d1 execute my-test-db --command "drop table todos;"
 pnpm wrangler d1 execute my-test-db --command "drop table projects;"
 pnpm wrangler d1 execute my-test-db --command "drop table users;"
 pnpm wrangler d1 execute my-test-db --command "drop table todo_items;"
+pnpm wrangler d1 execute my-test-db --command "drop table boards;"
 pnpm wrangler d1 execute my-test-db --command "drop table temp_dbs;"
 ```
 
