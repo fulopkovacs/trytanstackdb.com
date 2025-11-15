@@ -16,7 +16,9 @@
       "!**/src/routeTree.gen.ts",
       "!**/src/styles.css",
       "./drizzle.config.ts",
-      "./vite.config.ts"
+      "./vite.config.ts",
+      "./*.jsonc",
+      "./*.json"
     ]
   },
   "formatter": {
