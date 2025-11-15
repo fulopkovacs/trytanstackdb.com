@@ -1,29 +1,11 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { projectsCollection } from "@/collections/projects";
 import { TodoBoards } from "@/components/TodoBoards";
-import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
-import { checkIfTempDbExists } from "@/server/functions/checkIfTempDbExists";
-import { getApexDomainRedirectHref } from "@/constants";
 
-export const Route = createFileRoute("/projects/$projectId")({
+export const Route = createFileRoute("/_tempDbRequired/projects/$projectId")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    const { subdomain, apex, protocol } = await getSubdomainAndApexFromHost();
-
-    if (subdomain) {
-      const tempDbExists = await checkIfTempDbExists({
-        data: { tempDbId: subdomain },
-      });
-      if (!tempDbExists) {
-        // redirect to the apex
-        // throw new Response("Temporary database not found", { status: 404 });
-        throw redirect({
-          href: getApexDomainRedirectHref(apex, protocol),
-        });
-      }
-    }
-
     return {
       tempDbId: context.tempDbId,
     };
