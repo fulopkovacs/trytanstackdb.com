@@ -5,12 +5,15 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "vars": {
-    "NODE_ENV": "development"
+    "NODE_ENV": "development",
+    // 1 year
+    "TEMP_DB_LIFETIME_MINUTES": 525600
   },
   "env": {
     "production": {
       "vars": {
-        "NODE_ENV": "production"
+        "NODE_ENV": "production",
+        "TEMP_DB_LIFETIME_MINUTES": 30
       }
     }
   },
@@ -21,6 +24,5 @@
       "database_id": "my-test-db",
       "migrations_dir": "drizzle/migrations"
     }
-  ],
-
+  ]
 }

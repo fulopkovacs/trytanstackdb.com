@@ -3,8 +3,8 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
 import {
   getProjects,
-  updateProject,
   getProjectsQueryOptions,
+  updateProject,
 } from "@/server/functions/getProjects";
 
 export const projectsCollection = createCollection(

@@ -1,7 +1,6 @@
 import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { expiryTimestampMs } from "@/constants";
 import { db } from "@/db";
 import { tempDbsTable } from "@/db/schema";
 import { seed } from "@/db/seed";
@@ -10,6 +9,7 @@ import {
   getTempDbIdFromTheSubdomain,
 } from "@/utils/server";
 import { getHostFromRequest } from "@/utils/server/getHostFromRequest";
+import { env } from "cloudflare:workers";
 
 export const createTempDbAndRedirectToIt = createServerFn().handler(
   async () => {
@@ -26,7 +26,8 @@ export const createTempDbAndRedirectToIt = createServerFn().handler(
     try {
       await db.insert(tempDbsTable).values({
         id: tempDbId,
-        expiryTimestampMs,
+        expiryTimestampMs:
+          env.TEMP_DB_LIFETIME_MINUTES * 60 * 1000 + Date.now(),
       });
       // seed initial data for the new temp DB
       await seed(tempDbId);
