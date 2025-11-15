@@ -63,6 +63,19 @@ const todoItemsList: TodoItemBase[] = [
   },
 ];
 
+const largeTodoItemsList: TodoItemBase[] = Array.from({
+  length: 1000,
+}).map((_, index) => {
+  const boardName = (["Todo", "In Progress", "Done"] satisfies BoardName[])[
+    Math.floor(Math.random() * 10) % 3
+  ];
+  return {
+    title: `Task ${index + 1}`,
+    description: `Description for task ${index + 1}`,
+    boardName,
+  };
+});
+
 function getMockBoardsAndTodoItemsForProject({
   projectId,
   tempDbId,
@@ -176,11 +189,11 @@ function getMockData(tempDbId: string) {
     },
     {
       id: nanoid(),
-      name: "Project Gamma",
+      name: "Large Project",
       description: "Third project description",
       createdAtTimestampMs: now,
       tempDbId,
-      todoItemsBaseArr: todoItemsList,
+      todoItemsBaseArr: largeTodoItemsList,
     },
   ];
 
