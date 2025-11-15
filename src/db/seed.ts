@@ -1,7 +1,5 @@
 // Generate a seed script
 import { nanoid } from "nanoid";
-import z from "zod";
-// import { env } from "cloudflare:workers";
 import { db } from ".";
 import {
   type BoardRecord,
@@ -13,6 +11,117 @@ import {
   type UserRecord,
   usersTable,
 } from "./schema";
+
+type BoardName = "Todo" | "In Progress" | "Done";
+type TodoItemBase = Omit<
+  TodoItemRecord,
+  "id" | "boardId" | "tempDbId" | "createdAtTimestampMs"
+> & { boardName: BoardName };
+
+type ProjectBase = Omit<ProjectRecord, "itemPositionsInTheProject"> & {
+  todoItemsBaseArr: TodoItemBase[];
+};
+
+const todoItemsList: TodoItemBase[] = [
+  // Todo board
+  {
+    title: "Buy groceries",
+    description: "Milk, eggs, bread",
+    boardName: "Todo",
+  },
+  {
+    title: "Read a book",
+    description: "Finish reading 'Atomic Habits'",
+    boardName: "Todo",
+  },
+  // In Progress board
+  {
+    title: "Write blog post",
+    description: "Draft for tech blog",
+    boardName: "In Progress",
+  },
+  {
+    title: "Workout",
+    description: "30 min cardio",
+    boardName: "In Progress",
+  },
+  {
+    title: "Update resume",
+    description: "Add recent projects",
+    boardName: "In Progress",
+  },
+  // Done board
+  {
+    title: "Call mom",
+    description: "Weekly check-in",
+    boardName: "Done",
+  },
+  {
+    title: "Clean desk",
+    description: "Organize workspace",
+    boardName: "Done",
+  },
+];
+
+function getMockBoardsAndTodoItemsForProject({
+  projectId,
+  tempDbId,
+  now,
+  todoItemBaseArr,
+}: {
+  projectId: ProjectRecord["id"];
+  now: number;
+  tempDbId: string;
+  todoItemBaseArr: TodoItemBase[];
+}): {
+  mockBoards: BoardRecord[];
+  mockTodoItems: TodoItemRecord[];
+} {
+  const boardIds: Record<BoardName, string> = {
+    Todo: nanoid(),
+    Done: nanoid(),
+    "In Progress": nanoid(),
+  };
+
+  const boards: BoardRecord[] = [
+    {
+      id: boardIds.Todo,
+      projectId,
+      name: "Todo",
+      description: "Tasks to do",
+      createdAtTimestampMs: now,
+      tempDbId,
+    },
+    {
+      id: boardIds["In Progress"],
+      projectId,
+      name: "In Progress",
+      description: "Tasks in progress",
+      createdAtTimestampMs: now,
+      tempDbId,
+    },
+    {
+      id: boardIds.Done,
+      projectId,
+      name: "Done",
+      description: "Completed tasks",
+      createdAtTimestampMs: now,
+      tempDbId,
+    },
+  ];
+
+  const todoItems: TodoItemRecord[] = todoItemBaseArr.map(
+    ({ boardName, ...item }) => ({
+      ...item,
+      id: nanoid(),
+      boardId: boardIds[boardName],
+      createdAtTimestampMs: now,
+      tempDbId,
+    }),
+  );
+
+  return { mockBoards: boards, mockTodoItems: todoItems };
+}
 
 function getMockData(tempDbId: string) {
   const mockUsers: UserRecord[] = [
@@ -48,13 +157,14 @@ function getMockData(tempDbId: string) {
 
   const now = Date.now();
 
-  const mockProjects: Omit<ProjectRecord, "itemPositionsInTheProject">[] = [
+  const mockProjects: ProjectBase[] = [
     {
       id: nanoid(),
       name: "Project Alpha",
       description: "First project description",
       createdAtTimestampMs: now,
       tempDbId,
+      todoItemsBaseArr: todoItemsList,
     },
     {
       id: nanoid(),
@@ -62,6 +172,7 @@ function getMockData(tempDbId: string) {
       description: "Second project description",
       createdAtTimestampMs: now,
       tempDbId,
+      todoItemsBaseArr: todoItemsList,
     },
     {
       id: nanoid(),
@@ -69,120 +180,26 @@ function getMockData(tempDbId: string) {
       description: "Third project description",
       createdAtTimestampMs: now,
       tempDbId,
+      todoItemsBaseArr: todoItemsList,
     },
   ];
 
-  const { mockBoards, mockTodoItems } = mockProjects
-    .map(({ id: projectId }) => {
-      const boardIds = {
-        todo: nanoid(),
-        inProgress: nanoid(),
-        done: nanoid(),
-      };
-
-      const boards: BoardRecord[] = [
-        {
-          id: boardIds.todo,
-          projectId,
-          name: "Todo",
-          description: "Tasks to do",
-          createdAtTimestampMs: now,
-          tempDbId,
-        },
-        {
-          id: boardIds.inProgress,
-          projectId,
-          name: "In Progress",
-          description: "Tasks in progress",
-          createdAtTimestampMs: now,
-          tempDbId,
-        },
-        {
-          id: boardIds.done,
-          projectId,
-          name: "Done",
-          description: "Completed tasks",
-          createdAtTimestampMs: now,
-          tempDbId,
-        },
-      ];
-      const todoItems: TodoItemRecord[] = [
-        // Todo board
-        {
-          id: nanoid(),
-          title: "Buy groceries",
-          description: "Milk, eggs, bread",
-          createdAtTimestampMs: now,
-          boardId: boardIds.todo,
-          tempDbId,
-        },
-        {
-          id: nanoid(),
-          title: "Read a book",
-          description: "Finish reading 'Atomic Habits'",
-          createdAtTimestampMs: now,
-          boardId: boardIds.todo,
-          tempDbId,
-        },
-        // In Progress board
-        {
-          id: nanoid(),
-          title: "Write blog post",
-          description: "Draft for tech blog",
-          createdAtTimestampMs: now,
-          boardId: boardIds.inProgress,
-          tempDbId,
-        },
-        {
-          id: nanoid(),
-          title: "Workout",
-          description: "30 min cardio",
-          createdAtTimestampMs: now,
-          boardId: boardIds.inProgress,
-          tempDbId,
-        },
-        {
-          id: nanoid(),
-          title: "Update resume",
-          description: "Add recent projects",
-          createdAtTimestampMs: now,
-          boardId: boardIds.inProgress,
-          tempDbId,
-        },
-        // Done board
-        {
-          id: nanoid(),
-          title: "Call mom",
-          description: "Weekly check-in",
-          createdAtTimestampMs: now,
-          boardId: boardIds.done,
-          tempDbId,
-        },
-        {
-          id: nanoid(),
-          title: "Clean desk",
-          description: "Organize workspace",
-          createdAtTimestampMs: now,
-          boardId: boardIds.done,
-          tempDbId,
-        },
-      ];
-
-      return {
-        boards,
-        todoItems,
-      };
-    })
+  const { boards: mockBoards, todoItems: mockTodoItems } = mockProjects
+    .map((project) =>
+      getMockBoardsAndTodoItemsForProject({
+        projectId: project.id,
+        tempDbId,
+        now,
+        todoItemBaseArr: project.todoItemsBaseArr,
+      }),
+    )
     .reduce(
-      (acc, { boards, todoItems }) => {
-        acc.mockBoards.push(...boards);
-        acc.mockTodoItems.push(...todoItems);
+      (acc, { mockBoards, mockTodoItems }) => {
+        acc.boards.push(...mockBoards);
+        acc.todoItems.push(...mockTodoItems);
         return acc;
       },
-      {
-        mockBoards: [] as BoardRecord[],
-        mockTodoItems: [] as TodoItemRecord[],
-      },
+      { boards: [] as BoardRecord[], todoItems: [] as TodoItemRecord[] },
     );
 
   const projectsWithPositions: ProjectRecord[] = mockProjects.map((project) => {
@@ -232,25 +249,6 @@ export async function seed(tempDBId: string) {
     use batch API: https://github.com/drizzle-team/drizzle-orm/issues/2463#issuecomment-2155864439
     no support planned: https://github.com/cloudflare/workers-sdk/issues/2733#issuecomment-271236533
   */
-  // await db.transaction(async (tx) => {
-  //   await tx.insert(usersTable).values(mockUsers).onConflictDoNothing();
-  //   await tx.insert(boardsTable).values(mockBoards).onConflictDoNothing();
-  //   await tx.insert(todoItemsTable).values(mockTodoItems).onConflictDoNothing();
-  // });
-
-  z.array(
-    z
-      .object({
-        id: z.string().min(1),
-        title: z.string().min(1),
-        description: z.string().min(1),
-        createdAtTimestampMs: z.number().min(1),
-        boardId: z.string().min(1),
-        tempDbId: z.string().min(1),
-      })
-      .strict(),
-  ).parse(mockTodoItems);
-
   try {
     await db.insert(usersTable).values(mockUsers);
     await db.insert(projectsTable).values(mockProjects);
@@ -274,5 +272,3 @@ export async function resetAndSeed() {
   await seed("default_temp_db");
   console.log("Database reset and seeded.");
 }
-
-// seed();
