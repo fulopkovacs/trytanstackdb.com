@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "4c863bc0-631a-470d-8650-ee94db206d86",
+  "id": "ee721239-c726-4475-acdc-9c84b67a39bc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "boards": {
@@ -232,8 +232,8 @@
           "autoincrement": false,
           "default": "(strftime('%s','now') * 1000)"
         },
-        "boardId": {
-          "name": "boardId",
+        "board_id": {
+          "name": "board_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -257,12 +257,12 @@
         }
       },
       "foreignKeys": {
-        "todo_items_boardId_boards_id_fk": {
-          "name": "todo_items_boardId_boards_id_fk",
+        "todo_items_board_id_boards_id_fk": {
+          "name": "todo_items_board_id_boards_id_fk",
           "tableFrom": "todo_items",
           "tableTo": "boards",
           "columnsFrom": [
-            "boardId"
+            "board_id"
           ],
           "columnsTo": [
             "id"

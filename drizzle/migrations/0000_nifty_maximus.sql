@@ -32,9 +32,9 @@ CREATE TABLE `todo_items` (
 	`title` text NOT NULL,
 	`description` text,
 	`created_at_timestamp_ms` integer DEFAULT (strftime('%s','now') * 1000),
-	`boardId` text NOT NULL,
+	`board_id` text NOT NULL,
 	`temp_db_id` text NOT NULL,
-	FOREIGN KEY (`boardId`) REFERENCES `boards`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`board_id`) REFERENCES `boards`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`temp_db_id`) REFERENCES `temp_dbs`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
