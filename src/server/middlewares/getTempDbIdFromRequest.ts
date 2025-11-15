@@ -27,6 +27,12 @@ export const getTempDbIdFromRequest = createMiddleware().server(({ next }) => {
   const host = getHostFromRequest(request);
   const tempId = getTempDbIdFromTheSubdomain(host);
 
+  if (!tempId) {
+    throw new Response(`Request must be sent to a subdomain.`, {
+      status: 400,
+    });
+  }
+
   return next({
     context: {
       tempId,
