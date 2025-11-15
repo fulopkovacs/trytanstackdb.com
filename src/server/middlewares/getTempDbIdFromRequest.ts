@@ -1,8 +1,8 @@
-import { getTempDbIdFromTheSubdomain } from "@/utils/server";
-import { getHostFromRequest } from "@/utils/server/getHostFromRequest";
 import { redirect } from "@tanstack/react-router";
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
+import { getTempDbIdFromTheSubdomain } from "@/utils/server";
+import { getHostFromRequest } from "@/utils/server/getHostFromRequest";
 
 export const requireTempId = createMiddleware().server(({ next }) => {
   const request = getRequest();
@@ -11,15 +11,13 @@ export const requireTempId = createMiddleware().server(({ next }) => {
 
   if (!tempId) {
     throw redirect({
-      to: '/'
-    })
+      to: "/",
+    });
   }
 
-
-  // hello
   return next({
     context: {
-      tempId
+      tempId,
     },
   });
 });

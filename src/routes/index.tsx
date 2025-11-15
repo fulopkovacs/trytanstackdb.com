@@ -11,17 +11,8 @@ import {
   getTempDbIdFromTheSubdomain,
 } from "@/utils/server";
 import { getHostFromRequest } from "@/utils/server/getHostFromRequest";
-import { expiryTimestampMs } from "@/constants";
-
-const isSubdomainFn = createServerFn().handler(() => {
-  const request = getRequest();
-  const host = getHostFromRequest(request);
-  const subdomain = getTempDbIdFromTheSubdomain(host);
-  return {
-    isSubdomain: !!subdomain,
-    apex: subdomain ? host?.replace(`${subdomain}.`, "") : host,
-  };
-});
+import { expiryTimestampMs, getApexDomainRedirectHref } from "@/constants";
+import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
 
 const redirectToNewDemoAppFn = createServerFn().handler(async () => {
   const request = getRequest();
@@ -54,10 +45,10 @@ const redirectToNewDemoAppFn = createServerFn().handler(async () => {
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
-    const { isSubdomain, apex } = await isSubdomainFn();
-    if (isSubdomain) {
+    const { subdomain, apex, protocol } = await getSubdomainAndApexFromHost();
+    if (subdomain) {
       throw redirect({
-        href: `http://${apex}/`,
+        href: getApexDomainRedirectHref(apex, protocol),
       });
     }
   },
