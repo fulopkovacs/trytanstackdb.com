@@ -1,12 +1,20 @@
 import { createCollection } from "@tanstack/db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { toast } from "sonner";
+import type { ProjectRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
-import {
-  getProjects,
-  getProjectsQueryOptions,
-} from "@/server/functions/getProjects";
+import { getProjectsQueryOptions } from "@/server/functions/getProjects";
 import { projectErrorNames } from "@/utils/errorNames";
+
+async function getProjects() {
+  const res = await fetch("/api/projects");
+  if (res.status !== 200) {
+    throw new Error("Failed to fetch projects");
+  }
+
+  const data: ProjectRecord[] = await res.json();
+  return data;
+}
 
 export const projectsCollection = createCollection(
   queryCollectionOptions({

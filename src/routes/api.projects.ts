@@ -20,16 +20,18 @@ export const Route = createFileRoute("/api/projects")({
   server: {
     middleware: [getTempDbIdFromRequest],
     handlers: {
+      GET: async ({ context: { tempId } }) => {
+        const results = await db
+          .select()
+          .from(projectsTable)
+          .where(eq(projectsTable.tempDbId, tempId));
+
+        return json(results);
+      },
       PATCH: async ({ context, request }) => {
         const tempId = context.tempId;
 
         let updatedData: z.infer<typeof projectUpdateData>;
-
-        if (!tempId) {
-          return new Response(`Request must be sent to a subdomain.`, {
-            status: 400,
-          });
-        }
 
         // biome-ignore lint/suspicious/noExplicitAny: it can be any here
         let bodyObj: any;

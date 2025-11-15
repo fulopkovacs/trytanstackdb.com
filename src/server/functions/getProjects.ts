@@ -27,7 +27,7 @@ export const getProjects = createServerFn()
 
 export const getProjectsQueryOptions = queryOptions({
   queryKey: ["projects"],
-  queryFn: getProjects,
+  // queryFn: ,
 });
 
 export const updateProject = createServerFn()
