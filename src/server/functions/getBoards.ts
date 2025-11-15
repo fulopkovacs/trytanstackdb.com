@@ -16,5 +16,5 @@ export const getBoards = createServerFn()
 
 export const getBoardsQueryOptions = queryOptions({
   queryKey: ["boards"],
-  queryFn: getBoards,
+  // queryFn: getBoards,
 });
