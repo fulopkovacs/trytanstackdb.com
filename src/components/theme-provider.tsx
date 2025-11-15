@@ -5,8 +5,10 @@ import { createClientOnlyFn, createIsomorphicFn } from "@tanstack/react-start";
 import { createContext, type ReactNode, use, useEffect, useState } from "react";
 import { z } from "zod";
 
-const UserThemeSchema = z.enum(["light", "dark", "system"]).catch("system");
-const AppThemeSchema = z.enum(["light", "dark"]).catch("light");
+const defaultTheme = "dark";
+
+const UserThemeSchema = z.enum(["light", "dark", "system"]).catch(defaultTheme);
+const AppThemeSchema = z.enum(["light", "dark"]).catch(defaultTheme);
 
 export type UserTheme = z.infer<typeof UserThemeSchema>;
 export type AppTheme = z.infer<typeof AppThemeSchema>;
@@ -14,7 +16,7 @@ export type AppTheme = z.infer<typeof AppThemeSchema>;
 const themeStorageKey = "ui-theme";
 
 const getStoredUserTheme = createIsomorphicFn()
-  .server((): UserTheme => "dark")
+  .server((): UserTheme => defaultTheme)
   .client((): UserTheme => {
     const stored = localStorage.getItem(themeStorageKey);
     return UserThemeSchema.parse(stored);
@@ -26,7 +28,7 @@ const setStoredTheme = createClientOnlyFn((theme: UserTheme) => {
 });
 
 const getSystemTheme = createIsomorphicFn()
-  .server((): AppTheme => "light")
+  .server((): AppTheme => defaultTheme)
   .client((): AppTheme => {
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
@@ -57,7 +59,7 @@ const setupPreferredListener = createClientOnlyFn(() => {
 const themeScript = (() => {
   function themeFn() {
     try {
-      const storedTheme = localStorage.getItem("ui-theme") || "system";
+      const storedTheme = localStorage.getItem("ui-theme") || defaultTheme;
       const validTheme = ["light", "dark", "system"].includes(storedTheme)
         ? storedTheme
         : "system";
@@ -76,10 +78,13 @@ const themeScript = (() => {
         .matches
         ? "dark"
         : "light";
-      document.documentElement.classList.add(systemTheme, "system");
+      document.documentElement.classList.add(defaultTheme, "system");
     }
   }
-  return `(${themeFn.toString()})();`;
+  return `(${themeFn.toString()})();`.replace(
+    "defaultTheme",
+    JSON.stringify(defaultTheme),
+  );
 })();
 
 type ThemeContextProps = {
