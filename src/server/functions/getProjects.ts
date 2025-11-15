@@ -6,6 +6,16 @@ import { projectsTable } from "@/db/schema";
 import { requireTempId } from "../middlewares/getTempDbIdFromRequest";
 import z from "zod";
 
+// TODO: use this error in the client
+export class ProjectNameAlreadyExistsError extends Error {
+  public projectName: string;
+
+  constructor(projectName: string) {
+    super("Project name already exists");
+    this.projectName = projectName;
+  }
+}
+
 export const getProjects = createServerFn()
   .middleware([requireTempId])
   .handler(async ({ context: { tempId } }) => {
@@ -41,8 +51,23 @@ export const updateProject = createServerFn()
       throw new Error("No columns to update");
     }
 
-    await db
-      .update(projectsTable)
-      .set(updatedData)
-      .where(and(eq(projectsTable.id, id), eq(projectsTable.tempDbId, tempId)));
+    try {
+      await db
+        .update(projectsTable)
+        .set(updatedData)
+        .where(
+          and(eq(projectsTable.id, id), eq(projectsTable.tempDbId, tempId)),
+        );
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        updatedData.name &&
+        error.message.includes("UNIQUE constraint failed: projects.name")
+      ) {
+        throw new ProjectNameAlreadyExistsError(updatedData.name);
+      }
+
+      console.error("Error updating project:", error);
+      throw error;
+    }
   });

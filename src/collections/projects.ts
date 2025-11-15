@@ -6,6 +6,7 @@ import {
   getProjectsQueryOptions,
   updateProject,
 } from "@/server/functions/getProjects";
+import { toast } from "sonner";
 
 export const projectsCollection = createCollection(
   queryCollectionOptions({
@@ -25,8 +26,17 @@ export const projectsCollection = createCollection(
           },
         });
       } catch (error) {
-        // TODO: handle error
-        console.error("Failed to update todo item:", error);
+        if (
+          error instanceof Error &&
+          error.message.includes("Project name already exists")
+        ) {
+          toast.error(
+            `Couldn't rename "${original.name}" to "${changes.name}", because a project with that name already exists.`,
+          );
+        } else {
+          // TODO: handle error
+          console.error("Failed to update todo item:", error);
+        }
       }
     },
     getKey: (item) => item.id,
