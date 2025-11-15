@@ -9,16 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as TempDbRequiredRouteImport } from './routes/_tempDbRequired'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
-import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
 import { Route as ApiTempDbRouteImport } from './routes/api.temp-db'
+import { Route as TempDbRequiredProjectsRouteImport } from './routes/_tempDbRequired.projects'
+import { Route as TempDbRequiredProjectsIndexRouteImport } from './routes/_tempDbRequired.projects.index'
 import { Route as ApiGetBoardsRouteImport } from './routes/api.get.boards'
+import { Route as TempDbRequiredProjectsProjectIdRouteImport } from './routes/_tempDbRequired.projects.$projectId'
 
-const ProjectsRoute = ProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
+const TempDbRequiredRoute = TempDbRequiredRouteImport.update({
+  id: '/_tempDbRequired',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -26,50 +26,58 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ProjectsRoute,
-} as any)
-const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
-  id: '/$projectId',
-  path: '/$projectId',
-  getParentRoute: () => ProjectsRoute,
-} as any)
 const ApiTempDbRoute = ApiTempDbRouteImport.update({
   id: '/api/temp-db',
   path: '/api/temp-db',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TempDbRequiredProjectsRoute = TempDbRequiredProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => TempDbRequiredRoute,
+} as any)
+const TempDbRequiredProjectsIndexRoute =
+  TempDbRequiredProjectsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => TempDbRequiredProjectsRoute,
+  } as any)
 const ApiGetBoardsRoute = ApiGetBoardsRouteImport.update({
   id: '/api/get/boards',
   path: '/api/get/boards',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TempDbRequiredProjectsProjectIdRoute =
+  TempDbRequiredProjectsProjectIdRouteImport.update({
+    id: '/$projectId',
+    path: '/$projectId',
+    getParentRoute: () => TempDbRequiredProjectsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/projects': typeof ProjectsRouteWithChildren
+  '/projects': typeof TempDbRequiredProjectsRouteWithChildren
   '/api/temp-db': typeof ApiTempDbRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
-  '/projects/': typeof ProjectsIndexRoute
+  '/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
+  '/projects/': typeof TempDbRequiredProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/temp-db': typeof ApiTempDbRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
-  '/projects': typeof ProjectsIndexRoute
+  '/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
+  '/projects': typeof TempDbRequiredProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/projects': typeof ProjectsRouteWithChildren
+  '/_tempDbRequired': typeof TempDbRequiredRouteWithChildren
+  '/_tempDbRequired/projects': typeof TempDbRequiredProjectsRouteWithChildren
   '/api/temp-db': typeof ApiTempDbRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
-  '/projects/': typeof ProjectsIndexRoute
+  '/_tempDbRequired/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
   '/api/get/boards': typeof ApiGetBoardsRoute
+  '/_tempDbRequired/projects/': typeof TempDbRequiredProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -78,39 +86,40 @@ export interface FileRouteTypes {
     | '/projects'
     | '/api/temp-db'
     | '/projects/$projectId'
-    | '/projects/'
     | '/api/get/boards'
+    | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/api/temp-db'
     | '/projects/$projectId'
-    | '/projects'
     | '/api/get/boards'
+    | '/projects'
   id:
     | '__root__'
     | '/'
-    | '/projects'
+    | '/_tempDbRequired'
+    | '/_tempDbRequired/projects'
     | '/api/temp-db'
-    | '/projects/$projectId'
-    | '/projects/'
+    | '/_tempDbRequired/projects/$projectId'
     | '/api/get/boards'
+    | '/_tempDbRequired/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ProjectsRoute: typeof ProjectsRouteWithChildren
+  TempDbRequiredRoute: typeof TempDbRequiredRouteWithChildren
   ApiTempDbRoute: typeof ApiTempDbRoute
   ApiGetBoardsRoute: typeof ApiGetBoardsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/projects': {
-      id: '/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsRouteImport
+    '/_tempDbRequired': {
+      id: '/_tempDbRequired'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof TempDbRequiredRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -120,26 +129,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/': {
-      id: '/projects/'
-      path: '/'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof ProjectsIndexRouteImport
-      parentRoute: typeof ProjectsRoute
-    }
-    '/projects/$projectId': {
-      id: '/projects/$projectId'
-      path: '/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof ProjectsProjectIdRouteImport
-      parentRoute: typeof ProjectsRoute
-    }
     '/api/temp-db': {
       id: '/api/temp-db'
       path: '/api/temp-db'
       fullPath: '/api/temp-db'
       preLoaderRoute: typeof ApiTempDbRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_tempDbRequired/projects': {
+      id: '/_tempDbRequired/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof TempDbRequiredProjectsRouteImport
+      parentRoute: typeof TempDbRequiredRoute
+    }
+    '/_tempDbRequired/projects/': {
+      id: '/_tempDbRequired/projects/'
+      path: '/'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof TempDbRequiredProjectsIndexRouteImport
+      parentRoute: typeof TempDbRequiredProjectsRoute
     }
     '/api/get/boards': {
       id: '/api/get/boards'
@@ -148,26 +157,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGetBoardsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_tempDbRequired/projects/$projectId': {
+      id: '/_tempDbRequired/projects/$projectId'
+      path: '/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof TempDbRequiredProjectsProjectIdRouteImport
+      parentRoute: typeof TempDbRequiredProjectsRoute
+    }
   }
 }
 
-interface ProjectsRouteChildren {
-  ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
-  ProjectsIndexRoute: typeof ProjectsIndexRoute
+interface TempDbRequiredProjectsRouteChildren {
+  TempDbRequiredProjectsProjectIdRoute: typeof TempDbRequiredProjectsProjectIdRoute
+  TempDbRequiredProjectsIndexRoute: typeof TempDbRequiredProjectsIndexRoute
 }
 
-const ProjectsRouteChildren: ProjectsRouteChildren = {
-  ProjectsProjectIdRoute: ProjectsProjectIdRoute,
-  ProjectsIndexRoute: ProjectsIndexRoute,
+const TempDbRequiredProjectsRouteChildren: TempDbRequiredProjectsRouteChildren =
+  {
+    TempDbRequiredProjectsProjectIdRoute: TempDbRequiredProjectsProjectIdRoute,
+    TempDbRequiredProjectsIndexRoute: TempDbRequiredProjectsIndexRoute,
+  }
+
+const TempDbRequiredProjectsRouteWithChildren =
+  TempDbRequiredProjectsRoute._addFileChildren(
+    TempDbRequiredProjectsRouteChildren,
+  )
+
+interface TempDbRequiredRouteChildren {
+  TempDbRequiredProjectsRoute: typeof TempDbRequiredProjectsRouteWithChildren
 }
 
-const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
-  ProjectsRouteChildren,
+const TempDbRequiredRouteChildren: TempDbRequiredRouteChildren = {
+  TempDbRequiredProjectsRoute: TempDbRequiredProjectsRouteWithChildren,
+}
+
+const TempDbRequiredRouteWithChildren = TempDbRequiredRoute._addFileChildren(
+  TempDbRequiredRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ProjectsRoute: ProjectsRouteWithChildren,
+  TempDbRequiredRoute: TempDbRequiredRouteWithChildren,
   ApiTempDbRoute: ApiTempDbRoute,
   ApiGetBoardsRoute: ApiGetBoardsRoute,
 }
