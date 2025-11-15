@@ -86,11 +86,12 @@ const TaskBase = forwardRef<
       {...props}
       ref={ref}
       className={cn(
-        "select-none p-2 mb-2 bg-background rounded shadow-sm",
+        "select-none p-2 mb-2 bg-background rounded shadow-sm flex flex-col gap-2",
         className,
       )}
     >
-      {task.title}
+      <div>{task.title}</div>
+      <div className="text-sm text-muted-foreground">{task.description}</div>
     </div>
   );
 });
@@ -228,19 +229,15 @@ export function TodoBoards({ projectId }: { projectId: string }) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
 
-  const initialOrder = [
-    "Zm8DbZm9nsXJNX662RK4J",
-    "XIz4dXmnB_mD8Rbznfkbb",
-    "NjtfMl9VEe52VBBOa5kNf",
-  ];
-
   // const [inProgresIdsOrdered, setInProgressIdsOrdered] =
   //   useState<string[]>(initialOrder);
 
-  const { data: boards } = useLiveQuery((q) =>
-    q
-      .from({ board: boardCollection })
-      .where(({ board }) => eq(board.projectId, projectId)),
+  const { data: boards } = useLiveQuery(
+    (q) =>
+      q
+        .from({ board: boardCollection })
+        .where(({ board }) => eq(board.projectId, projectId)),
+    [projectId],
   );
 
   const {
@@ -250,7 +247,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
       q
         .from({ todoItem: todoItemsCollection })
         .where(({ todoItem }) => eq(todoItem.id, activeId)),
-    [activeId],
+    [activeId, projectId],
   );
 
   const {
