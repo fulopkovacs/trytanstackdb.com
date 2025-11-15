@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
@@ -9,7 +10,6 @@ import {
   getTempDbIdFromTheSubdomain,
 } from "@/utils/server";
 import { getHostFromRequest } from "@/utils/server/getHostFromRequest";
-import { env } from "cloudflare:workers";
 
 export const createTempDbAndRedirectToIt = createServerFn().handler(
   async () => {
