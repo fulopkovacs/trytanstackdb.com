@@ -378,3 +378,9 @@ Delete all migrations locally:
 ```sh
 pnpm wrangler d1 execute my-test-db --command "delete from d1_migrations"
 ```
+
+## curl
+
+```sh
+curl -i -X PATCH -H "Content-Type: application/json" -d '{"id":"value"}' hello.localhost:3000/api/projects
+```
