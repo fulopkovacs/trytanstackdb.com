@@ -49,7 +49,13 @@ export const projectsTable = sqliteTable(
       .notNull()
       .default({}),
   },
-  (projects) => [index("projects_tenant_id_idx").on(projects.tempDbId)],
+  (projects) => [
+    index("projects_tenant_id_idx").on(projects.tempDbId),
+    unique("projects_name_unique_tempdbid").on(
+      projects.name,
+      projects.tempDbId,
+    ),
+  ],
 );
 
 export type ProjectRecord = typeof projectsTable.$inferSelect;
