@@ -14,7 +14,7 @@ export type AppTheme = z.infer<typeof AppThemeSchema>;
 const themeStorageKey = "ui-theme";
 
 const getStoredUserTheme = createIsomorphicFn()
-  .server((): UserTheme => "system")
+  .server((): UserTheme => "dark")
   .client((): UserTheme => {
     const stored = localStorage.getItem(themeStorageKey);
     return UserThemeSchema.parse(stored);
