@@ -3,10 +3,8 @@ import { json } from "@tanstack/react-start";
 import { db } from "@/db";
 import { tempDbsTable } from "@/db/schema";
 import { seed } from "@/db/seed";
-import {
-  getSubdomainSafeIds,
-  getTempDbIdFromTheSubdomain,
-} from "@/utils/server";
+import { getTempDbIdFromTheSubdomain } from "@/utils/getTempDbIdFromSubdomain";
+import { getSubdomainSafeIds } from "@/utils/server";
 import { getHostFromRequest } from "@/utils/server/getHostFromRequest";
 
 export const Route = createFileRoute("/api/temp-db")({

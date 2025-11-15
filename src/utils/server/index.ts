@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { customAlphabet } from "nanoid";
 import { tempDbsTable } from "@/db/schema";
+import { getTempDbIdFromTheSubdomain } from "../getTempDbIdFromSubdomain";
 import { getHostFromRequest } from "./getHostFromRequest";
 
 export class NoSubdomainProvidedError extends Error {
@@ -22,25 +23,6 @@ export class TempDbExpiredError extends Error {
   constructor(tempDbId: string) {
     super(`Temp DB with id ${tempDbId} has expired`);
     this.name = "TempDbExpiredError";
-  }
-}
-
-export function getTempDbIdFromTheSubdomain(hostname?: string | null) {
-  if (!hostname) return null;
-
-  const domainParts = hostname.split(".");
-
-  const hasTempId =
-    // <subdomain>.localhost:8787
-    domainParts[1]?.startsWith("localhost") ||
-    // <subdomain>.trytanstackdb.dev
-    domainParts.length > 2;
-
-  if (hasTempId) {
-    const [tempId] = hostname.split(".");
-    return tempId;
-  } else {
-    return null;
   }
 }
 
