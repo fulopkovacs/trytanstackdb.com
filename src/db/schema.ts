@@ -78,7 +78,7 @@ export const todoItemsTable = sqliteTable(
     title: text().notNull(),
     description: text(),
     createdAtTimestampMs,
-    boardId: text()
+    boardId: text("board_id")
       .references(() => boardsTable.id, { onDelete: "cascade" })
       .notNull(),
     tempDbId,
