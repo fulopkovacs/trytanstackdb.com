@@ -21,3 +21,15 @@ export const requireTempId = createMiddleware().server(({ next }) => {
     },
   });
 });
+
+export const getTempDbIdFromRequest = createMiddleware().server(({ next }) => {
+  const request = getRequest();
+  const host = getHostFromRequest(request);
+  const tempId = getTempDbIdFromTheSubdomain(host);
+
+  return next({
+    context: {
+      tempId,
+    },
+  });
+});
