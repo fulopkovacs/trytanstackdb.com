@@ -1,12 +1,12 @@
 import { createCollection } from "@tanstack/db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
+import { toast } from "sonner";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
 import {
   getProjects,
   getProjectsQueryOptions,
-  updateProject,
 } from "@/server/functions/getProjects";
-import { toast } from "sonner";
+import { projectErrorNames } from "@/utils/errorNames";
 
 export const projectsCollection = createCollection(
   queryCollectionOptions({
@@ -15,20 +15,32 @@ export const projectsCollection = createCollection(
     queryClient: TanstackQuery.getContext().queryClient,
     onUpdate: async ({ transaction }) => {
       const { original, changes } = transaction.mutations[0];
-      // Invalidate related collections if needed
-      // await boardsCollection.invalidate();
       try {
-        await updateProject({
-          data: {
-            // ...original,
+        /*
+          NOTE: we're intentionally not using server functions to make
+          it easier to inspect the requests in the networks panel.
+        */
+
+        const res = await fetch("/api/projects", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
             id: original.id,
             ...changes,
-          },
+          }),
         });
+
+        if (res.status !== 200) {
+          // biome-ignore lint/suspicious/noExplicitAny: it's okay
+          const errorData: any = await res.text();
+          throw new Error(errorData);
+        }
       } catch (error) {
         if (
           error instanceof Error &&
-          error.message.includes("Project name already exists")
+          error.message.startsWith(projectErrorNames.PROJECT_NAME_EXISTS)
         ) {
           toast.error(
             `Couldn't rename "${original.name}" to "${changes.name}", because a project with that name already exists.`,
