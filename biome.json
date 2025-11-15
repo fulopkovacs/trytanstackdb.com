@@ -32,6 +32,9 @@
       "recommended": true,
       "suspicious": {
         "noArrayIndexKey": "warn"
+      },
+      "correctness": {
+        "noChildrenProp": "off"
       }
     }
   },
