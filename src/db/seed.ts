@@ -48,7 +48,7 @@ function getMockData(tempDbId: string) {
 
   const now = Date.now();
 
-  const mockProjects: ProjectRecord[] = [
+  const mockProjects: Omit<ProjectRecord, "itemPositionsInTheProject">[] = [
     {
       id: nanoid(),
       name: "Project Alpha",
@@ -185,15 +185,34 @@ function getMockData(tempDbId: string) {
       },
     );
 
+  const projectsWithPositions: ProjectRecord[] = mockProjects.map((project) => {
+    const projectBoards = mockBoards.filter(
+      (board) => board.projectId === project.id,
+    );
+    const itemPositionsInTheProject: Record<string, string[]> = {};
+
+    for (const board of projectBoards) {
+      const itemsInBoard = mockTodoItems
+        .filter((item) => item.boardId === board.id)
+        .map((item) => item.id);
+      itemPositionsInTheProject[board.id] = itemsInBoard;
+    }
+
+    return {
+      ...project,
+      itemPositionsInTheProject,
+    };
+  });
+
   return {
     mockUsers,
     mockBoards,
     mockTodoItems,
-    mockProjects,
+    mockProjects: projectsWithPositions,
   };
 }
 
-async function dropAllTables() {
+async function cleanAllTables() {
   // Get all user tables
   const tables: { name: string }[] = await db.all(
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN ('sqlite_sequence', 'd1_migrations', '_cf_METADATA');",
@@ -251,7 +270,7 @@ export async function seed(tempDBId: string) {
 }
 
 export async function resetAndSeed() {
-  await dropAllTables();
+  await cleanAllTables();
   await seed("default_temp_db");
   console.log("Database reset and seeded.");
 }

@@ -35,12 +35,10 @@ export const updateTodoItem = createServerFn()
       throw new Error("No columns to update");
     }
 
-    const res = await db
+    await db
       .update(todoItemsTable)
       .set(updatedData)
       .where(
         and(eq(todoItemsTable.id, id), eq(todoItemsTable.tempDbId, tempId)),
       );
-
-    console.log({ res });
   });

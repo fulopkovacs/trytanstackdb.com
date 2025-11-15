@@ -42,6 +42,12 @@ export const projectsTable = sqliteTable(
     description: text().notNull(),
     createdAtTimestampMs,
     tempDbId,
+    itemPositionsInTheProject: text("item_positions_in_the_project", {
+      mode: "json",
+    })
+      .$type<Record<string, string[]>>()
+      .notNull()
+      .default({}),
   },
   (projects) => [index("projects_tenant_id_idx").on(projects.tempDbId)],
 );

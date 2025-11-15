@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1762948982598,
-      "tag": "0000_pretty_bushwacker",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1762956088120,
-      "tag": "0001_romantic_william_stryker",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1762983166089,
-      "tag": "0002_goofy_calypso",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1763061105797,
-      "tag": "0003_slimy_famine",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1763073252994,
-      "tag": "0004_crazy_iceman",
+      "when": 1763209695902,
+      "tag": "0000_remarkable_thena",
       "breakpoints": true
     }
   ]
