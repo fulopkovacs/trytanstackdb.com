@@ -113,12 +113,6 @@ export function AppSidebar({
                     </CollapsibleContent>
                   </SidebarMenuItem>
                 </Collapsible>
-                <SidebarMenuItem>
-                  <SidebarMenuButton variant={"outline"}>
-                    <PlusIcon />
-                    <span>Create new project</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
