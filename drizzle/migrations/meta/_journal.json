@@ -8,6 +8,13 @@
       "when": 1763211198150,
       "tag": "0000_nifty_maximus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1763224030248,
+      "tag": "0001_medical_patch",
+      "breakpoints": true
     }
   ]
 }
