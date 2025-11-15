@@ -1,10 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import {
-  ChevronDownIcon,
-  FolderClosedIcon,
-  PlusIcon,
-  SidebarIcon,
-} from "lucide-react";
+import { useLiveQuery } from "@tanstack/react-db";
+import { Link, useParams } from "@tanstack/react-router";
+import { ChevronDownIcon, FolderClosedIcon, SidebarIcon } from "lucide-react";
+import { projectsCollection } from "@/collections/projects";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -28,8 +25,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { useLiveQuery } from "@tanstack/react-db";
-import { projectsCollection } from "@/collections/projects";
 
 // } from "@/registry/new-york-v4/ui/sidebar"
 
@@ -50,6 +45,8 @@ export function AppSidebar({
       project: projectsCollection,
     }),
   );
+
+  const params = useParams({ strict: false });
 
   return (
     <SidebarProvider className="w-auto" open={open} defaultOpen>
@@ -91,8 +88,20 @@ export function AppSidebar({
                       <SidebarMenuSub>
                         {projects.map((project) => (
                           <SidebarMenuSubItem key={project.id}>
-                            <SidebarMenuSubButton asChild>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={params.projectId === project.id}
+                            >
                               <Link
+                                preload={
+                                  /*
+                                    NOTE: People will probably check the network
+                                    requests to see how TanStack DB works, so it's
+                                    the best if don't confuse them by preloading
+                                    data on link hovers etc.
+                                  */
+                                  false
+                                }
                                 to="/projects/$projectId"
                                 params={{ projectId: project.id }}
                                 style={
