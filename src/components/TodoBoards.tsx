@@ -137,26 +137,24 @@ function Board({
       .where(({ todoItem }) => eq(todoItem.boardId, board.id)),
   );
 
-  // There should be a better way to get this
-  const activeTaskIndex = useMemo(
-    () => todoItems.findIndex((t) => t.id === activeId),
-    [todoItems, activeId],
-  );
-
-  const orderedTodoItems = useMemo(() => {
+  const { orderedTodoItems, activeTaskIndex } = useMemo(() => {
     const orderMap = new Map<string, number>();
     orderedIds.forEach((id, idx) => {
       orderMap.set(id, idx);
     });
 
-    return todoItems.sort((a, b) => {
+    const activeTaskIndex = orderMap.get(activeId as string) || -1;
+
+    const orderedTodoItems = todoItems.sort((a, b) => {
       // If id not found, put it at the end
       const practicallyInfinite = 10_0000; // realistically we won't have this many items in this array
       const idxA = orderMap.get(a.id) ?? practicallyInfinite;
       const idxB = orderMap.get(b.id) ?? practicallyInfinite;
       return idxA - idxB;
     });
-  }, [todoItems, orderedIds]);
+
+    return { orderedTodoItems, activeTaskIndex };
+  }, [todoItems, orderedIds, activeId]);
 
   const { setNodeRef, isOver } = useDroppable({ id: board.id });
 
