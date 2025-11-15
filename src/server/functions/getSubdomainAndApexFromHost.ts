@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { getTempDbIdFromTheSubdomain } from "@/utils/server";
+import { getTempDbIdFromTheSubdomain } from "@/utils/getTempDbIdFromSubdomain";
 import { getHostFromRequest } from "@/utils/server/getHostFromRequest";
 
 export const getSubdomainAndApexFromHost = createServerFn().handler(() => {

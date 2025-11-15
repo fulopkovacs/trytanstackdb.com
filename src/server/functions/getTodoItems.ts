@@ -17,7 +17,7 @@ export const getTodoItems = createServerFn()
 
 export const getTodoItemsOptions = queryOptions({
   queryKey: ["todoItems"],
-  queryFn: getTodoItems,
+  // queryFn: getTodoItems,
 });
 
 export const updateTodoItem = createServerFn()
