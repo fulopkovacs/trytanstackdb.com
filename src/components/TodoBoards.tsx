@@ -72,9 +72,9 @@ function reducer<T extends Record<string, string[]>>(
 }
 
 const COLUMN_COLORS = {
-  todo: "#FFB300",
-  "in-progress": "#1976D2",
-  done: "#43A047",
+  Todo: "#FFB300",
+  "In Progress": "#1976D2",
+  Done: "#43A047",
 };
 
 const TaskBase = forwardRef<
@@ -90,7 +90,7 @@ const TaskBase = forwardRef<
         className,
       )}
     >
-      {task.id}
+      {task.title}
     </div>
   );
 });
@@ -160,7 +160,7 @@ function Board({
   const { setNodeRef, isOver } = useDroppable({ id: board.id });
 
   const color =
-    COLUMN_COLORS[board.id as keyof typeof COLUMN_COLORS] || "#999999";
+    COLUMN_COLORS[board.name as keyof typeof COLUMN_COLORS] || "#999999";
 
   return (
     <Card className="bg-sidebar flex flex-col flex-1 min-h-0">
@@ -172,7 +172,7 @@ function Board({
             className={cn("h-2 w-2 rounded-full")}
           />
           <div>
-            {board.id} ({todoItems.length} tasks)
+            {board.name} ({todoItems.length} tasks)
           </div>
         </CardTitle>
         <CardDescription className="min-h-10">
@@ -283,26 +283,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     setOverId(event.over ? event.over.id : null);
   };
 
-  // function dispatch({
-  //   type,
-  //   key,
-  //   data,
-  // }: {
-  //   type: "UPDATE_KEY";
-  //   key: string;
-  //   data: string[];
-  // }) {
-  //   const state = project.itemPositionsInTheProject;
-  //
-  //   const updatedState = {
-  //     ...state,
-  //     [key]: data,
-  //   };
-  //
-  //   projectsCollection.update(project.id, (item) => {
-  //     item.itemPositionsInTheProject = updatedState;
-  //   });
-  // }
   function updatePositionsInProject(
     updatedPositions: Record<string, string[]>,
   ) {
@@ -317,6 +297,9 @@ export function TodoBoards({ projectId }: { projectId: string }) {
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
+    // TODO: Fix this mess lol, I didn't have time T-T
+    // BUG: when you drag a task to the first position of another
+    // not-empty column, you don't see the placeholder
     const { active, over } = event;
     setActiveId(null);
     setOverId(null);
@@ -325,7 +308,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     const state = project.itemPositionsInTheProject;
 
     // Find which column the dragged task is in
-    // const activeBoard = activeTodoItem.boardId;
 
     if (boards.some((board) => board.id === over.id)) {
       // This is either an empty column or the last place of a column
@@ -336,23 +318,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         item.boardId = newBoardId as string;
       });
 
-      // // empty column or end of column?
-      // const todoItemsInOverBoard = todoItemsCollection.toArray.filter(
-      //   (item) => item.boardId === newBoardId,
-      // );
-      //
-      // // If the column is empty, just change the boardId
-      // if (todoItemsInOverBoard.length === 0) {
-      //   todoItemsCollection.update(active.id, (item) => {
-      //     item.boardId = newBoardId as string;
-      //   });
-      // } else {
-      //   console.log("column is not empty");
-      //   todoItemsCollection.update(active.id, (item) => {
-      //     item.boardId = newBoardId as string;
-      //   });
-      // }
-
       // Update the ordered indices in the state
       const oldColumnIds = state[activeTodoItem.boardId] || [];
       const newColumnIds = state[newBoardId] || [];
@@ -361,24 +326,12 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         [oldBoardId]: oldColumnIds.filter((id) => id !== active.id),
         [newBoardId]: [...newColumnIds, active.id as string],
       });
-
-      // dispatch({
-      //   type: "UPDATE_KEY",
-      //   key: oldBoardId,
-      //   data: oldColumnIds.filter((id) => id !== active.id),
-      // });
-      // dispatch({
-      //   type: "UPDATE_KEY",
-      //   key: newBoardId as string,
-      //   data: [...newColumnIds, active.id as string],
-      // });
     } else {
       const overTodoItem = todoItemsCollection.toArray.find(
         (item) => item.id === over.id,
       );
 
       if (overTodoItem?.boardId === activeTodoItem.boardId) {
-        console.log("Reorder within the same column");
         // Reorder within the same column
         const orderedColumnIds = state[activeTodoItem.boardId] || [];
         const oldIndex = orderedColumnIds.indexOf(active.id as string);
@@ -391,23 +344,11 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         updatePositionsInProject({
           [activeTodoItem.boardId]: newColumnTasks,
         });
-
-        // dispatch({
-        //   type: "UPDATE_KEY",
-        //   key: activeTodoItem.boardId,
-        //   data: newColumnTasks,
-        // });
-        // Merge reordered column tasks back into all tasks
-        // setInProgressIdsOrdered(newColumnTasks);
       } else if (overTodoItem) {
         // Move to another column and insert at the correct position
-        console.log(
-          "Move to another column and insert at the correct position",
-        );
         const oldColumnIds = state[activeTodoItem.boardId] || [];
         const newColumnIds = state[overTodoItem.boardId] || [];
 
-        // const oldIndex = oldColumnIds.indexOf(active.id as string);
         const newIndex = newColumnIds.indexOf(over.id as string);
 
         const oldBoardId = activeTodoItem.boardId;
@@ -417,55 +358,16 @@ export function TodoBoards({ projectId }: { projectId: string }) {
           item.boardId = newBoardId as string;
         });
 
-        console.log({
-          oldBoardId,
-          newBoardId,
-          newIndex,
-        });
-
         newColumnIds.splice(newIndex, 0, activeTodoItem.id);
 
         updatePositionsInProject({
           [oldBoardId]: oldColumnIds.filter((id) => id !== active.id),
           [newBoardId]: newColumnIds,
         });
-
-        // dispatch({
-        //   type: "UPDATE_KEY",
-        //   key: oldBoardId,
-        //   data: oldColumnIds.filter((id) => id !== active.id),
-        // });
-        //
-        // dispatch({
-        //   type: "UPDATE_KEY",
-        //   key: newBoardId,
-        //   data: newColumnIds,
-        // });
       } else {
         console.error("overTodoId not found");
       }
     }
-
-    // TODO: change the id of the task
-    // setActiveId(null);
-    // setOverId(null);
-    // const { active, over } = event;
-    // if (!over) return;
-    // if (active.id === over.id) return;
-    //
-    // // Find the dragged task
-    // if (!activeTask) return;
-    //
-    // const updatedTasks = getUpdatedTasks({
-    //   activeTask,
-    //   over,
-    //   tasks,
-    //   active,
-    //   statusColumns,
-    // });
-    // if (updatedTasks) {
-    //   setTasks(updatedTasks);
-    // }
   };
 
   const sortedBoards = useMemo(
