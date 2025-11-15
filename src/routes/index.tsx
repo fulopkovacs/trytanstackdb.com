@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
-import { getApexDomainRedirectHref } from "@/constants";
+import { getApexDomainRedirectHref } from "@/utils/server/getApexDomainRedirectHref";
 import { createTempDbAndRedirectToIt } from "@/server/functions/createTempDbAndRedirectToIt";
 import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
 

@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { getApexDomainRedirectHref } from "@/constants";
+import { getApexDomainRedirectHref } from "@/utils/server/getApexDomainRedirectHref";
 import { checkIfTempDbExists } from "@/server/functions/checkIfTempDbExists";
 import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
 import { requireTempId } from "@/server/middlewares/getTempDbIdFromRequest";
