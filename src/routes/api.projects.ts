@@ -28,9 +28,7 @@ export const Route = createFileRoute("/api/projects")({
 
         return json(results);
       },
-      PATCH: async ({ context, request }) => {
-        const tempId = context.tempId;
-
+      PATCH: async ({ context: { tempId }, request }) => {
         let updatedData: z.infer<typeof projectUpdateData>;
 
         // biome-ignore lint/suspicious/noExplicitAny: it can be any here
