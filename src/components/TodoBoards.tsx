@@ -39,15 +39,19 @@ const COLUMN_COLORS = {
   Done: "#43A047",
 };
 
+function handlePriorityPointerDown(e: React.PointerEvent) {
+  e.stopPropagation();
+  e.preventDefault();
+}
+
 const TaskBase = forwardRef<
   HTMLDivElement,
-  { task: TodoItemRecord } & React.HTMLAttributes<HTMLDivElement>
->(({ task, className, ...props }, ref) => {
+  {
+    task: TodoItemRecord;
+    projectId?: string;
+  } & React.HTMLAttributes<HTMLDivElement>
+>(({ task, projectId, className, ...props }, ref) => {
   // Prevent drag when clicking on PriorityRatingPopup
-  const handlePriorityPointerDown = (e: React.PointerEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
 
   return (
     <div
@@ -68,17 +72,51 @@ const TaskBase = forwardRef<
         </div>
       </div>
       <div className="text-sm text-muted-foreground">{task.description}</div>
+      {projectId ? (
+        <CreateOrEditTodoItems todoItem={task} projectId={projectId}>
+          <Button
+            onPointerDown={handlePriorityPointerDown}
+            onKeyDownCapture={(e) => {
+              console.log(e.key);
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            style={{ cursor: "pointer" }}
+            variant="ghost"
+            size="sm"
+            className="self-end text-muted-foreground hover:text-foreground"
+          >
+            Edit
+          </Button>
+        </CreateOrEditTodoItems>
+      ) : (
+        <Button
+          disabled
+          variant="ghost"
+          size="sm"
+          className="self-end text-muted-foreground"
+        >
+          Edit
+        </Button>
+      )}
     </div>
   );
 });
 
-function DraggableTask({ task }: { task: TodoItemRecord }) {
+function DraggableTask({
+  task,
+  projectId,
+}: {
+  task: TodoItemRecord;
+  projectId: string;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useSortable({
     id: task.id,
   });
 
   return (
     <TaskBase
+      projectId={projectId}
       task={task}
       ref={setNodeRef}
       {...attributes}
@@ -100,12 +138,14 @@ function Board({
   activeTask,
   overId,
   orderedIds,
+  projectId,
 }: {
   board: BoardRecord;
   activeId: UniqueIdentifier | null;
   activeTask: TodoItemRecord | null;
   overId: UniqueIdentifier | null;
   orderedIds: string[];
+  projectId: string;
 }) {
   const { data: todoItems } = useLiveQuery((q) =>
     q
@@ -190,7 +230,12 @@ function Board({
                   {showDropIndicator && activeTask && (
                     <DraggedTaskSlot activeTask={activeTask} />
                   )}
-                  <DraggableTask task={todoItem} />
+                  <DraggableTask projectId={projectId} task={todoItem} />
+                  {/* <TaskBase */}
+                  {/*   projectId={projectId} */}
+                  {/*   task={todoItem} */}
+                  {/*   className="cursor-default" */}
+                  {/* /> */}
                 </div>
               );
             })}
@@ -370,6 +415,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         <div className="grid grid-cols-3 gap-4 h-full min-h-0">
           {sortedBoards.map((board) => (
             <Board
+              projectId={projectId}
               board={board}
               key={board.id}
               activeId={activeId}
