@@ -19,6 +19,30 @@ function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   );
 }
 
+function MinimizedFloatingWindow({
+  isOpen,
+  toggleWindow,
+  children,
+}: {
+  isOpen: boolean;
+  toggleWindow: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "fade-in animate-in bg-orange-500 p-2  items-center gap-1",
+        !isOpen ? "flex" : "hidden",
+      )}
+    >
+      <div className="shrink wrap-break-word">{children}</div>
+      <Button variant={"secondary"} size="icon-sm" onClick={toggleWindow}>
+        <Maximize2Icon className="" />
+      </Button>
+    </div>
+  );
+}
+
 function FloatingWindow({
   isOpen,
   toggleWindow,
@@ -35,22 +59,9 @@ function FloatingWindow({
         // isOpen ? "translate-y-0" : "pointer-events-none translate-y-2",
       )}
     >
-      <div
-        className={cn(
-          "fade-in animate-in bg-orange-500 p-2",
-          !isOpen ? "block" : "hidden",
-        )}
-      >
+      <MinimizedFloatingWindow isOpen={isOpen} toggleWindow={toggleWindow}>
         {activeStep}
-        <Button
-          variant={"secondary"}
-          size="icon-sm"
-          onClick={toggleWindow}
-          className="ml-2"
-        >
-          <Maximize2Icon className="w-4 h-4" />
-        </Button>
-      </div>
+      </MinimizedFloatingWindow>
       <div
         className={cn(
           "transition-all",

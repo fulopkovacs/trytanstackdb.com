@@ -1,10 +1,10 @@
-import { DatabaseZap, TimerIcon } from "lucide-react";
-import { ModeToggle } from "./mode-toggle";
+import { useQuery } from "@tanstack/react-query";
 import { ClientOnly } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { getExpiryDate } from "@/server/functions/getExpiryDate";
-import { useQuery } from "@tanstack/react-query";
+import { DatabaseZap, TimerIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { getExpiryDate } from "@/server/functions/getExpiryDate";
+import { ModeToggle } from "./mode-toggle";
 
 function ExpiryCounter() {
   const getExpiryTimeFn = useServerFn(getExpiryDate);
