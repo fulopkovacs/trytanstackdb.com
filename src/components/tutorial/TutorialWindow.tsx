@@ -31,12 +31,13 @@ function MinimizedFloatingWindow({
   return (
     <div
       className={cn(
-        "fade-in animate-in bg-orange-500 p-2  items-center gap-1",
+        "fade-in animate-in bg-orange-500 p-2  items-center gap-1 cursor-pointer hover:bg-orange-600 transition-colors",
         !isOpen ? "flex" : "hidden",
       )}
+      onClick={toggleWindow}
     >
       <div className="shrink wrap-break-word">{children}</div>
-      <Button variant={"secondary"} size="icon-sm" onClick={toggleWindow}>
+      <Button variant={"secondary"} size="icon-sm">
         <Maximize2Icon className="" />
       </Button>
     </div>
