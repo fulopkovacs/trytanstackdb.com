@@ -1,9 +1,9 @@
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { DatabaseZapIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
 import { useCallback, useState } from "react";
+import { steps } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { steps } from "@/data/tutorial";
 import { ScrollArea } from "../ui/scroll-area";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
@@ -89,13 +89,14 @@ function FloatingWindow({
                 value={step.title}
                 className="overflow-y-auto"
               >
-                <h3 className="font-bold text-lg mb-2">{step.title}</h3>
-                <p>{step.text}</p>
+                <div className="prose prose-neutral prose-base bg-white text-black dark:prose-neutral dark:bg-white dark:text-black">
+                  {<step.file />}
+                </div>
               </TabsContent>
             ))}
-            {Array.from({ length: 200 }).map((_, i) => (
+            {/* Array.from({ length: 200 }).map((_, i) => (
               <div key={i}>{i.toString()}</div>
-            ))}
+            )) */}
           </ScrollArea>
         </Tabs>
       </div>

@@ -1,6 +1,9 @@
+import TestFile from "@/data/tutorial/01-collections-intro.mdx";
+
 export type Step = {
   title: string;
   text: string;
+  file: React.ComponentType;
 };
 
 export const steps: Step[] = [
@@ -10,4 +13,5 @@ export const steps: Step[] = [
 ].map((title) => ({
   title,
   text: `Text for ${title}`,
+  file: TestFile,
 }));
