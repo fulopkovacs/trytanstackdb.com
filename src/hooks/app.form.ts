@@ -4,13 +4,15 @@ import {
   // Select,
   // SubscribeButton,
   // TextArea,
+  TextArea,
   TextField,
-} from "../components/projects.formComponents";
-import { fieldContext, formContext } from "./projects.form-context";
+} from "../components/app.formComponents";
+import { fieldContext, formContext } from "./app.form-context";
 
 export const { useAppForm } = createFormHook({
   fieldComponents: {
     TextField,
+    TextArea,
     // Select,
     // TextArea,
   },

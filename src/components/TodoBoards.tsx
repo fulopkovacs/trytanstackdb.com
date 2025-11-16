@@ -29,6 +29,8 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { Button } from "./ui/button";
+import { PlusIcon } from "lucide-react";
 
 const COLUMN_COLORS = {
   Todo: "#FFB300",
@@ -150,6 +152,9 @@ function Board({
         <CardDescription className="min-h-10">
           {board.description}
         </CardDescription>
+        <Button variant={"secondary"}>
+          <PlusIcon /> Add Task
+        </Button>
       </CardHeader>
       <CardContent
         ref={setNodeRef}
