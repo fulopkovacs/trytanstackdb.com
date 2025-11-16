@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useAppForm } from "@/hooks/projects.form";
+import { useAppForm } from "@/hooks/app.form";
 
 function EditProjectNamePopover({ name, id }: { name: string; id: string }) {
   const [isOpen, setIsOpen] = useState(false);
