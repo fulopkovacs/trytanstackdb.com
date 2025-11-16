@@ -31,6 +31,7 @@ import {
 } from "./ui/card";
 import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
+import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 
 const COLUMN_COLORS = {
   Todo: "#FFB300",
@@ -152,9 +153,14 @@ function Board({
         <CardDescription className="min-h-10">
           {board.description}
         </CardDescription>
-        <Button variant={"secondary"}>
-          <PlusIcon /> Add Task
-        </Button>
+        <CreateOrEditTodoItems
+          todoItem={{ boardId: board.id }}
+          projectId={board.projectId}
+        >
+          <Button variant={"secondary"}>
+            <PlusIcon /> Add Task
+          </Button>
+        </CreateOrEditTodoItems>
       </CardHeader>
       <CardContent
         ref={setNodeRef}
@@ -256,6 +262,9 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     setOverId(event.over ? event.over.id : null);
   };
 
+  // TODO: this should be an optimisticAction
+  // that updates both todoItems and projects collections.
+  // That would give us proper rollbacks on errors.
   function updatePositionsInProject(
     updatedPositions: Record<string, string[]>,
   ) {

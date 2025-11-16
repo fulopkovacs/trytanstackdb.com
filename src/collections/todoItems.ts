@@ -3,6 +3,8 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { TodoItemRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
 import { getTodoItemsOptions } from "@/server/functions/getTodoItems";
+import { toast } from "sonner";
+import { TodoItemCreateDataType } from "@/routes/api.todo-items";
 
 async function getTodoItems() {
   const res = await fetch("/api/todo-items", { method: "GET" });
@@ -34,11 +36,49 @@ async function updateTodoItem({
   return updatedItem;
 }
 
+export async function insertTodoItem({
+  data,
+}: {
+  data: TodoItemCreateDataType;
+}) {
+  const res = await fetch("/api/todo-items", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to insert todo item");
+  }
+
+  const response: TodoItemRecord = await res.json();
+
+  return response;
+}
+
 export const todoItemsCollection = createCollection(
   queryCollectionOptions({
     queryKey: getTodoItemsOptions.queryKey,
     queryFn: getTodoItems,
     queryClient: TanstackQuery.getContext().queryClient,
+    onInsert: async ({ transaction }) => {
+      const { modified: newTodoItem } = transaction.mutations[0];
+
+      try {
+        await insertTodoItem({
+          data: {
+            projectId: "project-id-placeholder", // we won't run it directly
+            ...newTodoItem,
+          },
+        });
+      } catch (error) {
+        // TODO: handle error
+        toast.error(`Failed to insert todo item "${newTodoItem.title}"`);
+        console.error("Failed to insert todo item:", error);
+      }
+    },
     onUpdate: async ({ transaction }) => {
       const { original, changes } = transaction.mutations[0];
 
