@@ -1,8 +1,10 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
+import mdx from "@mdx-js/rollup";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
+import rehypePrism from "rehype-prism-plus";
 import { defineConfig } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
@@ -24,6 +26,9 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart(),
     viteReact(),
+    mdx({
+      rehypePlugins: [rehypePrism],
+    }),
   ],
 });
 
