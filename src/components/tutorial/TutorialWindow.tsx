@@ -1,7 +1,9 @@
-import { DatabaseZapIcon, Minimize2Icon, MinimizeIcon } from "lucide-react";
+import { DatabaseZapIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
+import { steps } from "@/data/tutorial";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
@@ -23,17 +25,74 @@ function FloatingWindow({
   isOpen: boolean;
   toggleWindow: () => void;
 }) {
+  const [activeStep, setActiveStep] = useState(steps[0].title);
+
   return (
     <div
       className={cn(
-        "max-w-full md:max-w-2/3 w-7xl bg-white text-black transition-all mb-2 shadow-lg rounded-lg shadow-orange-500/10 border border-orange-500 dark:border-orange-500/10",
-        isOpen
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 pointer-events-none translate-y-2",
+        "max-w-full md:max-w-2/3 bg-white text-black transition-all mb-2 shadow-lg rounded-lg shadow-orange-500/10 border border-orange-500 dark:border-orange-500/10 overflow-hidden",
+        // isOpen ? "translate-y-0" : "pointer-events-none translate-y-2",
+        isOpen ? "w-6xl" : "w-fit",
       )}
     >
-      <FloatingWindowHeader toggleWindow={toggleWindow} />
-      <div className="p-2">content</div>
+      <div
+        className={cn(
+          "fade-in animate-in bg-orange-500 p-2",
+          !isOpen ? "block" : "hidden",
+        )}
+      >
+        {activeStep}
+        <Button
+          variant={"secondary"}
+          size="icon-sm"
+          onClick={toggleWindow}
+          className="ml-2"
+        >
+          <Maximize2Icon className="w-4 h-4" />
+        </Button>
+      </div>
+      <div
+        className={cn(
+          "transition-all",
+          isOpen
+            ? "block opacity-100 translate-y-0"
+            : "hidden opacity-0 translate-y-2",
+        )}
+      >
+        <FloatingWindowHeader toggleWindow={toggleWindow} />
+        <Tabs
+          orientation="vertical"
+          value={activeStep}
+          onValueChange={setActiveStep}
+          className="w-full flex flex-row p-2 h-96 max-h-3/4"
+        >
+          <div className="h-full rounded-lg bg-neutral-200 py-2 px-1">
+            <TabsList className="w-40 flex-nowrap h-fit overflow-x-auto flex flex-col gap-2 text-sm text-balance">
+              {steps.map((step, index) => (
+                <TabsTrigger
+                  key={step.title}
+                  className="cursor-pointer flex-1 text-left bg-orange-500/0 px-2 py-1 rounded-md hover:bg-orange-500/20 transition-all data-[state=active]:bg-orange-500/100"
+                  value={step.title}
+                >
+                  {step.title}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+          <div className="w-full ml-4">
+            {steps.map((step, index) => (
+              <TabsContent
+                key={step.title}
+                value={step.title}
+                className="overflow-y-auto"
+              >
+                <h3 className="font-bold text-lg mb-2">{step.title}</h3>
+                <p>{step.text}</p>
+              </TabsContent>
+            ))}
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 }
