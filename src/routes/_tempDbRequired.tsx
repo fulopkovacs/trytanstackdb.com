@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { createIsomorphicFn, createServerFn } from "@tanstack/react-start";
 import { requireTempId } from "@/server/middlewares/getTempDbIdFromRequest";
 import { getTempDbIdFromTheSubdomain } from "@/utils/getTempDbIdFromSubdomain";
+import { TutorialWindow } from "@/components/tutorial/TutorialWindow";
 
 const mockUser = {
   id: "1",
@@ -57,4 +58,14 @@ export const Route = createFileRoute("/_tempDbRequired")({
   //     tempDbId: context.tempDbId,
   //   };
   // },
+  component: RouteComponent,
 });
+
+function RouteComponent() {
+  return (
+    <>
+      <Outlet />
+      <TutorialWindow />
+    </>
+  );
+}
