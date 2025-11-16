@@ -28,38 +28,45 @@ const todoItemsList: TodoItemBase[] = [
     title: "Buy groceries",
     description: "Milk, eggs, bread",
     boardName: "Todo",
+    priority: 3,
   },
   {
     title: "Read a book",
     description: "Finish reading 'Atomic Habits'",
     boardName: "Todo",
+    priority: 0,
   },
   // In Progress board
   {
     title: "Write blog post",
     description: "Draft for tech blog",
     boardName: "In Progress",
+    priority: 2,
   },
   {
     title: "Workout",
     description: "30 min cardio",
     boardName: "In Progress",
+    priority: 0,
   },
   {
     title: "Update resume",
     description: "Add recent projects",
     boardName: "In Progress",
+    priority: 0,
   },
   // Done board
   {
     title: "Call mom",
     description: "Weekly check-in",
     boardName: "Done",
+    priority: 0,
   },
   {
     title: "Clean desk",
     description: "Organize workspace",
     boardName: "Done",
+    priority: 0,
   },
 ];
 
@@ -73,6 +80,7 @@ const largeTodoItemsList: TodoItemBase[] = Array.from({
     title: `Task ${index + 1}`,
     description: `Description for task ${index + 1}`,
     boardName,
+    priority: 0,
   };
 });
 

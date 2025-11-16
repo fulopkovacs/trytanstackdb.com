@@ -9,6 +9,7 @@ import { getTempDbIdFromRequest } from "@/server/middlewares/getTempDbIdFromRequ
 const todoItemUpdateData = z.object({
   id: z.string().min(1),
   boardId: z.string().optional(),
+  priority: z.number().min(0).max(3).int().optional(),
 });
 
 export const Route = createFileRoute("/api/todo-items")({
