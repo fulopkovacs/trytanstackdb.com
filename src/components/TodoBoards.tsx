@@ -155,10 +155,10 @@ function Board({
       // If id not found, put it at the end
       const practicallyInfinite = 10_0000; // realistically we won't have this many items in this array
 
-      const idxA1 = orderMap.get(a.id);
-      if (idxA1 === undefined) throw new Error("idxA1 is undefined");
-      const idxB1 = orderMap.get(b.id);
-      if (idxB1 === undefined) throw new Error("idxB1 is undefined");
+      // const idxA1 = orderMap.get(a.id);
+      // if (idxA1 === undefined) throw new Error("idxA1 is undefined");
+      // const idxB1 = orderMap.get(b.id);
+      // if (idxB1 === undefined) throw new Error("idxB1 is undefined");
 
       const idxA = orderMap.get(a.id) ?? practicallyInfinite;
       const idxB = orderMap.get(b.id) ?? practicallyInfinite;
