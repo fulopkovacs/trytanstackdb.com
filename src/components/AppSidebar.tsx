@@ -126,18 +126,6 @@ export function AppSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>
-          <SidebarMenuItem>
-            <SidebarMenuButton>
-              <Avatar>
-                <AvatarImage src={user.image || undefined} alt={user.name} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-
-              <span>{user.name}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarFooter>
       </Sidebar>
     </SidebarProvider>
   );
