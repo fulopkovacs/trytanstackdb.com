@@ -5,6 +5,7 @@ import {
   DragOverlay,
   type DragStartEvent,
   type UniqueIdentifier,
+  useDndContext,
   useDroppable,
 } from "@dnd-kit/core";
 import {
@@ -13,6 +14,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { eq, useLiveQuery } from "@tanstack/react-db";
+import { PlusIcon } from "lucide-react";
 import { forwardRef, useMemo, useState } from "react";
 import { VList } from "virtua";
 import { boardCollection } from "@/collections/boards";
@@ -21,7 +23,9 @@ import { todoItemsCollection } from "@/collections/todoItems";
 import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { moveTask } from "@/utils/moveTask";
+import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 import { PriorityRatingPopup } from "./PriorityRating";
+import { Button } from "./ui/button";
 import {
   Card,
   CardContent,
@@ -29,9 +33,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Button } from "./ui/button";
-import { PlusIcon } from "lucide-react";
-import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 
 const COLUMN_COLORS = {
   Todo: "#FFB300",
@@ -134,16 +135,12 @@ function DraggedTaskSlot({ activeTask }: { activeTask: TodoItemRecord }) {
 
 function Board({
   board,
-  activeId,
   activeTask,
-  overId,
   orderedIds,
   projectId,
 }: {
   board: BoardRecord;
-  activeId: UniqueIdentifier | null;
   activeTask: TodoItemRecord | null;
-  overId: UniqueIdentifier | null;
   orderedIds: string[];
   projectId: string;
 }) {
@@ -153,13 +150,15 @@ function Board({
       .where(({ todoItem }) => eq(todoItem.boardId, board.id)),
   );
 
+  const { active, over } = useDndContext();
+
   const { orderedTodoItems, activeTaskIndex } = useMemo(() => {
     const orderMap = new Map<string, number>();
     orderedIds.forEach((id, idx) => {
       orderMap.set(id, idx);
     });
 
-    const activeTaskIndex = orderMap.get(activeId as string) || -1;
+    const activeTaskIndex = orderMap.get(active?.id as string) || -1;
 
     const orderedTodoItems = todoItems.sort((a, b) => {
       // If id not found, put it at the end
@@ -170,7 +169,7 @@ function Board({
     });
 
     return { orderedTodoItems, activeTaskIndex };
-  }, [todoItems, orderedIds, activeId]);
+  }, [todoItems, orderedIds, active]);
 
   const { setNodeRef, isOver } = useDroppable({ id: board.id });
 
@@ -218,9 +217,9 @@ function Board({
           <VList>
             {orderedTodoItems.map((todoItem, i) => {
               const showDropIndicator =
-                activeId &&
-                overId === todoItem.id &&
-                activeId !== todoItem.id &&
+                active?.id &&
+                over?.id === todoItem.id &&
+                active.id !== todoItem.id &&
                 // We don't want the drop indicator to be shown
                 // right below the active task
                 activeTaskIndex + 1 !== i;
@@ -228,7 +227,10 @@ function Board({
               return (
                 <div key={`${todoItem.id}-wrapper`}>
                   {showDropIndicator && activeTask && (
-                    <DraggedTaskSlot activeTask={activeTask} />
+                    <DraggedTaskSlot
+                      key="placeholder"
+                      activeTask={activeTask}
+                    />
                   )}
                   <DraggableTask projectId={projectId} task={todoItem} />
                   {/* <TaskBase */}
@@ -241,7 +243,7 @@ function Board({
             })}
             {/* If column is empty and is being dragged over, show drop indicator */}
             {isOver && activeTask && (
-              <DraggedTaskSlot activeTask={activeTask} />
+              <DraggedTaskSlot key="placeholder" activeTask={activeTask} />
             )}
           </VList>
         </SortableContext>
@@ -418,8 +420,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
               projectId={projectId}
               board={board}
               key={board.id}
-              activeId={activeId}
-              overId={overId}
               activeTask={activeTodoItem}
               orderedIds={project.itemPositionsInTheProject[board.id] || []}
             />
