@@ -6,7 +6,7 @@ export type Step = {
 export const steps: Step[] = [
   "What are collections?",
   "Optimistic updates",
-  "Optimistic updates",
+  "Data lifecycle",
 ].map((title) => ({
   title,
   text: `Text for ${title}`,
