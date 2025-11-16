@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import type { TodoItemRecord } from "@/db/schema";
 import { useAppForm } from "@/hooks/app.form";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 type CreateTodoItemInput = {
   id: string;
@@ -97,10 +97,34 @@ export function CreateOrEditTodoItems({
     },
   });
 
+  const handleOpenChange = useCallback(
+    (newVal: boolean) => {
+      if (newVal) {
+        setIsOpen(true);
+      } else {
+        form.reset();
+        setIsOpen(false);
+      }
+    },
+    [form],
+  );
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onKeyDown={(e) => {
+          // Prevent <SPACE> from dragging the draggable task
+          // when the dialog is open
+          e.stopPropagation();
+
+          // Cmd/Ctrl + Enter to submit the form
+          if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            form.handleSubmit();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{actionName}</DialogTitle>
         </DialogHeader>
