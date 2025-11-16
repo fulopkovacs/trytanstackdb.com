@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { steps } from "@/data/tutorial";
+import { ScrollArea } from "../ui/scroll-area";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
@@ -66,7 +67,10 @@ function FloatingWindow({
           onValueChange={setActiveStep}
           className="w-full flex flex-row p-2 h-96 max-h-3/4"
         >
-          <div className="h-full rounded-lg bg-neutral-200 py-2 px-1">
+          <ScrollArea
+            type="hover"
+            className="h-full rounded-lg bg-neutral-200 py-2 px-1"
+          >
             <TabsList className="w-40 flex-nowrap h-fit overflow-x-auto flex flex-col gap-2 text-sm text-balance">
               {steps.map((step, index) => (
                 <TabsTrigger
@@ -78,8 +82,8 @@ function FloatingWindow({
                 </TabsTrigger>
               ))}
             </TabsList>
-          </div>
-          <div className="w-full ml-4">
+          </ScrollArea>
+          <ScrollArea type="auto" className="w-full ml-4">
             {steps.map((step, index) => (
               <TabsContent
                 key={step.title}
@@ -90,7 +94,10 @@ function FloatingWindow({
                 <p>{step.text}</p>
               </TabsContent>
             ))}
-          </div>
+            {Array.from({ length: 200 }).map((_, i) => (
+              <div key={i}>{i.toString()}</div>
+            ))}
+          </ScrollArea>
         </Tabs>
       </div>
     </div>
