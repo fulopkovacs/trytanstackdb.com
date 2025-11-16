@@ -25,6 +25,13 @@ function EditProjectNamePopover({ name, id }: { name: string; id: string }) {
     },
   });
 
+  // onKeyDownCapture={(e) => {
+  //   e.stopPropagation();
+  //   e.preventDefault();
+  //   console.log(e.key);
+  //   // form.handleSubmit(e);
+  // }}
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -34,12 +41,6 @@ function EditProjectNamePopover({ name, id }: { name: string; id: string }) {
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <form
-          onKeyDownCapture={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log(e.key);
-            // form.handleSubmit(e);
-          }}
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit(e);
