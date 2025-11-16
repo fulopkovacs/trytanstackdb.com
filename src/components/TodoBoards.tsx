@@ -13,13 +13,15 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { eq, useLiveQuery } from "@tanstack/react-db";
-import { forwardRef, useMemo, useReducer, useState } from "react";
+import { forwardRef, useMemo, useState } from "react";
 import { VList } from "virtua";
 import { boardCollection } from "@/collections/boards";
+import { projectsCollection } from "@/collections/projects";
 import { todoItemsCollection } from "@/collections/todoItems";
 import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { moveTask } from "@/utils/moveTask";
+import { PriorityRatingPopup } from "./PriorityRating";
 import {
   Card,
   CardContent,
@@ -27,49 +29,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { projectsCollection } from "@/collections/projects";
-
-const boardsWithOrderedIndices: Record<string, string[]> = {
-  "7ErXIFradWmugLQZjH7-g": ["K7M010rU_wvr8dl_LaTgO", "bgyqWhfh3oLHpuGKUs_Ob"],
-  k3Q5vDh5pPwP_HVobQURy: [
-    "IDilD0xcSUjTNgLpL-lfu",
-    "eh760eHuxc2cTdiTx03-D",
-    "VldRR6G9Bfj6OE9CRdi4r",
-  ],
-  "3DrwI9dYM1JqsVyvX7TB8": ["4hkkUg06AtmdNC-ruYqGJ", "R6hBqf_b_ixtzU4j8pRN2"],
-  // "l-KaavLifrxWmPGRaWj_8": [
-  //   "Zm8DbZm9nsXJNX662RK4J",
-  //   "XIz4dXmnB_mD8Rbznfkbb",
-  //   "NjtfMl9VEe52VBBOa5kNf",
-  // ],
-  // "NX6vy0MjE7bq8HLl-nr47": ["RuHwN5G1dkz2pYQ_AEfix", "BaGMMdOeuJPFxD7SpnX6Y"],
-  // snktqA5C2jAc5phTOllOe: ["OYY-25s6WqoOe-FLbCGEe", "OYY-25s6WqoOe-FLbCGEe"],
-};
-
-// Reducer function
-function reducer<T extends Record<string, string[]>>(
-  state: T,
-  action: {
-    type: "UPDATE_KEY";
-    key: string;
-    data?: string[];
-  },
-): T {
-  switch (action.type) {
-    case "UPDATE_KEY":
-      if (!action.data) {
-        console.error("No data provided for UPDATE_KEY action");
-        return state;
-      }
-
-      return {
-        ...state,
-        [action.key]: action.data,
-      };
-    default:
-      return state;
-  }
-}
 
 const COLUMN_COLORS = {
   Todo: "#FFB300",
@@ -81,6 +40,12 @@ const TaskBase = forwardRef<
   HTMLDivElement,
   { task: TodoItemRecord } & React.HTMLAttributes<HTMLDivElement>
 >(({ task, className, ...props }, ref) => {
+  // Prevent drag when clicking on PriorityRatingPopup
+  const handlePriorityPointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
   return (
     <div
       {...props}
@@ -90,7 +55,15 @@ const TaskBase = forwardRef<
         className,
       )}
     >
-      <div>{task.title}</div>
+      <div className="flex items-center justify-between">
+        <div>{task.title}</div>
+        <div
+          onPointerDown={handlePriorityPointerDown}
+          style={{ cursor: "pointer" }}
+        >
+          <PriorityRatingPopup priority={task.priority} todoItemId={task.id} />
+        </div>
+      </div>
       <div className="text-sm text-muted-foreground">{task.description}</div>
     </div>
   );

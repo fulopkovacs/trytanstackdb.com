@@ -15,6 +15,13 @@
       "when": 1763224030248,
       "tag": "0001_medical_patch",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1763248677538,
+      "tag": "0002_amusing_ego",
+      "breakpoints": true
     }
   ]
 }

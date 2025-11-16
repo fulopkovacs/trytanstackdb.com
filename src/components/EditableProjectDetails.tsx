@@ -1,5 +1,6 @@
 import { CheckIcon, Edit2Icon } from "lucide-react";
 import { useState } from "react";
+import { projectsCollection } from "@/collections/projects";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -7,7 +8,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAppForm } from "@/hooks/projects.form";
-import { projectsCollection } from "@/collections/projects";
 
 function EditProjectNamePopover({ name, id }: { name: string; id: string }) {
   const [isOpen, setIsOpen] = useState(false);

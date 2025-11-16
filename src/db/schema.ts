@@ -88,6 +88,7 @@ export const todoItemsTable = sqliteTable(
       .references(() => boardsTable.id, { onDelete: "cascade" })
       .notNull(),
     tempDbId,
+    priority: int().default(0),
   },
   (todoItems) => [
     index("todo_items_tenant_id_idx").on(todoItems.tempDbId),
