@@ -1,7 +1,6 @@
 import {
   DndContext,
   type DragEndEvent,
-  type DragOverEvent,
   DragOverlay,
   type DragStartEvent,
   type UniqueIdentifier,
@@ -127,20 +126,12 @@ function DraggableTask({
   );
 }
 
-function DraggedTaskSlot({ activeTask }: { activeTask: TodoItemRecord }) {
-  return (
-    <TaskBase task={activeTask} className="bg-cyan-100 dark:bg-cyan-950/80" />
-  );
-}
-
 function Board({
   board,
-  activeTask,
   orderedIds,
   projectId,
 }: {
   board: BoardRecord;
-  activeTask: TodoItemRecord | null;
   orderedIds: string[];
   projectId: string;
 }) {
@@ -150,9 +141,9 @@ function Board({
       .where(({ todoItem }) => eq(todoItem.boardId, board.id)),
   );
 
-  const { active, over } = useDndContext();
+  const { active } = useDndContext();
 
-  const { orderedTodoItems, activeTaskIndex } = useMemo(() => {
+  const { orderedTodoItems } = useMemo(() => {
     const orderMap = new Map<string, number>();
     orderedIds.forEach((id, idx) => {
       orderMap.set(id, idx);
@@ -163,6 +154,12 @@ function Board({
     const orderedTodoItems = todoItems.sort((a, b) => {
       // If id not found, put it at the end
       const practicallyInfinite = 10_0000; // realistically we won't have this many items in this array
+
+      const idxA1 = orderMap.get(a.id);
+      if (idxA1 === undefined) throw new Error("idxA1 is undefined");
+      const idxB1 = orderMap.get(b.id);
+      if (idxB1 === undefined) throw new Error("idxB1 is undefined");
+
       const idxA = orderMap.get(a.id) ?? practicallyInfinite;
       const idxB = orderMap.get(b.id) ?? practicallyInfinite;
       return idxA - idxB;
@@ -171,7 +168,7 @@ function Board({
     return { orderedTodoItems, activeTaskIndex };
   }, [todoItems, orderedIds, active]);
 
-  const { setNodeRef, isOver } = useDroppable({ id: board.id });
+  const { setNodeRef } = useDroppable({ id: board.id });
 
   const color =
     COLUMN_COLORS[board.name as keyof typeof COLUMN_COLORS] || "#999999";
@@ -215,39 +212,15 @@ function Board({
           items={orderedTodoItems.map((task) => task.id)}
         >
           <VList>
-            {orderedTodoItems.map((todoItem, i) => {
-              const showDropIndicator =
-                active?.id &&
-                over?.id === todoItem.id &&
-                active.id !== todoItem.id &&
-                // We don't want the drop indicator to be shown
-                // right below the active task
-                activeTaskIndex + 1 !== i;
-
+            {orderedTodoItems.map((todoItem) => {
               return (
                 <div key={`${todoItem.id}-wrapper`}>
-                  {showDropIndicator && activeTask && (
-                    <DraggedTaskSlot
-                      key="placeholder"
-                      activeTask={activeTask}
-                    />
-                  )}
                   <DraggableTask projectId={projectId} task={todoItem} />
-                  {/* <TaskBase */}
-                  {/*   projectId={projectId} */}
-                  {/*   task={todoItem} */}
-                  {/*   className="cursor-default" */}
-                  {/* /> */}
                 </div>
               );
             })}
-            {/* If column is empty and is being dragged over, show drop indicator */}
-            {isOver && activeTask && (
-              <DraggedTaskSlot key="placeholder" activeTask={activeTask} />
-            )}
           </VList>
         </SortableContext>
-        <div></div>
       </CardContent>
     </Card>
   );
@@ -256,7 +229,6 @@ function Board({
 export function TodoBoards({ projectId }: { projectId: string }) {
   // const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
 
   // const [inProgresIdsOrdered, setInProgressIdsOrdered] =
   //   useState<string[]>(initialOrder);
@@ -305,10 +277,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     setActiveId(event.active.id);
   };
 
-  const handleDragOver = (event: DragOverEvent) => {
-    setOverId(event.over ? event.over.id : null);
-  };
-
   // TODO: this should be an optimisticAction
   // that updates both todoItems and projects collections.
   // That would give us proper rollbacks on errors.
@@ -331,7 +299,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     // not-empty column, you don't see the placeholder
     const { active, over } = event;
     setActiveId(null);
-    setOverId(null);
 
     if (!over) return;
     const state = project.itemPositionsInTheProject;
@@ -409,18 +376,13 @@ export function TodoBoards({ projectId }: { projectId: string }) {
 
   return (
     <div className="flex-1 min-h-0">
-      <DndContext
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-3 gap-4 h-full min-h-0">
           {sortedBoards.map((board) => (
             <Board
               projectId={projectId}
               board={board}
               key={board.id}
-              activeTask={activeTodoItem}
               orderedIds={project.itemPositionsInTheProject[board.id] || []}
             />
           ))}
