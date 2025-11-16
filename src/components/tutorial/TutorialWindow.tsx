@@ -31,9 +31,8 @@ function FloatingWindow({
   return (
     <div
       className={cn(
-        "max-w-full md:max-w-2/3 bg-white text-black transition-all mb-2 shadow-lg rounded-lg shadow-orange-500/10 border border-orange-500 dark:border-orange-500/10 overflow-hidden",
+        "bg-white text-black transition-all mb-2 shadow-lg rounded-lg shadow-orange-500/10 border border-orange-500 dark:border-orange-500/10 overflow-hidden",
         // isOpen ? "translate-y-0" : "pointer-events-none translate-y-2",
-        isOpen ? "w-6xl" : "w-fit",
       )}
     >
       <div
@@ -113,7 +112,12 @@ export function TutorialWindow() {
 
   return (
     <div className="w-0 h-0">
-      <div className="absolute w-screen bottom-0 left-0 p-2 z-[49]">
+      <div
+        className={cn(
+          "absolute bottom-0 left-0 p-2 z-[49]",
+          isOpen ? "w-3xl" : "w-fit",
+        )}
+      >
         <FloatingWindow toggleWindow={toggleWindow} isOpen={isOpen} />
         <button
           onClick={toggleWindow}
