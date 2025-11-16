@@ -113,7 +113,7 @@ export function TutorialWindow() {
 
   return (
     <div className="w-0 h-0">
-      <div className="absolute w-screen bottom-0 left-0 p-2 z-[100]">
+      <div className="absolute w-screen bottom-0 left-0 p-2 z-[49]">
         <FloatingWindow toggleWindow={toggleWindow} isOpen={isOpen} />
         <button
           onClick={toggleWindow}
