@@ -1,14 +1,47 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
+import { useNavigate } from "@tanstack/react-router";
 import { DatabaseZapIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import z from "zod";
 import { steps } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { useNavigate } from "@tanstack/react-router";
 
-export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialActiveStep";
+export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialData";
 export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
+
+export const tutorialDataSchema = z.object({
+  tutorialStep: z.string().nullable(),
+  scrollPositions: z.record(z.string(), z.number()),
+});
+
+export type TutorialData = {
+  tutorialStep: string | null;
+  scrollPositions: Record<string, number>;
+};
+
+function getTutorialDataLocally(w: Window): TutorialData {
+  const tutorialInLocalStorage = w.localStorage.getItem(
+    TUTORIAL_DATA_LOCAL_STORAGE_KEY,
+  );
+
+  let tutorialData: TutorialData;
+
+  try {
+    tutorialData = tutorialDataSchema.parse(
+      tutorialInLocalStorage ? JSON.parse(tutorialInLocalStorage) : {},
+    );
+  } catch (e) {
+    console.error("Error parsing tutorial data from localStorage:", e);
+    tutorialData = {
+      tutorialStep: null,
+      scrollPositions: {},
+    };
+  }
+
+  return tutorialData;
+}
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
@@ -51,14 +84,29 @@ function MinimizedFloatingWindow({
 function FloatingWindow({
   isOpen,
   toggleWindow,
-  initialStep,
+  tutorialData,
 }: {
   isOpen: boolean;
   toggleWindow: () => void;
-  initialStep: string | null;
+  tutorialData: TutorialData;
 }) {
-  const [activeStep, setActiveStep] = useState(initialStep || steps[0].title);
+  const [activeStep, setActiveStep] = useState(
+    tutorialData.tutorialStep || steps[0].title,
+  );
+  // const [scrollPositions, dispatch] = useReducer(
+  //   (state: Record<string, number>, action: { step: string; pos: number }) => {
+  //     return {
+  //       ...tutorialData.scrollPositions,
+  //       ...state,
+  //       [action.step]: action.pos,
+  //     };
+  //   },
+  //   tutorialData.scrollPositions || {},
+  // )
+
   const navigate = useNavigate();
+
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleStepChange = useCallback(
     (stepTitle: string) => {
@@ -71,9 +119,20 @@ function FloatingWindow({
       });
 
       if (typeof window !== "undefined") {
+        // TODO: do we need localStorage and cookies too???
+        // TODO: clean this mess up
+        const tutorialData: TutorialData = getTutorialDataLocally(window);
+
+        tutorialData.tutorialStep = stepTitle;
+
+        const tutorialDataJson = JSON.stringify(tutorialData);
+
         // biome-ignore lint/suspicious/noDocumentCookie: we need this cookie!
-        window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${stepTitle}; path=/;`;
-        window.localStorage.setItem(TUTORIAL_DATA_LOCAL_STORAGE_KEY, stepTitle);
+        window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${tutorialDataJson}; path=/;`;
+        window.localStorage.setItem(
+          TUTORIAL_DATA_LOCAL_STORAGE_KEY,
+          tutorialDataJson,
+        );
       }
       setActiveStep(stepTitle);
     },
@@ -82,6 +141,35 @@ function FloatingWindow({
       navigate,
     ],
   );
+
+  // Restore scroll position on mount
+  useEffect(() => {
+    if (tutorialData.tutorialStep) {
+      const saved = tutorialData.scrollPositions[tutorialData.tutorialStep];
+      if (saved && scrollRef.current) {
+        scrollRef.current.scrollTop = parseInt(saved.toString(), 10);
+      }
+    }
+  }, [tutorialData]);
+
+  // Save scroll position on scroll
+  const handleScroll = () => {
+    const tutorialData: TutorialData = getTutorialDataLocally(window);
+    // get current scroll positions
+    if (scrollRef.current) {
+      const tutorialDataJson = JSON.stringify({
+        tutorialStep: activeStep,
+        scrollPositions: {
+          ...tutorialData.scrollPositions,
+          [activeStep]: scrollRef.current.scrollTop,
+        },
+      } satisfies TutorialData);
+
+      // biome-ignore lint/suspicious/noDocumentCookie: we need this>
+      window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${tutorialDataJson}; path=/;`;
+      localStorage.setItem(TUTORIAL_DATA_LOCAL_STORAGE_KEY, tutorialDataJson);
+    }
+  };
 
   return (
     <div
@@ -132,7 +220,11 @@ function FloatingWindow({
           {/*   className="w-full ml-4 !block overflow-x-hidden display" */}
           {/*   doNotUseTable */}
           {/* > */}
-          <div className="w-full ml-4 !block overflow-x-hidden display">
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="w-full ml-4 !block overflow-x-hidden display"
+          >
             {steps.map((step, index) => (
               <TabsContent
                 key={step.title}
@@ -153,9 +245,9 @@ function FloatingWindow({
 }
 
 export function TutorialWindow({
-  initialStep,
+  tutorialData,
 }: {
-  initialStep: string | null;
+  tutorialData: TutorialData;
 }) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -174,7 +266,7 @@ export function TutorialWindow({
         <FloatingWindow
           toggleWindow={toggleWindow}
           isOpen={isOpen}
-          initialStep={initialStep}
+          tutorialData={tutorialData}
         />
         <button
           onClick={toggleWindow}

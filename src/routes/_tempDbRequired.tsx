@@ -4,7 +4,9 @@ import z from "zod";
 import { highlightParamSchema } from "@/components/tutorial";
 import {
   TUTORIAL_DATA_LOCAL_STORAGE_KEY,
+  type TutorialData,
   TutorialWindow,
+  tutorialDataSchema,
 } from "@/components/tutorial/TutorialWindow";
 import { getTutorialDataFromCookie } from "@/server/functions/getTutorialDataFromCookie";
 import { requireTempId } from "@/server/middlewares/getTempDbIdFromRequest";
@@ -33,19 +35,28 @@ const getTempId = createIsomorphicFn()
   });
 
 const getTutorialWindowData = createIsomorphicFn()
-  .server(async () => {
+  .server(async (): Promise<TutorialData> => {
     // Fetch any data needed for the tutorial window on the server
     return await getTutorialDataFromCookie();
   })
-  .client(() => {
+  .client((): TutorialData => {
     // TODO: might be unnecessary
     const savedStep = window.localStorage.getItem(
       TUTORIAL_DATA_LOCAL_STORAGE_KEY,
     );
 
-    return {
-      tutorialStep: null,
-    };
+    try {
+      const tutorialData = tutorialDataSchema.parse(
+        JSON.parse(savedStep || "{}"),
+      );
+      return tutorialData;
+    } catch (e) {
+      console.error("Error parsing tutorial data from localStorage:", e);
+      return {
+        tutorialStep: null,
+        scrollPositions: {},
+      };
+    }
   });
 
 export const Route = createFileRoute("/_tempDbRequired")({
@@ -65,9 +76,9 @@ export const Route = createFileRoute("/_tempDbRequired")({
     };
   },
   loader: async ({ context }) => {
-    const { tutorialStep } = await getTutorialWindowData();
+    const tutorialData = await getTutorialWindowData();
     return {
-      initialStep: tutorialStep,
+      tutorialData,
     };
   },
   // loader: async ({ context }) => {
@@ -95,12 +106,12 @@ export const Route = createFileRoute("/_tempDbRequired")({
 });
 
 function RouteComponent() {
-  const { initialStep } = Route.useLoaderData();
+  const { tutorialData } = Route.useLoaderData();
 
   return (
     <>
       <Outlet />
-      <TutorialWindow initialStep={initialStep} />
+      <TutorialWindow tutorialData={tutorialData} />
     </>
   );
 }
