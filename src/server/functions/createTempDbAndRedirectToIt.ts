@@ -18,6 +18,9 @@ export const createTempDbAndRedirectToIt = createServerFn().handler(
       // TODO: redirect to the apex domain
       throw new Error(`Cannot create temp DB from a subdomain`);
     }
+
+    let projectId: string | null = null;
+
     const tempDbId = getSubdomainSafeIds();
     // TODO: change this later
 
@@ -28,15 +31,27 @@ export const createTempDbAndRedirectToIt = createServerFn().handler(
           env.TEMP_DB_LIFETIME_MINUTES * 60 * 1000 + Date.now(),
       });
       // seed initial data for the new temp DB
-      await seed(tempDbId);
+      const { firstProjectId } = await seed(tempDbId);
+
+      projectId = firstProjectId;
     } catch (e) {
       console.error("Error creating temp DB:", e);
       // TODO: show error message on the client
       throw e;
     }
 
+    if (!projectId) {
+      throw redirect({
+        to: "/",
+        search: {
+          error:
+            "Could not create a new temporary database. Please try again later.",
+        },
+      });
+    }
+
     throw redirect({
-      href: `http://${tempDbId}.${host}/projects`,
+      href: `http://${tempDbId}.${host}/projects/${projectId}`,
     });
   },
 );
