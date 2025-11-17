@@ -5,6 +5,7 @@ import { steps } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { useNavigate } from "@tanstack/react-router";
 
 export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialActiveStep";
 export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
@@ -57,15 +58,30 @@ function FloatingWindow({
   initialStep: string | null;
 }) {
   const [activeStep, setActiveStep] = useState(initialStep || steps[0].title);
+  const navigate = useNavigate();
 
-  const handleStepChange = useCallback((stepTitle: string) => {
-    if (typeof window !== "undefined") {
-      // biome-ignore lint/suspicious/noDocumentCookie: we need this cookie!
-      window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${stepTitle}; path=/;`;
-      window.localStorage.setItem(TUTORIAL_DATA_LOCAL_STORAGE_KEY, stepTitle);
-    }
-    setActiveStep(stepTitle);
-  }, []);
+  const handleStepChange = useCallback(
+    (stepTitle: string) => {
+      // clear all highlights
+      navigate({
+        to: ".",
+        search: ({ highlight: _, ...old }) => {
+          return { ...old };
+        },
+      });
+
+      if (typeof window !== "undefined") {
+        // biome-ignore lint/suspicious/noDocumentCookie: we need this cookie!
+        window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${stepTitle}; path=/;`;
+        window.localStorage.setItem(TUTORIAL_DATA_LOCAL_STORAGE_KEY, stepTitle);
+      }
+      setActiveStep(stepTitle);
+    },
+    [
+      // clear all highlights
+      navigate,
+    ],
+  );
 
   return (
     <div
