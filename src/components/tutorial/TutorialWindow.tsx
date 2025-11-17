@@ -236,6 +236,20 @@ function FloatingWindow({
               >
                 <div className="prose prose-sm prose-neutral prose-base bg-white text-black dark:prose-neutral dark:bg-white dark:text-black">
                   {<step.file />}
+                  {step.nextStepName && (
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          step.nextStepName &&
+                          handleStepChange(step.nextStepName)
+                        }
+                        className="text-orange-500 underline hover:text-orange-600 transition-colorscursor-pointer"
+                      >
+                        Next: {step.nextStepName}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             ))}

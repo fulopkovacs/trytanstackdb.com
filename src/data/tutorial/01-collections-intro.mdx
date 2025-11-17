@@ -3,40 +3,66 @@ import {GHLink, HighLightComponent, ClearHighlightsButton} from "/src/components
 
 ## What are collections?
 
-With TanStack DB, you can store and manage data in the client-side cache using
+With TanStack DB, you can store and manage data from your remote db and the client-side cache using
 <a href="https://tanstack.com/db/latest/docs/overview#defining-collections" target="\_blank"> collections</a>.
 
-### Example: Projects
+For example, the `projectsCollection` mirrors the data in our remote database (<a href="developers.cloudflare.com/d1/" target="/_blank">`CloudFlare D1`</a> in our case). We have several components that use that collection as a single source of truth, querying it to retrieve the data they need.
 
-For example, this is how the `projectsCollection` is defined:
+Click the button below to see these components:
+
+<HighLightComponent h_id="project">Highlight components</HighLightComponent>
+
+In the `AppSidebar` component, we use this query to get the list of projects:
 
 ```ts
-export const projectsCollection = createCollection(
-  // We use `@tanstack/react-query` to sync the local cache with the remote db
-  queryCollectionOptions({
-    queryKey: ["projects"],
-    // This is the function that loads all the projects
-    // from the remote db and populates the local cache
-    queryFn: getProjects,
-    queryClient: TanstackQuery.getContext().queryClient,
-    // This function tells tanstack-db what to do when
-    // an item is updated in the collection
-    onUpdate: async ({ transaction }) => {
-        // [..] Update logic
-    },
-    getKey: (item) => item.id,
-  }),
-);
+  const { data: projects } = useLiveQuery((q) =>
+    q.from({
+      project: projectsCollection,
+    }),
+  );
 ```
-<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/09ae096063694c0d03cf0c6ffc93b820fce1a02c/src/collections/projects.ts#L19-L64" />
+<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/013849f87b6ce7ab5dee3873424d8e1012b810fc/src/components/AppSidebar.tsx#L45-L49" />
 
-### Using collections
+<HighLightComponent h_id="project_sidebar">Highlight `AppSidebar`</HighLightComponent>
 
-This collection mirrors the `projects` table in the remote database. 
-We can use this single collection as a single source of truth in every
-component where we want to display data that is related to the `projects` table.
+On the project's page, the `RouteComponent` loads only the data relevant for the currently viewed project:
 
-Click the button below to see all the React components on the page that use the `projectsCollection`!
+```ts
+  const {
+    data: [project],
+  } = useLiveQuery(
+    (q) =>
+      q
+        .from({ project: projectsCollection })
+        .where(({ project }) => eq(project.id, projectId)),
+    // This hook has a dependency array as seen below.
+    // Every time the `projectId` changes (i.e. we navigate
+    // to a new page), the query is executed again
+    [projectId],
+  );
+```
+<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/013849f87b6ce7ab5dee3873424d8e1012b810fc/src/routes/_tempDbRequired.projects.$projectId.tsx#L19-L27" />
 
-<HighLightComponent h_id="project_all">Highlight components</HighLightComponent>
-<HighLightComponent h_id="boards_all">Highlight components</HighLightComponent>
+<HighLightComponent h_id="project_projectPage">Highlight `RouteComponent`</HighLightComponent>
+
+### "So many queries... Isn't that ...slow?"
+
+Thankfully, no, and there are two reasons why.
+
+1. Multiple queries using the same collection will sync the collection with the backend only once, and use the cache the rest of the times.
+    - To check it, follow these steps:
+       1. go to the `Network` tab in your browser's dev tools
+       2. reload the page (<a href="">click here</a>)
+       3. see that there is only one `GET` request to the `/api/projects` endpoint, despite having 2 components using data from the `projectCollection`
+       4. if you navigate to any other project page, you shouldn't see more requests made
+
+        > Unless the cache needs to be revalidated (because the state has been mutated or went stale).
+
+
+2. Live queries updated incrementally, (they use <a href="https://github.com/electric-sql/d2ts" target="_blank">`d2ts`</a>, a differential dataflow library)
+    - this results in _sub-millisecond_ execution times (even for complex queries)
+    - which means that it's BLAZING FAST!!! ⚡⚡⚡
+
+### Querying multiple collections
+
+Yes, you can even use `innerJoin()` and other `join` operations to query multiple collections. This demo doesn't have an example for that yet, but you can <a href="https://tanstack.com/db/latest/docs/guides/live-queries#joins" target="_blank">check the documentation</a> if you're interested.

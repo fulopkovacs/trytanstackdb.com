@@ -1,4 +1,4 @@
-import { useLiveQuery } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { Link, useParams, useSearch } from "@tanstack/react-router";
 import { ChevronDownIcon, FolderClosedIcon, SidebarIcon } from "lucide-react";
 import { projectsCollection } from "@/collections/projects";
@@ -27,6 +27,8 @@ import {
 } from "./ui/collapsible";
 import { cn } from "@/lib/utils";
 import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
+import { todoItemsCollection } from "@/collections/todoItems";
+import { boardCollection } from "@/collections/boards";
 
 // } from "@/registry/new-york-v4/ui/sidebar"
 
@@ -78,7 +80,7 @@ export function AppSidebar({
               <SidebarMenu>
                 <Collapsible defaultOpen className="group/collapsible">
                   <SidebarMenuItem>
-                    <HighlightWrapper>
+                    <HighlightWrapper highlightId="project_sidebar">
                       <CollapsibleTrigger asChild className="flex items-center">
                         <SidebarMenuButton className={cn("grow")}>
                           <FolderClosedIcon />

@@ -16,7 +16,9 @@ export function HighlightWrapper({
   return (
     <div
       className={cn(
-        searchParams.highlight === highlightId && "outline-red-400 outline",
+        searchParams.highlight &&
+          highlightId.startsWith(searchParams.highlight) &&
+          "outline-red-400 outline",
       )}
     >
       {children}
