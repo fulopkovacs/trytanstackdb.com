@@ -69,7 +69,7 @@ export const Route = createFileRoute("/_tempDbRequired")({
       tempDbId,
     };
   },
-  loader: async ({ context }) => {
+  loader: async () => {
     const tutorialData = await getTutorialWindowData();
     return {
       tutorialData,

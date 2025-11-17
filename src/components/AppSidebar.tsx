@@ -28,16 +28,7 @@ import {
 
 // } from "@/registry/new-york-v4/ui/sidebar"
 
-export function AppSidebar({
-  user,
-  // onSelect,
-}: {
-  user: {
-    name: string;
-    id: string;
-    image?: string | null | undefined;
-  };
-}) {
+export function AppSidebar() {
   const { toggleSidebar, open } = useSidebar();
 
   const { data: projects } = useLiveQuery((q) =>
