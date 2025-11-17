@@ -3,48 +3,18 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { toast } from "sonner";
 import type { ProjectRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
-import { getProjectsQueryOptions } from "@/server/functions/getProjects";
+import type { ProjectUpdateData } from "@/routes/api.projects";
 import { projectErrorNames } from "@/utils/errorNames";
-
-async function getProjects() {
-  const res = await fetch("/api/projects");
-  if (res.status !== 200) {
-    throw new Error("Failed to fetch projects");
-  }
-
-  const data: ProjectRecord[] = await res.json();
-  return data;
-}
 
 export const projectsCollection = createCollection(
   queryCollectionOptions({
-    queryKey: getProjectsQueryOptions.queryKey,
+    queryKey: ["projects"],
     queryFn: getProjects,
     queryClient: TanstackQuery.getContext().queryClient,
     onUpdate: async ({ transaction }) => {
       const { original, changes } = transaction.mutations[0];
       try {
-        /*
-          NOTE: we're intentionally not using server functions to make
-          it easier to inspect the requests in the networks panel.
-        */
-
-        const res = await fetch("/api/projects", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: original.id,
-            ...changes,
-          }),
-        });
-
-        if (res.status !== 200) {
-          // biome-ignore lint/suspicious/noExplicitAny: it's okay
-          const errorData: any = await res.text();
-          throw new Error(errorData);
-        }
+        await updateProject({ original, changes });
       } catch (error) {
         if (
           error instanceof Error &&
@@ -62,3 +32,43 @@ export const projectsCollection = createCollection(
     getKey: (item) => item.id,
   }),
 );
+
+async function getProjects() {
+  const res = await fetch("/api/projects");
+  if (res.status !== 200) {
+    throw new Error("Failed to fetch projects");
+  }
+
+  const data: ProjectRecord[] = await res.json();
+  return data;
+}
+
+async function updateProject({
+  changes,
+  original,
+}: {
+  changes: Partial<ProjectRecord>;
+  original: ProjectRecord;
+}) {
+  /*
+    NOTE: we're intentionally not using server functions to make
+    it easier to inspect the requests in the networks panel.
+   */
+
+  const res = await fetch("/api/projects", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id: original.id,
+      ...changes,
+    } satisfies ProjectUpdateData),
+  });
+
+  if (res.status !== 200) {
+    // biome-ignore lint/suspicious/noExplicitAny: it's okay
+    const errorData: any = await res.text();
+    throw new Error(errorData);
+  }
+}

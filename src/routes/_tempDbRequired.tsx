@@ -3,6 +3,8 @@ import { createIsomorphicFn, createServerFn } from "@tanstack/react-start";
 import { requireTempId } from "@/server/middlewares/getTempDbIdFromRequest";
 import { getTempDbIdFromTheSubdomain } from "@/utils/getTempDbIdFromSubdomain";
 import { TutorialWindow } from "@/components/tutorial/TutorialWindow";
+import z from "zod";
+import { highlightParamSchema } from "@/components/tutorial";
 
 const mockUser = {
   id: "1",
@@ -28,6 +30,11 @@ const getTempId = createIsomorphicFn()
 
 export const Route = createFileRoute("/_tempDbRequired")({
   // component: RouteComponent,
+  validateSearch: z
+    .object({
+      temp_db_missing: z.string().optional(),
+    })
+    .extend(highlightParamSchema.shape),
   beforeLoad: async () => {
     // TODO: get tempdb
     const tempDbId = await getTempId();

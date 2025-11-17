@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAppForm } from "@/hooks/app.form";
+import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 
 function EditProjectNamePopover({ name, id }: { name: string; id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,14 +74,16 @@ export function EditableProjectDetails({
   project: { name: string; description?: string; id: string };
 }) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight">
-          {project.name || "Project"}
-        </h1>
-        <EditProjectNamePopover name={project.name} id={project.id} />
+    <HighlightWrapper>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight">
+            {project.name || "Project"}
+          </h1>
+          <EditProjectNamePopover name={project.name} id={project.id} />
+        </div>
+        <p>{project?.description || ""}</p>
       </div>
-      <p>{project?.description || ""}</p>
-    </div>
+    </HighlightWrapper>
   );
 }
