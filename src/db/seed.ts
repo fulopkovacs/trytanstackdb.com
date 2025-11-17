@@ -282,6 +282,10 @@ export async function seed(tempDBId: string) {
       const batch = mockTodoItems.slice(i, i + BATCH_SIZE);
       await db.insert(todoItemsTable).values(batch);
     }
+
+    return {
+      firstProjectId: mockProjects[0].id,
+    };
   } catch (error) {
     console.error("Error during seeding:", error);
     throw error;
