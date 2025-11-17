@@ -7,4 +7,41 @@ import {
 
 ## Optimistic updates
 
-Be optimistic.
+Besides queries, data mutations also get faster with `tanstack-db`.
+
+Let's check what happens when you rename a project!
+
+<HighLightComponent h_id="editProject">Find the edit button</HighLightComponent>
+
+Rename the project to _"My wonderful project"_. BOOM! It changed instantly
+everywhere.
+
+This is the code btw (it's so tiny 🥺):
+
+```ts
+projectsCollection.update(id, (project) => {
+  project.name = value.name
+})
+```
+
+<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/013849f87b6ce7ab5dee3873424d8e1012b810fc/src/components/EditableProjectDetails.tsx#L22-L24" />
+
+The reason why it's fast is that updates, inserts, deletes and more complex
+mutations all update the cache first and handle updating the data in the remote
+db in the background.
+
+### Errors and rollbacks
+
+Now rename it to a project that already exists (like `Project Beta`).
+
+1. At first, everything is the same
+2. when the update request fails in the background (because all project names
+   must be unique)
+   - the changes are immediately rolled back,
+   - and a toast message appears with the error message
+
+If the update fails, the mutations are rolled back.
+
+**"Okay, but when does the syncing happen?. Is it magic???"**. Glad you asked.
+Everything is magic if you just believe in it, let me show you how it works in
+the next section. ✨
