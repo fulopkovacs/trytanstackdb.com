@@ -1,6 +1,7 @@
 import CollectionsIntro from "@/data/tutorial/01-collections-intro.mdx";
 import HowDoCollectionsWork from "@/data/tutorial/02-how-do-collections-work.mdx";
 import OptimisticUpdates from "@/data/tutorial/02-optimistic-updates.mdx";
+import WhatIsNext from "@/data/tutorial/WhatIsNext.mdx";
 
 export type Step = {
   title: string;
@@ -33,8 +34,8 @@ const stepsWithoutNames: Omit<Step, "nextSteName">[] = [
     file: HowDoCollectionsWork,
   },
   {
-    title: "Data lifecycle",
-    file: CollectionsIntro,
+    title: "What is next?",
+    file: WhatIsNext,
   },
 ];
 
