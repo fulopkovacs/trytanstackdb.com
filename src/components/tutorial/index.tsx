@@ -3,8 +3,20 @@ import { GithubIcon, HighlighterIcon, XCircleIcon } from "lucide-react";
 import { useMemo } from "react";
 import z from "zod";
 
+/**
+  Naming convention:
+    - `project` highlights any ids starting with `project` (e.g., `project`, `project_sidebar`)
+*/
 export const highlightParamSchema = z.object({
-  highlight: z.enum(["project_all", "boards_all"]).optional(),
+  highlight: z
+    .enum([
+      "project",
+      "project_sidebar",
+      "project_projectPage",
+      "board",
+      "editProject",
+    ])
+    .optional(),
 });
 
 function getFilePathFromGithubFileUrl(href: string) {
@@ -30,7 +42,7 @@ export function GHLink({ href }: { href: string }) {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="text-xs text-neutral-500 transition-colors underline hover:text-orange-500"
+      className="text-xs text-neutral-500 transition-colors underline hover:text-orange-500 mb-4 block w-fit"
     >
       <div className="flex items-center gap-1">
         <GithubIcon className="h-4 w-4" /> {label}
