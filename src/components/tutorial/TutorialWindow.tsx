@@ -94,22 +94,28 @@ function FloatingWindow({
               ))}
             </TabsList>
           </ScrollArea>
-          <ScrollArea type="auto" className="w-full ml-4">
+          {/*
+              NOTE: Scrollbar had issues with code blacks that were too wide
+              */}
+          {/* <ScrollArea */}
+          {/*   type="auto" */}
+          {/*   className="w-full ml-4 !block overflow-x-hidden display" */}
+          {/*   doNotUseTable */}
+          {/* > */}
+          <div className="w-full ml-4 !block overflow-x-hidden display">
             {steps.map((step, index) => (
               <TabsContent
                 key={step.title}
                 value={step.title}
-                className="overflow-y-auto"
+                className="overflow-y-auto w-full overflow-x-hidden pb-3"
               >
-                <div className="prose prose-neutral prose-base bg-white text-black dark:prose-neutral dark:bg-white dark:text-black">
+                <div className="prose prose-sm prose-neutral prose-base bg-white text-black dark:prose-neutral dark:bg-white dark:text-black">
                   {<step.file />}
                 </div>
               </TabsContent>
             ))}
-            {/* Array.from({ length: 200 }).map((_, i) => (
-              <div key={i}>{i.toString()}</div>
-            )) */}
-          </ScrollArea>
+            {/* </ScrollArea> */}
+          </div>
         </Tabs>
       </div>
     </div>

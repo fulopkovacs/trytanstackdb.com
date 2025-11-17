@@ -1,5 +1,5 @@
 import { useLiveQuery } from "@tanstack/react-db";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, useParams, useSearch } from "@tanstack/react-router";
 import { ChevronDownIcon, FolderClosedIcon, SidebarIcon } from "lucide-react";
 import { projectsCollection } from "@/collections/projects";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,6 +25,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { cn } from "@/lib/utils";
+import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 
 // } from "@/registry/new-york-v4/ui/sidebar"
 
@@ -47,6 +49,7 @@ export function AppSidebar({
   );
 
   const params = useParams({ strict: false });
+  const searchParams = useSearch({ strict: false });
 
   return (
     <SidebarProvider className="w-auto" open={open} defaultOpen>
@@ -76,50 +79,52 @@ export function AppSidebar({
               <SidebarMenu>
                 <Collapsible defaultOpen className="group/collapsible">
                   <SidebarMenuItem>
-                    <CollapsibleTrigger asChild className="flex items-center">
-                      <SidebarMenuButton className="grow">
-                        <FolderClosedIcon />
-                        <span>Projects ({projects.length})</span>
-                        {/* <SidebarMenuBadge>{boards.length}</SidebarMenuBadge> */}
-                        <ChevronDownIcon className="ml-auto transition-transform duration-200 ease-in-out group-data-[state=open]/collapsible:rotate-180" />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {projects.map((project) => (
-                          <SidebarMenuSubItem key={project.id}>
-                            <SidebarMenuSubButton
-                              asChild
-                              isActive={params.projectId === project.id}
-                            >
-                              <Link
-                                preload={
-                                  /*
-                                    NOTE: People will probably check the network
-                                    requests to see how TanStack DB works, so it's
-                                    the best if don't confuse them by preloading
-                                    data on link hovers etc.
-                                  */
-                                  false
-                                }
-                                to="/projects/$projectId"
-                                params={{ projectId: project.id }}
-                                style={
-                                  {
-                                    // fontWeight:
-                                    //   selectedProject === project ? "bold" : "normal",
-                                    // color:
-                                    //   selectedProject === project ? "#2563eb" : "inherit",
-                                  }
-                                }
+                    <HighlightWrapper>
+                      <CollapsibleTrigger asChild className="flex items-center">
+                        <SidebarMenuButton className={cn("grow")}>
+                          <FolderClosedIcon />
+                          <span> Projects ({projects.length})</span>
+                          {/* <SidebarMenuBadge>{boards.length}</SidebarMenuBadge> */}
+                          <ChevronDownIcon className="ml-auto transition-transform duration-200 ease-in-out group-data-[state=open]/collapsible:rotate-180" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {projects.map((project) => (
+                            <SidebarMenuSubItem key={project.id}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={params.projectId === project.id}
                               >
-                                {project.name}
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
+                                <Link
+                                  preload={
+                                    /*
+                      NOTE: People will probably check the network
+                    requests to see how TanStack DB works, so it's
+                    the best if don't confuse them by preloading
+                      data on link hovers etc.
+                      */
+                                    false
+                                  }
+                                  to="/projects/$projectId"
+                                  params={{ projectId: project.id }}
+                                  style={
+                                    {
+                                      // fontWeight:
+                                      //   selectedProject === project ? "bold" : "normal",
+                                      // color:
+                                      //   selectedProject === project ? "#2563eb" : "inherit",
+                                    }
+                                  }
+                                >
+                                  {project.name}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </HighlightWrapper>
                   </SidebarMenuItem>
                 </Collapsible>
               </SidebarMenu>

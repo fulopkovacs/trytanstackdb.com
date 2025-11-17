@@ -10,7 +10,7 @@ import { redirect } from "@tanstack/react-router";
 export const getExpiryDate = createServerFn()
   .middleware([requireTempId])
   .handler(async ({ context: { tempId } }) => {
-    const { subdomain, apex, protocol } = await getSubdomainAndApexFromHost();
+    const { apex, protocol } = await getSubdomainAndApexFromHost();
     // Fetch the expiry date from your database or any other source
     // For demonstration, we'll just return a date 30 minutes from now
     const [data] = await db

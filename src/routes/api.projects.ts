@@ -16,6 +16,8 @@ const projectUpdateData = z.object({
     .optional(),
 });
 
+export type ProjectUpdateData = z.infer<typeof projectUpdateData>;
+
 export const Route = createFileRoute("/api/projects")({
   server: {
     middleware: [getTempDbIdFromRequest],

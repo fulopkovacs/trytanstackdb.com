@@ -1,15 +1,42 @@
 import {Link} from '@tanstack/react-router'
+import {GHLink, HighLightComponent, ClearHighlightsButton} from "/src/components/tutorial"
 
 ## What are collections?
 
-Collections are cool things.
+With TanStack DB, you can store and manage data in the client-side cache using
+<a href="https://tanstack.com/db/latest/docs/overview#defining-collections" target="\_blank"> collections</a>.
 
-```js
-console.log('Hello world')
+### Example: Projects
+
+For example, this is how the `projectsCollection` is defined:
+
+```ts
+export const projectsCollection = createCollection(
+  // We use `@tanstack/react-query` to sync the local cache with the remote db
+  queryCollectionOptions({
+    queryKey: ["projects"],
+    // This is the function that loads all the projects
+    // from the remote db and populates the local cache
+    queryFn: getProjects,
+    queryClient: TanstackQuery.getContext().queryClient,
+    // This function tells tanstack-db what to do when
+    // an item is updated in the collection
+    onUpdate: async ({ transaction }) => {
+        // [..] Update logic
+    },
+    getKey: (item) => item.id,
+  }),
+);
 ```
+<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/09ae096063694c0d03cf0c6ffc93b820fce1a02c/src/collections/projects.ts#L19-L64" />
 
-You can **use them**.
+### Using collections
 
-Like `this`.
+This collection mirrors the `projects` table in the remote database. 
+We can use this single collection as a single source of truth in every
+component where we want to display data that is related to the `projects` table.
 
-<Link to="?hello=world">?here</Link>
+Click the button below to see all the React components on the page that use the `projectsCollection`!
+
+<HighLightComponent h_id="project_all">Highlight components</HighLightComponent>
+<HighLightComponent h_id="boards_all">Highlight components</HighLightComponent>

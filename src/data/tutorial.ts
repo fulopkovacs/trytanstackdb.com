@@ -1,4 +1,4 @@
-import TestFile from "@/data/tutorial/01-collections-intro.mdx";
+import CollectionsIntro from "@/data/tutorial/01-collections-intro.mdx";
 
 export type Step = {
   title: string;
@@ -13,5 +13,5 @@ export const steps: Step[] = [
 ].map((title) => ({
   title,
   text: `Text for ${title}`,
-  file: TestFile,
+  file: CollectionsIntro,
 }));

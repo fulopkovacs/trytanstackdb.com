@@ -1,10 +1,10 @@
-import { queryOptions } from "@tanstack/react-query";
+// import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
+import z from "zod";
 import { db } from "@/db";
 import { projectsTable } from "@/db/schema";
 import { requireTempId } from "../middlewares/getTempDbIdFromRequest";
-import z from "zod";
 
 // TODO: use this error in the client
 export class ProjectNameAlreadyExistsError extends Error {
@@ -25,11 +25,11 @@ export const getProjects = createServerFn()
       .where(eq(projectsTable.tempDbId, tempId));
   });
 
-export const getProjectsQueryOptions = queryOptions({
-  queryKey: ["projects"],
-  // queryFn: ,
-});
-
+// export const getProjectsQueryOptions = queryOptions({
+//   queryKey: ["projects"],
+//   // queryFn: ,
+// });
+//
 export const updateProject = createServerFn()
   .middleware([requireTempId])
   .inputValidator(
