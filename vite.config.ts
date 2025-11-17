@@ -1,7 +1,6 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
 import mdx from "@mdx-js/rollup";
 import tailwindcss from "@tailwindcss/vite";
-import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import rehypePrism from "rehype-prism-plus";
@@ -17,7 +16,6 @@ const config = defineConfig({
   //   allowedHosts: [".localhost"],
   // },
   plugins: [
-    devtools(),
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
