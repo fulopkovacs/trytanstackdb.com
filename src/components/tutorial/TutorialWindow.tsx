@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 
-// export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialActiveStep";
+export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialActiveStep";
 export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
@@ -60,10 +60,9 @@ function FloatingWindow({
 
   const handleStepChange = useCallback((stepTitle: string) => {
     if (typeof window !== "undefined") {
-      // window.scrollTo({ top: 0, behavior: "smooth" });
       // biome-ignore lint/suspicious/noDocumentCookie: we need this cookie!
       window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${stepTitle}; path=/;`;
-      // window.localStorage.setItem(TUTORIAL_DATA_LOCAL_STORAGE_KEY, stepTitle);
+      window.localStorage.setItem(TUTORIAL_DATA_LOCAL_STORAGE_KEY, stepTitle);
     }
     setActiveStep(stepTitle);
   }, []);
