@@ -222,6 +222,9 @@ function FloatingWindow({
           {/* > */}
           <div
             ref={scrollRef}
+            // NOTE: we need to use this key to make sure the scrollPosition
+            // does is tracked separately for the different steps
+            key={activeStep}
             onScroll={handleScroll}
             className="w-full ml-4 !block overflow-x-hidden display"
           >
