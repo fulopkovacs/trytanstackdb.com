@@ -1,10 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { DatabaseZapIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { steps } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+
+// export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialActiveStep";
+export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
@@ -47,11 +50,23 @@ function MinimizedFloatingWindow({
 function FloatingWindow({
   isOpen,
   toggleWindow,
+  initialStep,
 }: {
   isOpen: boolean;
   toggleWindow: () => void;
+  initialStep: string | null;
 }) {
-  const [activeStep, setActiveStep] = useState(steps[0].title);
+  const [activeStep, setActiveStep] = useState(initialStep || steps[0].title);
+
+  const handleStepChange = useCallback((stepTitle: string) => {
+    if (typeof window !== "undefined") {
+      // window.scrollTo({ top: 0, behavior: "smooth" });
+      // biome-ignore lint/suspicious/noDocumentCookie: we need this cookie!
+      window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${stepTitle}; path=/;`;
+      // window.localStorage.setItem(TUTORIAL_DATA_LOCAL_STORAGE_KEY, stepTitle);
+    }
+    setActiveStep(stepTitle);
+  }, []);
 
   return (
     <div
@@ -75,7 +90,7 @@ function FloatingWindow({
         <Tabs
           orientation="vertical"
           value={activeStep}
-          onValueChange={setActiveStep}
+          onValueChange={handleStepChange}
           className="w-full flex flex-row p-2 h-96 max-h-3/4"
         >
           <ScrollArea
@@ -122,7 +137,11 @@ function FloatingWindow({
   );
 }
 
-export function TutorialWindow() {
+export function TutorialWindow({
+  initialStep,
+}: {
+  initialStep: string | null;
+}) {
   const [isOpen, setIsOpen] = useState(true);
 
   const toggleWindow = useCallback(() => {
@@ -137,7 +156,11 @@ export function TutorialWindow() {
           isOpen ? "w-3xl" : "w-fit",
         )}
       >
-        <FloatingWindow toggleWindow={toggleWindow} isOpen={isOpen} />
+        <FloatingWindow
+          toggleWindow={toggleWindow}
+          isOpen={isOpen}
+          initialStep={initialStep}
+        />
         <button
           onClick={toggleWindow}
           type="button"
