@@ -7,9 +7,21 @@ import {
 
 ## How do collections work?
 
+### Syncing
+
+By default, collections are synced with the remote source when they are first
+used in a live query, and every time a mutation occurs (update, insert, delete,
+etc).
+
+Look at this beautiful image <a target="_blank" href="https://tanstack.com/db/latest/docs/guides/mutations">from the docs</a>:
+
+![image](https://raw.githubusercontent.com/TanStack/db/main/docs/unidirectional-data-flow.png)
+
+Great, now you get it (or read <a target="_blank" href="https://tanstack.com/db/latest/docs/guides/mutations">the docs</a> if you don't, this is just a quick guide 🙃).
+
 ### Defining a collection
 
-First, let's look at how the `projectsCollection` is defined:
+This is how the `projectsCollection` is defined:
 
 ```ts
 export const projectsCollection = createCollection(
@@ -19,24 +31,34 @@ export const projectsCollection = createCollection(
     // This is the function that loads all the projects
     // from the remote db and populates the local cache
     queryFn: getProjects,
+    getKey: (item) => item.id,
     queryClient: TanstackQuery.getContext().queryClient,
     // This function tells tanstack-db what to do when
     // an item is updated in the collection
     onUpdate: async ({transaction}) => {
       // [..] Update logic
     },
-    getKey: (item) => item.id,
+    // You can have other keys like `onInsert`, `onDelete`, etc
+    // for other common data mutations operations
   }),
 )
 ```
 
 <GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/09ae096063694c0d03cf0c6ffc93b820fce1a02c/src/collections/projects.ts#L19-L64" />
 
-### Using collections
 
-This collection mirrors the `projects` table in the remote database. We can use
-this single collection as a single source of truth in every component where we
-want to display data that is related to the `projects` table.
+The `getProjects` function is essentially just a `fetch` request:
 
-Click the button below to see all the React components on the page that use the
-`projectsCollection`!
+
+```ts
+async function getProjects() {
+  const res = await fetch("/api/projects");
+  if (res.status !== 200) {
+    throw new Error("Failed to fetch projects");
+  }
+
+  const data: ProjectRecord[] = await res.json();
+  return data;
+}
+```
+<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/8b670ab8d08795fa9c65981ec5107046b84cb3c1/src/collections/projects.ts#L36-L44" />
