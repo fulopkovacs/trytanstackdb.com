@@ -49,7 +49,6 @@ export function AppSidebar({
   );
 
   const params = useParams({ strict: false });
-  const searchParams = useSearch({ strict: false });
 
   return (
     <SidebarProvider className="w-auto" open={open} defaultOpen>

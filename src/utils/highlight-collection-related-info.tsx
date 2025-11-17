@@ -3,20 +3,20 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export function HighlightWrapper({
+  highlightId,
   children,
   // asChild,
 }: {
+  highlightId: string;
   children: ReactNode;
   // asChild?: boolean;
 }) {
   const searchParams = useSearch({ strict: false });
 
-  // const Comp = asChild ? children : "div";
-
   return (
     <div
       className={cn(
-        searchParams.highlight === "project_all" && "outline-red-400 outline",
+        searchParams.highlight === highlightId && "outline-red-400 outline",
       )}
     >
       {children}
