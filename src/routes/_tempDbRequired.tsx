@@ -1,14 +1,14 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { createIsomorphicFn, createServerFn } from "@tanstack/react-start";
-import { requireTempId } from "@/server/middlewares/getTempDbIdFromRequest";
-import { getTempDbIdFromTheSubdomain } from "@/utils/getTempDbIdFromSubdomain";
+import z from "zod";
+import { highlightParamSchema } from "@/components/tutorial";
 import {
   TUTORIAL_DATA_LOCAL_STORAGE_KEY,
   TutorialWindow,
 } from "@/components/tutorial/TutorialWindow";
-import z from "zod";
-import { highlightParamSchema } from "@/components/tutorial";
 import { getTutorialDataFromCookie } from "@/server/functions/getTutorialDataFromCookie";
+import { requireTempId } from "@/server/middlewares/getTempDbIdFromRequest";
+import { getTempDbIdFromTheSubdomain } from "@/utils/getTempDbIdFromSubdomain";
 
 const mockUser = {
   id: "1",
@@ -32,20 +32,21 @@ const getTempId = createIsomorphicFn()
     return tempId;
   });
 
-const getTutorialWindowData = createIsomorphicFn().server(async () => {
-  // Fetch any data needed for the tutorial window on the server
-  return await getTutorialDataFromCookie();
-});
-// .client(() => {
-//   // Fetch any data needed for the tutorial window on the client
-//   const savedStep = window.localStorage.getItem(
-//     TUTORIAL_DATA_LOCAL_STORAGE_KEY,
-//   );
-//
-//   return {
-//     tutorialStep: savedStep,
-//   };
-// });
+const getTutorialWindowData = createIsomorphicFn()
+  .server(async () => {
+    // Fetch any data needed for the tutorial window on the server
+    return await getTutorialDataFromCookie();
+  })
+  .client(() => {
+    // TODO: might be unnecessary
+    const savedStep = window.localStorage.getItem(
+      TUTORIAL_DATA_LOCAL_STORAGE_KEY,
+    );
+
+    return {
+      tutorialStep: null,
+    };
+  });
 
 export const Route = createFileRoute("/_tempDbRequired")({
   // component: RouteComponent,
