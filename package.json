@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
+    "build.prod": "CLOUDFLARE_ENV=production vite build",
     "serve": "vite preview",
     "test": "vitest run",
     "format": "biome format",
@@ -13,9 +14,9 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "db.generate": "drizzle-kit generate",
-    "deploy.prod": "wrangler deploy --env production --minify",
-    "db.local.migrate": "wrangler d1 migrations apply my-test-db",
-    "db.prod.migrate": "wrangler d1 migrations apply my-test-db --remote",
+    "deploy.prod": "build.prod && CLOUDFLARE_ENV=production wrangler deploy --minify",
+    "db.local.migrate": "wrangler d1 migrations apply D1_DB",
+    "db.prod.migrate": "wrangler d1 migrations apply a4035948-b2c4-472c-bf80-c478b225df88 --remote",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
@@ -42,12 +43,9 @@
     "@tanstack/db": "^0.5.0",
     "@tanstack/query-db-collection": "^1.0.0",
     "@tanstack/react-db": "^0.1.44",
-    "@tanstack/react-devtools": "^0.7.11",
     "@tanstack/react-form": "^1.25.0",
     "@tanstack/react-query": "^5.90.8",
-    "@tanstack/react-query-devtools": "^5.90.2",
     "@tanstack/react-router": "^1.136.0",
-    "@tanstack/react-router-devtools": "^1.136.0",
     "@tanstack/react-router-ssr-query": "^1.136.0",
     "@tanstack/react-start": "^1.136.0",
     "@tanstack/router-plugin": "^1.136.0",
@@ -72,7 +70,6 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
     "@tailwindcss/typography": "^0.5.19",
-    "@tanstack/devtools-vite": "^0.3.11",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^22.19.1",

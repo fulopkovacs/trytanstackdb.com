@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { createTempDbAndRedirectToIt } from "@/server/functions/createTempDbAndRedirectToIt";
 import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
 import { getApexDomainRedirectHref } from "@/utils/server/getApexDomainRedirectHref";
+import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -21,6 +22,8 @@ export const Route = createFileRoute("/")({
 
 function App() {
   const redirectToNewDemoApp = useServerFn(createTempDbAndRedirectToIt);
+
+  const [loading, setLoading] = useState(false);
 
   const redirectToNewDemoAppM = useMutation({
     mutationFn: redirectToNewDemoApp,
@@ -57,11 +60,17 @@ You'll have 30 minutes to play with this app (after that the db dies).`}
 
       <Button
         onClick={() => {
+          setLoading(true);
           redirectToNewDemoAppM.mutate({});
         }}
       >
-        Start the demo app
+        {loading ? "Creating your demo app..." : "Start demo app"}
       </Button>
+      {loading && (
+        <p className="text-sm text-muted-foreground animate-pulse">
+          loading...
+        </p>
+      )}
       <div className="text-center text-foreground">
         <p>trytanstackdb.com</p>
         <p className="text-sm text-muted-foreground">
