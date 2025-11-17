@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { createIsomorphicFn, createServerFn } from "@tanstack/react-start";
+import { createIsomorphicFn } from "@tanstack/react-start";
 import z from "zod";
 import { highlightParamSchema } from "@/components/tutorial";
 import {
@@ -8,20 +8,14 @@ import {
   TutorialWindow,
   tutorialDataSchema,
 } from "@/components/tutorial/TutorialWindow";
+import { getTempDbIdOnServer } from "@/server/functions/getTempDbIdOnServer";
 import { getTutorialDataFromCookie } from "@/server/functions/getTutorialDataFromCookie";
-import { requireTempId } from "@/server/middlewares/getTempDbIdFromRequest";
 import { getTempDbIdFromTheSubdomain } from "@/utils/getTempDbIdFromSubdomain";
 
 const mockUser = {
   id: "1",
   name: "John Doe",
 };
-
-const getTempDbIdOnServer = createServerFn()
-  .middleware([requireTempId])
-  .handler(async ({ context: { tempId } }) => {
-    return tempId;
-  });
 
 const getTempId = createIsomorphicFn()
   .server(async () => {
