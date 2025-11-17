@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "trytasntackdb",
+  "name": "trytanstackdb",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
@@ -11,6 +11,7 @@
   },
   "env": {
     "production": {
+      "name": "trytanstackdb",
       "vars": {
         "NODE_ENV": "production",
         "TEMP_DB_LIFETIME_MINUTES": 30
@@ -33,5 +34,14 @@
       "migrations_dir": "drizzle/migrations"
     }
   ],
-  "routes": ["trytanstackdb.com/*", "*.trytanstackdb.com/*"]
+  "routes": [
+    {
+      "zone_name": "trytanstackdb.com",
+      "pattern": "trytanstackdb.com/*"
+    },
+    {
+      "zone_name": "trytanstackdb.com",
+      "pattern": "*.trytanstackdb.com/*"
+    }
+  ]
 }
