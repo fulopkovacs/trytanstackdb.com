@@ -201,7 +201,7 @@ function FloatingWindow({
             className="h-full rounded-lg bg-neutral-200 py-2 px-1"
           >
             <TabsList className="w-40 flex-nowrap h-fit overflow-x-auto flex flex-col gap-2 text-sm text-balance">
-              {steps.map((step, index) => (
+              {steps.map((step) => (
                 <TabsTrigger
                   key={step.title}
                   className="cursor-pointer flex-1 text-left bg-orange-500/0 px-2 py-1 rounded-md hover:bg-orange-500/20 transition-all data-[state=active]:bg-orange-500/100"
@@ -228,7 +228,7 @@ function FloatingWindow({
             onScroll={handleScroll}
             className="w-full ml-4 !block overflow-x-hidden display"
           >
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <TabsContent
                 key={step.title}
                 value={step.title}

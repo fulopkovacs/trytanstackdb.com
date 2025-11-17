@@ -16,13 +16,11 @@ export const Route = createFileRoute("/_tempDbRequired/projects")({
 });
 
 function RouteComponent() {
-  const { user } = Route.useLoaderData();
-
   // const { data: projects } = useSuspenseQuery(getProjectsQueryOptions);
 
   return (
     <SidebarProvider>
-      <AppSidebar user={user} />
+      <AppSidebar />
       <main className="flex flex-1 flex-col overflow-hidden max-h-screen h-screen">
         <Header />
         <Outlet />
