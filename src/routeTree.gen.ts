@@ -18,6 +18,7 @@ import { Route as ApiGetTempIdRouteImport } from './routes/api.get-temp-id'
 import { Route as ApiCleanupRouteImport } from './routes/api.cleanup'
 import { Route as ApiBoardsRouteImport } from './routes/api.boards'
 import { Route as TempDbRequiredProjectsRouteImport } from './routes/_tempDbRequired.projects'
+import { Route as TempDbRequiredProjectRootRouteImport } from './routes/_tempDbRequired.project-root'
 import { Route as TempDbRequiredProjectsIndexRouteImport } from './routes/_tempDbRequired.projects.index'
 import { Route as ApiGetBoardsRouteImport } from './routes/api.get.boards'
 import { Route as TempDbRequiredProjectsProjectIdRouteImport } from './routes/_tempDbRequired.projects.$projectId'
@@ -66,6 +67,12 @@ const TempDbRequiredProjectsRoute = TempDbRequiredProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => TempDbRequiredRoute,
 } as any)
+const TempDbRequiredProjectRootRoute =
+  TempDbRequiredProjectRootRouteImport.update({
+    id: '/project-root',
+    path: '/project-root',
+    getParentRoute: () => TempDbRequiredRoute,
+  } as any)
 const TempDbRequiredProjectsIndexRoute =
   TempDbRequiredProjectsIndexRouteImport.update({
     id: '/',
@@ -86,6 +93,7 @@ const TempDbRequiredProjectsProjectIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/project-root': typeof TempDbRequiredProjectRootRoute
   '/projects': typeof TempDbRequiredProjectsRouteWithChildren
   '/api/boards': typeof ApiBoardsRoute
   '/api/cleanup': typeof ApiCleanupRoute
@@ -99,6 +107,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/project-root': typeof TempDbRequiredProjectRootRoute
   '/api/boards': typeof ApiBoardsRoute
   '/api/cleanup': typeof ApiCleanupRoute
   '/api/get-temp-id': typeof ApiGetTempIdRoute
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_tempDbRequired': typeof TempDbRequiredRouteWithChildren
+  '/_tempDbRequired/project-root': typeof TempDbRequiredProjectRootRoute
   '/_tempDbRequired/projects': typeof TempDbRequiredProjectsRouteWithChildren
   '/api/boards': typeof ApiBoardsRoute
   '/api/cleanup': typeof ApiCleanupRoute
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/project-root'
     | '/projects'
     | '/api/boards'
     | '/api/cleanup'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/project-root'
     | '/api/boards'
     | '/api/cleanup'
     | '/api/get-temp-id'
@@ -154,6 +166,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_tempDbRequired'
+    | '/_tempDbRequired/project-root'
     | '/_tempDbRequired/projects'
     | '/api/boards'
     | '/api/cleanup'
@@ -243,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TempDbRequiredProjectsRouteImport
       parentRoute: typeof TempDbRequiredRoute
     }
+    '/_tempDbRequired/project-root': {
+      id: '/_tempDbRequired/project-root'
+      path: '/project-root'
+      fullPath: '/project-root'
+      preLoaderRoute: typeof TempDbRequiredProjectRootRouteImport
+      parentRoute: typeof TempDbRequiredRoute
+    }
     '/_tempDbRequired/projects/': {
       id: '/_tempDbRequired/projects/'
       path: '/'
@@ -284,10 +304,12 @@ const TempDbRequiredProjectsRouteWithChildren =
   )
 
 interface TempDbRequiredRouteChildren {
+  TempDbRequiredProjectRootRoute: typeof TempDbRequiredProjectRootRoute
   TempDbRequiredProjectsRoute: typeof TempDbRequiredProjectsRouteWithChildren
 }
 
 const TempDbRequiredRouteChildren: TempDbRequiredRouteChildren = {
+  TempDbRequiredProjectRootRoute: TempDbRequiredProjectRootRoute,
   TempDbRequiredProjectsRoute: TempDbRequiredProjectsRouteWithChildren,
 }
 

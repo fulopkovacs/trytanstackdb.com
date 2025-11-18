@@ -4,9 +4,7 @@ import { getFirstProjectFromDb } from "@/server/functions/getFirstProjectFromDb"
 export const Route = createFileRoute("/_tempDbRequired/projects/")({
   beforeLoad: async () => {
     const firstProject = await getFirstProjectFromDb();
-
     const id = firstProject?.id;
-
     if (!id) {
       throw redirect({
         to: "/",
