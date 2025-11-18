@@ -28,6 +28,9 @@ const config = defineConfig({
       rehypePlugins: [rehypePrism],
     }),
   ],
+  optimizeDeps: {
+    exclude: ["@electric-sql/pglite"],
+  },
 });
 
 export default config;
