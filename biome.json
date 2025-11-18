@@ -18,6 +18,7 @@
       "./drizzle.config.ts",
       "./vite.config.ts",
       "./*.jsonc",
+      "public/sw.js",
       "./*.json"
     ]
   },

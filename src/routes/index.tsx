@@ -59,6 +59,17 @@ You'll have 30 minutes to play with this app (after that the db dies).`}
       </pre>
 
       <Button
+        onClick={() =>
+          fetch("/hello").then(async (res) => {
+            const payload = await res.json();
+            console.log({ payload });
+          })
+        }
+      >
+        Get your custom hello world by clicking this button.
+      </Button>
+
+      <Button
         onClick={() => {
           setLoading(true);
           redirectToNewDemoAppM.mutate({});
