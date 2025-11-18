@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { DatabaseZap } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createTempDbAndRedirectToIt } from "@/server/functions/createTempDbAndRedirectToIt";
 import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
@@ -32,6 +32,30 @@ function App() {
     },
   });
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    console.log("hi");
+    navigator.serviceWorker.addEventListener("message", async (event) => {
+      if (event.data?.type === "PROCESS_REQUEST") {
+        const port = event.ports[0]; // MessageChannel port for response
+        const requestBody = event.data.body;
+
+        // Call your function with the request body (dummy processing here)
+        const result = await processRequestInMainThread(requestBody);
+
+        // Send result back to the service worker on the dedicated port
+        port.postMessage({ result });
+      }
+    });
+
+    async function processRequestInMainThread(body: string) {
+      // Your main thread logic here (simulate async work)
+      // return `Processed payload: ${JSON.stringify(body)}`;
+      return body;
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center flex-col gap-10">
       <div className="bg-linear-to-r bg-clip-text from-orange-500 to-orange-700 text-transparent flex flex-col items-center gap-2">
@@ -58,16 +82,36 @@ function App() {
 You'll have 30 minutes to play with this app (after that the db dies).`}
       </pre>
 
-      <Button
-        onClick={() =>
-          fetch("/hello").then(async (res) => {
-            const payload = await res.json();
-            console.log({ payload });
-          })
-        }
-      >
-        Get your custom hello world by clicking this button.
-      </Button>
+      <div className="flex gap-4">
+        <Button
+          onClick={() =>
+            fetch("/hello").then(async (res) => {
+              // fetch("/api/messages").then(async (res) => {
+              const payload = await res.json();
+              console.log(payload);
+            })
+          }
+        >
+          /hello
+        </Button>
+        <Button
+          onClick={() =>
+            fetch("/api", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ message: "Hello from the client!" }),
+            }).then(async (res) => {
+              // fetch("/api/messages").then(async (res) => {
+              const payload = await res.json();
+              console.log(payload);
+            })
+          }
+        >
+          /api/messages
+        </Button>
+      </div>
 
       <Button
         onClick={() => {

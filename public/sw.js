@@ -23,5 +23,63 @@ self.addEventListener("fetch", (event) => {
         headers: { "Content-Type": "application/json" },
       }),
     );
+    // } else if (url.pathname === "/api") {
+    //   event.respondWith(handleFetch(event));
+    // }
+  } else if (url.pathname.startsWith("/api")) {
+    event.respondWith(handleFetch(event));
+    // event.respondWith(
+    //   new Response(
+    //     JSON.stringify({
+    //       pathname: url.pathname,
+    //       'url.pathname === "/api"': url.pathname === "/api",
+    //     }),
+    //     {
+    //       status: 200,
+    //       headers: { "Content-Type": "application/json" },
+    //     },
+    //   ),
+    // );
   }
 });
+
+async function handleFetch(event) {
+  const req = event.request;
+
+  // Read body if method is POST/PUT etc.
+  let requestBody = null;
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    // Clone request to read the body
+    const clone = req.clone();
+    try {
+      requestBody = await clone.json();
+    } catch {
+      requestBody = await clone.text();
+    }
+  }
+
+  // Create a MessageChannel for response communication
+  const msgChannel = new MessageChannel();
+
+  // Send message to main thread with one port of MessageChannel
+  const client = await self.clients.get(event.clientId);
+  if (!client) {
+    return fetch(event.request); // fallback to network if no client
+  }
+
+  client.postMessage({ type: "PROCESS_REQUEST", body: requestBody }, [
+    msgChannel.port2,
+  ]);
+
+  // Promise to wait for response from main thread
+  const responseData = await new Promise((resolve) => {
+    msgChannel.port1.onmessage = (event) => {
+      resolve(event.data.result);
+    };
+  });
+
+  // Respond with the result as JSON
+  return new Response(JSON.stringify({ data: responseData }), {
+    headers: { "Content-Type": "application/json" },
+  });
+}

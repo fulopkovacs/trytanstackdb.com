@@ -17,6 +17,9 @@ importers:
       '@dnd-kit/sortable':
         specifier: ^10.0.0
         version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+      '@electric-sql/pglite':
+        specifier: ^0.3.14
+        version: 0.3.14
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.4)(react@19.2.0)
@@ -103,7 +106,7 @@ importers:
         version: 2.1.1
       drizzle-orm:
         specifier: ^0.44.7
-        version: 0.44.7(@types/better-sqlite3@7.6.13)(better-sqlite3@9.6.0)(gel@2.1.1)(kysely@0.28.8)
+        version: 0.44.7(@electric-sql/pglite@0.3.14)(@types/better-sqlite3@7.6.13)(better-sqlite3@9.6.0)(gel@2.1.1)(kysely@0.28.8)
       lucide-react:
         specifier: ^0.544.0
         version: 0.544.0(react@19.2.0)
@@ -524,6 +527,9 @@ packages:
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
+
+  '@electric-sql/pglite@0.3.14':
+    resolution: {integrity: sha512-3DB258dhqdsArOI1fIt7cb9RpUOgcDg5hXWVgVHAeqVQ/qxtFy605QKs4gx6mFq3jWsSPqDN8TgSEsqC3OfV9Q==}
 
   '@emnapi/runtime@1.7.0':
     resolution: {integrity: sha512-oAYoQnCYaQZKVS53Fq23ceWMRxq5EhQsE0x0RdQ55jT7wagMu5k+fS39v1fiSLrtrLQlXwVINenqhLMtTrV/1Q==}
@@ -4252,6 +4258,8 @@ snapshots:
 
   '@drizzle-team/brocli@0.10.2': {}
 
+  '@electric-sql/pglite@0.3.14': {}
+
   '@emnapi/runtime@1.7.0':
     dependencies:
       tslib: 2.8.1
@@ -6078,8 +6086,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.44.7(@types/better-sqlite3@7.6.13)(better-sqlite3@9.6.0)(gel@2.1.1)(kysely@0.28.8):
+  drizzle-orm@0.44.7(@electric-sql/pglite@0.3.14)(@types/better-sqlite3@7.6.13)(better-sqlite3@9.6.0)(gel@2.1.1)(kysely@0.28.8):
     optionalDependencies:
+      '@electric-sql/pglite': 0.3.14
       '@types/better-sqlite3': 7.6.13
       better-sqlite3: 9.6.0
       gel: 2.1.1

@@ -1,6 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
 import {
-  ClientOnly,
   createRootRouteWithContext,
   HeadContent,
   Scripts,
@@ -8,9 +7,8 @@ import {
 import { ThemeProvider } from "@/components/theme-provider";
 import appCss from "../styles.css?url";
 import "prismjs/themes/prism-tomorrow.css"; // or any other Prism theme
-import { Toaster } from "@/components/ui/sonner";
-import { useEffect } from "react";
 import { ScriptOnce } from "@tanstack/react-router";
+import { Toaster } from "@/components/ui/sonner";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -49,6 +47,7 @@ function ServiceWorkerLoader() {
             "/sw.js",
             {
               scope: "/",
+              type: "module",
             },
           );
           if (registration.installing) {
