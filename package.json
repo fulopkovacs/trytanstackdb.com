@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "vite dev --port 3542",
     "build": "vite build",
     "build.prod": "CLOUDFLARE_ENV=production vite build",
     "serve": "vite preview",
