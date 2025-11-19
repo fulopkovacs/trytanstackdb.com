@@ -35,7 +35,6 @@ function App() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    console.log("hi");
     navigator.serviceWorker.addEventListener("message", async (event) => {
       if (event.data?.type === "PROCESS_REQUEST") {
         const port = event.ports[0]; // MessageChannel port for response
