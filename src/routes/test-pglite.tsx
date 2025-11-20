@@ -7,12 +7,9 @@ import { useSetupApiRoutes } from "@/hooks/useSetupApiRoutes";
 
 const setupPglite = createIsomorphicFn().client(async () => {
   await migrate();
-  // try {
-  // } catch (e) {
-  //   console.error(e);
-  // }
-  // Check if seed has to be executed
   await seed();
+  // BUG: On Chrome, the user might reload the page to see the interface
+  // it's because of pglite or something
 });
 
 export const Route = createFileRoute("/test-pglite")({
