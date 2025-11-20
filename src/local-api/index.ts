@@ -11,9 +11,12 @@ const projectUpdateDataSchema = z.object({
   name: z.string().optional(),
 });
 
+const methodShema = z.enum(["GET", "PATCH", "POST", "DELETE"]);
+type Method = z.infer<typeof methodShema>;
+
 export const requestSchema = z.object({
   pathname: z.string().min(1),
-  method: z.enum(["GET", "PATCH", "POST", "DELETE"]),
+  method: methodShema,
   requestBody: z.any().optional(),
 });
 
@@ -27,19 +30,16 @@ function getProjects() {
   ];
 }
 
-export const API: Record<
-  RequestData["method"],
-  Record<RequestData["pathname"], (body: any) => any>
-> = {
-  GET: {
-    "/api/projects": () => getProjects(),
-  },
-  PATCH: {
-    "/api/projects": (projectId: string) => ({
+type Pathname = string;
+
+export type API = Record<Pathname, Partial<Record<Method, (payload: any) => any>>>;
+
+export const API = {
+  "/api/projects": {
+    GET: () => getProjects(),
+    PATCH: (projectId: string) => ({
       message: "Updated projects successfully",
       projectId,
     }),
   },
-  POST: {},
-  DELETE: {},
-};
+} satisfies API;
