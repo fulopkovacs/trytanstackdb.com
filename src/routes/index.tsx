@@ -53,7 +53,7 @@ function App() {
     async function processRequestInMainThread(body: any) {
       try {
         const requestData = requestSchema.parse(body);
-        const handler = API[requestData.method][requestData.pathname];
+        const handler = (API as API)[requestData.pathname][requestData.method]
         if (handler) {
           console.log({ requestData });
           return handler(requestData.requestBody);
