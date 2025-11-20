@@ -37,11 +37,17 @@ export const responseSchema = z.object({
 export type RequestData = z.infer<typeof requestSchema>;
 export type ResponseData = z.infer<typeof responseSchema>;
 
-export function json(body: any) {
+export function json(
+  body: any,
+  opts?: {
+    status?: number;
+  },
+) {
   return new Response(JSON.stringify(body), {
     headers: {
       "Content-Type": "application/json",
     },
     status: 200,
+    ...opts,
   });
 }
