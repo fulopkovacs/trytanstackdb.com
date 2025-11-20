@@ -1,5 +1,61 @@
 import { useEffect } from "react";
-import { API, requestSchema } from "@/local-api";
+import { API } from "@/local-api";
+import {
+  type APIType,
+  type RequestData,
+  requestSchema,
+  type ResponseData,
+} from "@/local-api/helpers";
+
+/**
+  `Response` objects can't transferred via postMessage
+  (because they can't be cloned), so we need to reconstruct
+  and deconstruct them in the main thread.
+  */
+function constructRequestForHandler(requestData: RequestData): {
+  request: Request;
+} {
+  return {
+    request: new Request(requestData.pathname, {
+      method: requestData.method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      ...("requestBody" in requestData
+        ? {
+            body: requestData.requestBody
+              ? JSON.stringify(requestData.requestBody)
+              : undefined,
+          }
+        : {}),
+    }),
+  };
+}
+
+async function deconstructResponseFromHandler(
+  response: Response,
+): Promise<ResponseData> {
+  const contentType = response.headers?.get("Content-Type") || "";
+  let body: any = null;
+  const clone = response.clone();
+
+  try {
+    if (contentType.includes("application/json")) {
+      // Clone request to read the body
+      body = await clone.json();
+    } else {
+      body = await clone.text();
+    }
+  } catch (e) {
+    console.error("Error reading response body:", e);
+    throw e;
+  }
+
+  return {
+    body,
+    status: response.status,
+  } satisfies ResponseData;
+}
 
 export function useSetupApiRoutes() {
   useEffect(() => {
@@ -10,7 +66,6 @@ export function useSetupApiRoutes() {
         const port = event.ports[0]; // MessageChannel port for response
         // const {body, method, pathname} = event.data;
 
-        console.log("message from SW");
         // Call your function with the request body (dummy processing here)
         const result = await processRequestInMainThread(event.data.body);
 
@@ -22,10 +77,13 @@ export function useSetupApiRoutes() {
     async function processRequestInMainThread(body: any) {
       try {
         const requestData = requestSchema.parse(body);
-        const handler = (API as API)[requestData.pathname][requestData.method];
+        const handler = (API as APIType)[requestData.pathname][
+          requestData.method
+        ];
         if (handler) {
-          console.log({ requestData });
-          return handler(requestData.requestBody);
+          return await deconstructResponseFromHandler(
+            await handler(constructRequestForHandler(requestData)),
+          );
         } else {
           throw new Error("No handler found for this request");
         }

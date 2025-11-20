@@ -54,6 +54,27 @@ function RouteComponent() {
       >
         Get projects
       </Button>
+      <Button
+        onClick={() =>
+          fetch("/api/projects", {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: "lC1HsnuzWCMvfUiay8Y9N",
+              name: `Project-${Date.now()}`,
+            }),
+          }).then(async (res) => {
+            // fetch("/api/messages").then(async (res) => {
+            // const payload = await res.text();
+            const payload = await res.json();
+            console.log({ payload });
+          })
+        }
+      >
+        Update project name
+      </Button>
     </div>
   );
 }

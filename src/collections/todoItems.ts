@@ -4,7 +4,7 @@ import type { TodoItemRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
 import { getTodoItemsOptions } from "@/server/functions/getTodoItems";
 import { toast } from "sonner";
-import { TodoItemCreateDataType } from "@/routes/api.todo-items";
+import { TodoItemCreateDataType } from "@/local-api/api.todo-items";
 
 async function getTodoItems() {
   const res = await fetch("/api/todo-items", { method: "GET" });
