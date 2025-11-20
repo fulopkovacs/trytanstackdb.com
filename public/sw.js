@@ -71,6 +71,11 @@ async function handleFetch(event) {
   client.postMessage(
     {
       type: "PROCESS_REQUEST",
+      /*
+        `Request` objects are not directly transferable,
+        so we'll have to reconstruct the requests on the main
+        thread.
+      */
       body: {
         requestBody,
         method: req.method,
@@ -90,7 +95,8 @@ async function handleFetch(event) {
   // TODO: Handle errors
 
   // Respond with the result as JSON
-  return new Response(JSON.stringify(responseData), {
+  return new Response(JSON.stringify(responseData.body), {
+    status: responseData.status,
     headers: { "Content-Type": "application/json" },
   });
 }

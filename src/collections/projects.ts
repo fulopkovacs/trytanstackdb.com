@@ -3,7 +3,7 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { toast } from "sonner";
 import type { ProjectRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
-import type { ProjectUpdateData } from "@/routes/api.projects";
+import type { ProjectUpdateData } from "@/local-api/api.projects";
 import { projectErrorNames } from "@/utils/errorNames";
 
 export const projectsCollection = createCollection(

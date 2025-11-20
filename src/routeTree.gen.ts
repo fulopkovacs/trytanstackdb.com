@@ -12,16 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestPgliteRouteImport } from './routes/test-pglite'
 import { Route as TempDbRequiredRouteImport } from './routes/_tempDbRequired'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiTodoItemsRouteImport } from './routes/api.todo-items'
-import { Route as ApiTempDbRouteImport } from './routes/api.temp-db'
-import { Route as ApiProjectsRouteImport } from './routes/api.projects'
-import { Route as ApiGetTempIdRouteImport } from './routes/api.get-temp-id'
-import { Route as ApiCleanupRouteImport } from './routes/api.cleanup'
-import { Route as ApiBoardsRouteImport } from './routes/api.boards'
 import { Route as TempDbRequiredProjectsRouteImport } from './routes/_tempDbRequired.projects'
 import { Route as TempDbRequiredProjectRootRouteImport } from './routes/_tempDbRequired.project-root'
 import { Route as TempDbRequiredProjectsIndexRouteImport } from './routes/_tempDbRequired.projects.index'
-import { Route as ApiGetBoardsRouteImport } from './routes/api.get.boards'
 import { Route as TempDbRequiredProjectsProjectIdRouteImport } from './routes/_tempDbRequired.projects.$projectId'
 
 const TestPgliteRoute = TestPgliteRouteImport.update({
@@ -36,36 +29,6 @@ const TempDbRequiredRoute = TempDbRequiredRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiTodoItemsRoute = ApiTodoItemsRouteImport.update({
-  id: '/api/todo-items',
-  path: '/api/todo-items',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiTempDbRoute = ApiTempDbRouteImport.update({
-  id: '/api/temp-db',
-  path: '/api/temp-db',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiProjectsRoute = ApiProjectsRouteImport.update({
-  id: '/api/projects',
-  path: '/api/projects',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGetTempIdRoute = ApiGetTempIdRouteImport.update({
-  id: '/api/get-temp-id',
-  path: '/api/get-temp-id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCleanupRoute = ApiCleanupRouteImport.update({
-  id: '/api/cleanup',
-  path: '/api/cleanup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiBoardsRoute = ApiBoardsRouteImport.update({
-  id: '/api/boards',
-  path: '/api/boards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TempDbRequiredProjectsRoute = TempDbRequiredProjectsRouteImport.update({
@@ -85,11 +48,6 @@ const TempDbRequiredProjectsIndexRoute =
     path: '/',
     getParentRoute: () => TempDbRequiredProjectsRoute,
   } as any)
-const ApiGetBoardsRoute = ApiGetBoardsRouteImport.update({
-  id: '/api/get/boards',
-  path: '/api/get/boards',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TempDbRequiredProjectsProjectIdRoute =
   TempDbRequiredProjectsProjectIdRouteImport.update({
     id: '/$projectId',
@@ -102,28 +60,14 @@ export interface FileRoutesByFullPath {
   '/test-pglite': typeof TestPgliteRoute
   '/project-root': typeof TempDbRequiredProjectRootRoute
   '/projects': typeof TempDbRequiredProjectsRouteWithChildren
-  '/api/boards': typeof ApiBoardsRoute
-  '/api/cleanup': typeof ApiCleanupRoute
-  '/api/get-temp-id': typeof ApiGetTempIdRoute
-  '/api/projects': typeof ApiProjectsRoute
-  '/api/temp-db': typeof ApiTempDbRoute
-  '/api/todo-items': typeof ApiTodoItemsRoute
   '/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
-  '/api/get/boards': typeof ApiGetBoardsRoute
   '/projects/': typeof TempDbRequiredProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/test-pglite': typeof TestPgliteRoute
   '/project-root': typeof TempDbRequiredProjectRootRoute
-  '/api/boards': typeof ApiBoardsRoute
-  '/api/cleanup': typeof ApiCleanupRoute
-  '/api/get-temp-id': typeof ApiGetTempIdRoute
-  '/api/projects': typeof ApiProjectsRoute
-  '/api/temp-db': typeof ApiTempDbRoute
-  '/api/todo-items': typeof ApiTodoItemsRoute
   '/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
-  '/api/get/boards': typeof ApiGetBoardsRoute
   '/projects': typeof TempDbRequiredProjectsIndexRoute
 }
 export interface FileRoutesById {
@@ -133,14 +77,7 @@ export interface FileRoutesById {
   '/test-pglite': typeof TestPgliteRoute
   '/_tempDbRequired/project-root': typeof TempDbRequiredProjectRootRoute
   '/_tempDbRequired/projects': typeof TempDbRequiredProjectsRouteWithChildren
-  '/api/boards': typeof ApiBoardsRoute
-  '/api/cleanup': typeof ApiCleanupRoute
-  '/api/get-temp-id': typeof ApiGetTempIdRoute
-  '/api/projects': typeof ApiProjectsRoute
-  '/api/temp-db': typeof ApiTempDbRoute
-  '/api/todo-items': typeof ApiTodoItemsRoute
   '/_tempDbRequired/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
-  '/api/get/boards': typeof ApiGetBoardsRoute
   '/_tempDbRequired/projects/': typeof TempDbRequiredProjectsIndexRoute
 }
 export interface FileRouteTypes {
@@ -150,28 +87,14 @@ export interface FileRouteTypes {
     | '/test-pglite'
     | '/project-root'
     | '/projects'
-    | '/api/boards'
-    | '/api/cleanup'
-    | '/api/get-temp-id'
-    | '/api/projects'
-    | '/api/temp-db'
-    | '/api/todo-items'
     | '/projects/$projectId'
-    | '/api/get/boards'
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/test-pglite'
     | '/project-root'
-    | '/api/boards'
-    | '/api/cleanup'
-    | '/api/get-temp-id'
-    | '/api/projects'
-    | '/api/temp-db'
-    | '/api/todo-items'
     | '/projects/$projectId'
-    | '/api/get/boards'
     | '/projects'
   id:
     | '__root__'
@@ -180,14 +103,7 @@ export interface FileRouteTypes {
     | '/test-pglite'
     | '/_tempDbRequired/project-root'
     | '/_tempDbRequired/projects'
-    | '/api/boards'
-    | '/api/cleanup'
-    | '/api/get-temp-id'
-    | '/api/projects'
-    | '/api/temp-db'
-    | '/api/todo-items'
     | '/_tempDbRequired/projects/$projectId'
-    | '/api/get/boards'
     | '/_tempDbRequired/projects/'
   fileRoutesById: FileRoutesById
 }
@@ -195,13 +111,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TempDbRequiredRoute: typeof TempDbRequiredRouteWithChildren
   TestPgliteRoute: typeof TestPgliteRoute
-  ApiBoardsRoute: typeof ApiBoardsRoute
-  ApiCleanupRoute: typeof ApiCleanupRoute
-  ApiGetTempIdRoute: typeof ApiGetTempIdRoute
-  ApiProjectsRoute: typeof ApiProjectsRoute
-  ApiTempDbRoute: typeof ApiTempDbRoute
-  ApiTodoItemsRoute: typeof ApiTodoItemsRoute
-  ApiGetBoardsRoute: typeof ApiGetBoardsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -227,48 +136,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/todo-items': {
-      id: '/api/todo-items'
-      path: '/api/todo-items'
-      fullPath: '/api/todo-items'
-      preLoaderRoute: typeof ApiTodoItemsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/temp-db': {
-      id: '/api/temp-db'
-      path: '/api/temp-db'
-      fullPath: '/api/temp-db'
-      preLoaderRoute: typeof ApiTempDbRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects': {
-      id: '/api/projects'
-      path: '/api/projects'
-      fullPath: '/api/projects'
-      preLoaderRoute: typeof ApiProjectsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/get-temp-id': {
-      id: '/api/get-temp-id'
-      path: '/api/get-temp-id'
-      fullPath: '/api/get-temp-id'
-      preLoaderRoute: typeof ApiGetTempIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/cleanup': {
-      id: '/api/cleanup'
-      path: '/api/cleanup'
-      fullPath: '/api/cleanup'
-      preLoaderRoute: typeof ApiCleanupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/boards': {
-      id: '/api/boards'
-      path: '/api/boards'
-      fullPath: '/api/boards'
-      preLoaderRoute: typeof ApiBoardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_tempDbRequired/projects': {
       id: '/_tempDbRequired/projects'
       path: '/projects'
@@ -289,13 +156,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/projects/'
       preLoaderRoute: typeof TempDbRequiredProjectsIndexRouteImport
       parentRoute: typeof TempDbRequiredProjectsRoute
-    }
-    '/api/get/boards': {
-      id: '/api/get/boards'
-      path: '/api/get/boards'
-      fullPath: '/api/get/boards'
-      preLoaderRoute: typeof ApiGetBoardsRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_tempDbRequired/projects/$projectId': {
       id: '/_tempDbRequired/projects/$projectId'
@@ -341,13 +201,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TempDbRequiredRoute: TempDbRequiredRouteWithChildren,
   TestPgliteRoute: TestPgliteRoute,
-  ApiBoardsRoute: ApiBoardsRoute,
-  ApiCleanupRoute: ApiCleanupRoute,
-  ApiGetTempIdRoute: ApiGetTempIdRoute,
-  ApiProjectsRoute: ApiProjectsRoute,
-  ApiTempDbRoute: ApiTempDbRoute,
-  ApiTodoItemsRoute: ApiTodoItemsRoute,
-  ApiGetBoardsRoute: ApiGetBoardsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
