@@ -6,6 +6,7 @@ import {
   boardsTable,
   type ProjectRecord,
   projectsTable,
+  seedTable,
   type TodoItemRecord,
   todoItemsTable,
   type UserRecord,
@@ -15,7 +16,7 @@ import {
 type BoardName = "Todo" | "In Progress" | "Done";
 type TodoItemBase = Omit<
   TodoItemRecord,
-  "id" | "boardId" | "tempDbId" | "createdAtTimestampMs"
+  "id" | "boardId" | "tempDbId" | "createdAt"
 > & { boardName: BoardName };
 
 type ProjectBase = Omit<ProjectRecord, "itemPositionsInTheProject"> & {
@@ -86,13 +87,11 @@ const largeTodoItemsList: TodoItemBase[] = Array.from({
 
 function getMockBoardsAndTodoItemsForProject({
   projectId,
-  tempDbId,
   now,
   todoItemBaseArr,
 }: {
   projectId: ProjectRecord["id"];
-  now: number;
-  tempDbId: string;
+  now: Date;
   todoItemBaseArr: TodoItemBase[];
 }): {
   mockBoards: BoardRecord[];
@@ -110,24 +109,21 @@ function getMockBoardsAndTodoItemsForProject({
       projectId,
       name: "Todo",
       description: "Tasks to do",
-      createdAtTimestampMs: now,
-      tempDbId,
+      createdAt: now,
     },
     {
       id: boardIds["In Progress"],
       projectId,
       name: "In Progress",
       description: "Tasks in progress",
-      createdAtTimestampMs: now,
-      tempDbId,
+      createdAt: now,
     },
     {
       id: boardIds.Done,
       projectId,
       name: "Done",
       description: "Completed tasks",
-      createdAtTimestampMs: now,
-      tempDbId,
+      createdAt: now,
     },
   ];
 
@@ -136,71 +132,63 @@ function getMockBoardsAndTodoItemsForProject({
       ...item,
       id: nanoid(),
       boardId: boardIds[boardName],
-      createdAtTimestampMs: now,
-      tempDbId,
+      createdAt: now,
     }),
   );
 
   return { mockBoards: boards, mockTodoItems: todoItems };
 }
 
-function getMockData(tempDbId: string) {
+function getMockData() {
   const mockUsers: UserRecord[] = [
     {
       id: nanoid(),
       name: "Alice Smith",
       age: 28,
       email: "alice@example.com",
-      tempDbId,
     },
     {
       id: nanoid(),
       name: "Bob Johnson",
       age: 35,
       email: "bob@example.com",
-      tempDbId,
     },
     {
       id: nanoid(),
       name: "Charlie Lee",
       age: 22,
       email: "charlie@example.com",
-      tempDbId,
     },
     {
       id: nanoid(),
       name: "John Doe",
       age: 25,
       email: "john@doe.com",
-      tempDbId,
     },
   ];
 
-  const now = Date.now();
+  const now = new Date();
 
   const mockProjects: ProjectBase[] = [
     {
       id: nanoid(),
       name: "Project Alpha",
       description: "First project description",
-      createdAtTimestampMs: now,
-      tempDbId,
+      createdAt: now,
       todoItemsBaseArr: todoItemsList,
     },
     {
       id: nanoid(),
       name: "Project Beta",
       description: "Second project description",
-      createdAtTimestampMs: now,
-      tempDbId,
+      createdAt: now,
       todoItemsBaseArr: todoItemsList,
     },
     {
       id: nanoid(),
       name: "Large Project",
       description: "Third project description",
-      createdAtTimestampMs: now,
-      tempDbId,
+      createdAt: now,
       todoItemsBaseArr: largeTodoItemsList,
     },
   ];
@@ -209,7 +197,6 @@ function getMockData(tempDbId: string) {
     .map((project) =>
       getMockBoardsAndTodoItemsForProject({
         projectId: project.id,
-        tempDbId,
         now,
         todoItemBaseArr: project.todoItemsBaseArr,
       }),
@@ -252,18 +239,30 @@ function getMockData(tempDbId: string) {
 
 async function cleanAllTables() {
   // Get all user tables
-  const tables: { name: string }[] = await db.all(
+  const tables: { name: string }[] = await db.execute(
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN ('sqlite_sequence', 'd1_migrations', '_cf_METADATA');",
   );
   for (const { name } of tables) {
-    await db.run(`DELETE FROM "${name}";`);
+    await db.execute(`DELETE FROM "${name}";`);
   }
   console.log("All tables have been cleaned up.");
 }
 
-export async function seed(tempDBId: string) {
-  const { mockUsers, mockBoards, mockTodoItems, mockProjects } =
-    getMockData(tempDBId);
+export async function seed() {
+  // Make sure the seed script has not been executed before
+  const [existingSeed] = await db.select().from(seedTable).limit(1);
+
+  if (existingSeed) {
+    const [firstProjectId] = await db
+      .select({ id: projectsTable.id })
+      .from(projectsTable)
+      .limit(1);
+    return {
+      firstProjectId: firstProjectId.id,
+    };
+  }
+
+  const { mockUsers, mockBoards, mockTodoItems, mockProjects } = getMockData();
 
   /*
     NOTE: transactions are not supported in D1 (https://github.com/drizzle-team/drizzle-orm/issues/2463)
@@ -271,6 +270,11 @@ export async function seed(tempDBId: string) {
     no support planned: https://github.com/cloudflare/workers-sdk/issues/2733#issuecomment-271236533
   */
   try {
+    await db.insert(seedTable).values({
+      id: nanoid(),
+      createdAt: new Date(),
+      state: "in_progress",
+    });
     await db.insert(usersTable).values(mockUsers);
     await db.insert(projectsTable).values(mockProjects);
     await db.insert(boardsTable).values(mockBoards);
@@ -282,6 +286,11 @@ export async function seed(tempDBId: string) {
       const batch = mockTodoItems.slice(i, i + BATCH_SIZE);
       await db.insert(todoItemsTable).values(batch);
     }
+    await db.insert(seedTable).values({
+      id: nanoid(),
+      createdAt: new Date(),
+      state: "completed",
+    });
 
     return {
       firstProjectId: mockProjects[0].id,
@@ -294,6 +303,6 @@ export async function seed(tempDBId: string) {
 
 export async function resetAndSeed() {
   await cleanAllTables();
-  await seed("default_temp_db");
+  await seed();
   console.log("Database reset and seeded.");
 }

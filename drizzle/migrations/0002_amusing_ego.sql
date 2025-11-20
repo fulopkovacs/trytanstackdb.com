@@ -1,1 +1,0 @@
-ALTER TABLE `todo_items` ADD `priority` integer DEFAULT 0;
