@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { DatabaseZap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { API, requestSchema } from "@/local-api";
 import { createTempDbAndRedirectToIt } from "@/server/functions/createTempDbAndRedirectToIt";
 import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
 import { getApexDomainRedirectHref } from "@/utils/server/getApexDomainRedirectHref";
@@ -38,20 +39,34 @@ function App() {
     navigator.serviceWorker.addEventListener("message", async (event) => {
       if (event.data?.type === "PROCESS_REQUEST") {
         const port = event.ports[0]; // MessageChannel port for response
-        const requestBody = event.data.body;
+        // const {body, method, pathname} = event.data;
 
+        console.log("message from SW");
         // Call your function with the request body (dummy processing here)
-        const result = await processRequestInMainThread(requestBody);
+        const result = await processRequestInMainThread(event.data.body);
 
         // Send result back to the service worker on the dedicated port
         port.postMessage({ result });
       }
     });
 
-    async function processRequestInMainThread(body: string) {
+    async function processRequestInMainThread(body: any) {
+      try {
+        const requestData = requestSchema.parse(body);
+        const handler = API[requestData.method][requestData.pathname];
+        if (handler) {
+          console.log({ requestData });
+          return handler(requestData.requestBody);
+        } else {
+          throw new Error("No handler found for this request");
+        }
+      } catch (e) {
+        // TODO: Handle validation errors
+        throw e;
+        // return { error: "Invalid request data" };
+      }
       // Your main thread logic here (simulate async work)
       // return `Processed payload: ${JSON.stringify(body)}`;
-      return body;
     }
   }, []);
 
@@ -95,20 +110,21 @@ You'll have 30 minutes to play with this app (after that the db dies).`}
         </Button>
         <Button
           onClick={() =>
-            fetch("/api", {
-              method: "POST",
+            fetch("/api/projects", {
+              method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ message: "Hello from the client!" }),
+              body: JSON.stringify({ projectId: "pr_1" }),
             }).then(async (res) => {
               // fetch("/api/messages").then(async (res) => {
+              // const payload = await res.text();
               const payload = await res.json();
               console.log(payload);
             })
           }
         >
-          /api/messages
+          Update projects
         </Button>
       </div>
 
