@@ -45,6 +45,7 @@ self.addEventListener("fetch", (event) => {
 
 async function handleFetch(event) {
   const req = event.request;
+  const url = new URL(req.url);
 
   // Read body if method is POST/PUT etc.
   let requestBody = null;
@@ -67,9 +68,17 @@ async function handleFetch(event) {
     return fetch(event.request); // fallback to network if no client
   }
 
-  client.postMessage({ type: "PROCESS_REQUEST", body: requestBody }, [
-    msgChannel.port2,
-  ]);
+  client.postMessage(
+    {
+      type: "PROCESS_REQUEST",
+      body: {
+        requestBody,
+        method: req.method,
+        pathname: url.pathname,
+      },
+    },
+    [msgChannel.port2],
+  );
 
   // Promise to wait for response from main thread
   const responseData = await new Promise((resolve) => {
@@ -77,6 +86,8 @@ async function handleFetch(event) {
       resolve(event.data.result);
     };
   });
+
+  // TODO: Handle errors
 
   // Respond with the result as JSON
   return new Response(JSON.stringify({ data: responseData }), {
