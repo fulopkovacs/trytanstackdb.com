@@ -90,7 +90,7 @@ async function handleFetch(event) {
   // TODO: Handle errors
 
   // Respond with the result as JSON
-  return new Response(JSON.stringify({ data: responseData }), {
+  return new Response(JSON.stringify(responseData), {
     headers: { "Content-Type": "application/json" },
   });
 }
