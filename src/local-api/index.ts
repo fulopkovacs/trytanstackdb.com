@@ -1,3 +1,5 @@
+import { db } from "@/db";
+import { projectsTable } from "@/db/schema";
 import z from "zod";
 
 type APIRequest = {
@@ -36,7 +38,11 @@ export type API = Record<Pathname, Partial<Record<Method, (payload: any) => any>
 
 export const API = {
   "/api/projects": {
-    GET: () => getProjects(),
+    GET: async () =>{
+        return await db
+          .select()
+          .from(projectsTable)
+    },
     PATCH: (projectId: string) => ({
       message: "Updated projects successfully",
       projectId,

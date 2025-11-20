@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestPgliteRouteImport } from './routes/test-pglite'
 import { Route as TempDbRequiredRouteImport } from './routes/_tempDbRequired'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiTodoItemsRouteImport } from './routes/api.todo-items'
@@ -23,6 +24,11 @@ import { Route as TempDbRequiredProjectsIndexRouteImport } from './routes/_tempD
 import { Route as ApiGetBoardsRouteImport } from './routes/api.get.boards'
 import { Route as TempDbRequiredProjectsProjectIdRouteImport } from './routes/_tempDbRequired.projects.$projectId'
 
+const TestPgliteRoute = TestPgliteRouteImport.update({
+  id: '/test-pglite',
+  path: '/test-pglite',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TempDbRequiredRoute = TempDbRequiredRouteImport.update({
   id: '/_tempDbRequired',
   getParentRoute: () => rootRouteImport,
@@ -93,6 +99,7 @@ const TempDbRequiredProjectsProjectIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/test-pglite': typeof TestPgliteRoute
   '/project-root': typeof TempDbRequiredProjectRootRoute
   '/projects': typeof TempDbRequiredProjectsRouteWithChildren
   '/api/boards': typeof ApiBoardsRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/test-pglite': typeof TestPgliteRoute
   '/project-root': typeof TempDbRequiredProjectRootRoute
   '/api/boards': typeof ApiBoardsRoute
   '/api/cleanup': typeof ApiCleanupRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_tempDbRequired': typeof TempDbRequiredRouteWithChildren
+  '/test-pglite': typeof TestPgliteRoute
   '/_tempDbRequired/project-root': typeof TempDbRequiredProjectRootRoute
   '/_tempDbRequired/projects': typeof TempDbRequiredProjectsRouteWithChildren
   '/api/boards': typeof ApiBoardsRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/test-pglite'
     | '/project-root'
     | '/projects'
     | '/api/boards'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/test-pglite'
     | '/project-root'
     | '/api/boards'
     | '/api/cleanup'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_tempDbRequired'
+    | '/test-pglite'
     | '/_tempDbRequired/project-root'
     | '/_tempDbRequired/projects'
     | '/api/boards'
@@ -182,6 +194,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TempDbRequiredRoute: typeof TempDbRequiredRouteWithChildren
+  TestPgliteRoute: typeof TestPgliteRoute
   ApiBoardsRoute: typeof ApiBoardsRoute
   ApiCleanupRoute: typeof ApiCleanupRoute
   ApiGetTempIdRoute: typeof ApiGetTempIdRoute
@@ -193,6 +206,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/test-pglite': {
+      id: '/test-pglite'
+      path: '/test-pglite'
+      fullPath: '/test-pglite'
+      preLoaderRoute: typeof TestPgliteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_tempDbRequired': {
       id: '/_tempDbRequired'
       path: ''
@@ -320,6 +340,7 @@ const TempDbRequiredRouteWithChildren = TempDbRequiredRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TempDbRequiredRoute: TempDbRequiredRouteWithChildren,
+  TestPgliteRoute: TestPgliteRoute,
   ApiBoardsRoute: ApiBoardsRoute,
   ApiCleanupRoute: ApiCleanupRoute,
   ApiGetTempIdRoute: ApiGetTempIdRoute,

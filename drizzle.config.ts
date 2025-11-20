@@ -8,9 +8,10 @@ config();
 export default defineConfig({
   schema: "./src/db/schema.ts",
   out: "./drizzle/migrations",
-  dialect: "sqlite",
+  dialect: "postgresql",
+  driver: "pglite",
   dbCredentials: {
     // NOTE: we'll never use this
-    url: "dev.db",
+    url: "file://main.db",
   },
 });

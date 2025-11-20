@@ -5,3 +5,8 @@ An interactive guide for taking the first steps with
 [fuko](fulop.dev/).
 
 [trytanstackdb.com](https://trytanstackdb.com)
+
+## Development
+
+See [DEVELOPMENT.md](./DEVELOPMENT.md).
+

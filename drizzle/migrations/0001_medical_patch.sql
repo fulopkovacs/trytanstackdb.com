@@ -1,1 +1,0 @@
-CREATE UNIQUE INDEX `projects_name_unique_tempdbid` ON `projects` (`name`,`temp_db_id`);
