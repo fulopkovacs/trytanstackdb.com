@@ -39,27 +39,33 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function ServiceWorkerLoader() {
-  const themeScript = (() => {
+  const serviceWorkerScript = (() => {
     const registerServiceWorker = async () => {
-      if ("serviceWorker" in navigator) {
-        try {
-          const registration = await navigator.serviceWorker.register(
-            "/sw.js",
-            {
-              scope: "/",
-              type: "module",
-            },
-          );
-          if (registration.installing) {
-            console.log("Service worker installing");
-          } else if (registration.waiting) {
-            console.log("Service worker installed");
-          } else if (registration.active) {
-            console.log("Service worker active");
+      const serviceWorkerLoadedVarName = "__SERVICE_WORKER_LOADED__";
+      // @ts-expect-error
+      if (!window[serviceWorkerLoadedVarName]) {
+        if ("serviceWorker" in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.register(
+              "/sw.js",
+              {
+                scope: "/",
+                type: "module",
+              },
+            );
+            if (registration.installing) {
+              console.log("Service worker installing");
+            } else if (registration.waiting) {
+              console.log("Service worker installed");
+            } else if (registration.active) {
+              console.log("Service worker active");
+            }
+          } catch (error) {
+            console.error(`Registration failed with ${error}`);
           }
-        } catch (error) {
-          console.error(`Registration failed with ${error}`);
         }
+        // @ts-expect-error
+        window[serviceWorkerLoadedVarName] = true;
       }
     };
 
@@ -67,7 +73,7 @@ function ServiceWorkerLoader() {
     return `(${registerServiceWorker.toString()})();`;
   })();
 
-  return <ScriptOnce children={themeScript} />;
+  return <ScriptOnce children={serviceWorkerScript} />;
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {

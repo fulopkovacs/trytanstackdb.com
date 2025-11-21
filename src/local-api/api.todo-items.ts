@@ -14,7 +14,6 @@ const todoItemCreateData = z.object({
   priority: z.number().min(0).max(3).int().optional().nullable(),
   title: z.string(),
   description: z.string().optional().nullable(),
-  createdAtTimestampMs: z.number().nullable(),
   projectId: z.string(),
 });
 

@@ -3,8 +3,8 @@ import { API } from "@/local-api";
 import {
   type APIType,
   type RequestData,
-  requestSchema,
   type ResponseData,
+  requestSchema,
 } from "@/local-api/helpers";
 
 /**
@@ -32,7 +32,7 @@ function constructRequestForHandler(requestData: RequestData): {
   };
 }
 
-async function deconstructResponseFromHandler(
+export async function deconstructResponseFromHandler(
   response: Response,
 ): Promise<ResponseData> {
   const contentType = response.headers?.get("Content-Type") || "";
@@ -57,6 +57,12 @@ async function deconstructResponseFromHandler(
   } satisfies ResponseData;
 }
 
+/**
+  Set up the request handlers that will process the API requests
+  coming from the service worker proxy.
+
+  TODO: move it to the loader of a client-rendered route?
+*/
 export function useSetupApiRoutes() {
   useEffect(() => {
     if (typeof window === "undefined") return;

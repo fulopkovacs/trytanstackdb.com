@@ -2,7 +2,6 @@ import {
   date,
   integer,
   json,
-  pgEnum,
   pgTable,
   text,
   unique,

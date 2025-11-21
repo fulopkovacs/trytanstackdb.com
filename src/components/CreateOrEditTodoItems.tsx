@@ -1,5 +1,6 @@
 import { createOptimisticAction } from "@tanstack/db";
 import { nanoid } from "nanoid";
+import { useCallback, useState } from "react";
 import z from "zod";
 import { projectsCollection } from "@/collections/projects";
 import { insertTodoItem, todoItemsCollection } from "@/collections/todoItems";
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import type { TodoItemRecord } from "@/db/schema";
 import { useAppForm } from "@/hooks/app.form";
-import { useCallback, useState } from "react";
 
 type CreateTodoItemInput = {
   id: string;
@@ -31,9 +31,9 @@ const createTodoItem = createOptimisticAction({
   autoCommit: true,
   onMutate: (newItemData: CreateTodoItemInput) => {
     todoItemsCollection.insert({
+      createdAt: new Date(),
       ...newItemData,
       priority: 0,
-      tempDbId: "temp-tenant-id", // this will be replaced on the server with the correct value
     });
 
     projectsCollection.update(newItemData.projectId, (project) => {

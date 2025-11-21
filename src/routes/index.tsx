@@ -1,14 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { DatabaseZap } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { API, requestSchema } from "@/local-api";
-import { createTempDbAndRedirectToIt } from "@/server/functions/createTempDbAndRedirectToIt";
+import { useServiceWorkerHttpProxy } from "@/hooks/useServiceWorkerHttpProxy";
 import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
 import { getApexDomainRedirectHref } from "@/utils/server/getApexDomainRedirectHref";
-import { useServiceWorkerHttpProxy } from "@/hooks/useServiceWorkerHttpProxy";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -23,17 +18,6 @@ export const Route = createFileRoute("/")({
 });
 
 function App() {
-  const redirectToNewDemoApp = useServerFn(createTempDbAndRedirectToIt);
-
-  const [loading, setLoading] = useState(false);
-
-  const redirectToNewDemoAppM = useMutation({
-    mutationFn: redirectToNewDemoApp,
-    onError: () => {
-      // TODO: show error message on the UI
-    },
-  });
-
   useServiceWorkerHttpProxy();
 
   return (
@@ -94,19 +78,9 @@ You'll have 30 minutes to play with this app (after that the db dies).`}
         </Button>
       </div>
 
-      <Button
-        onClick={() => {
-          setLoading(true);
-          redirectToNewDemoAppM.mutate({});
-        }}
-      >
-        {loading ? "Creating your demo app..." : "Start demo app"}
+      <Button asChild>
+        <Link to="/projects">Start the guide 🚀</Link>
       </Button>
-      {loading && (
-        <p className="text-sm text-muted-foreground animate-pulse">
-          loading...
-        </p>
-      )}
       <div className="text-center text-foreground">
         <p>trytanstackdb.com</p>
         <p className="text-sm text-muted-foreground">

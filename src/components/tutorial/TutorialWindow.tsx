@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { useNavigate } from "@tanstack/react-router";
 import { DatabaseZapIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import z from "zod";
+import { type ZodDefault, type ZodNumber, z } from "zod";
 import { steps } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -12,9 +12,33 @@ export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialData";
 export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
 
 export const tutorialDataSchema = z.object({
-  tutorialStep: z.string().nullable(),
-  scrollPositions: z.record(z.string(), z.number()),
+  tutorialStep: z.string().default(steps[0].title),
+  scrollPositions: z.object(
+    steps.reduce(
+      (acc, step) => {
+        acc[step.title] = z.number().default(0);
+        return acc;
+      },
+      {} as Record<string, ZodDefault<ZodNumber>>,
+    ),
+  ),
+  // z.record(z.string(), z.number()),
 });
+
+export const DEFAULT_TUTORIAL_DATA_VALUE = JSON.stringify({
+  scrollPositions: {},
+});
+//
+// export const defaultValues = {
+//   tutorialStep: null,
+//   scrollPositions: steps.reduce(
+//     (acc, step) => {
+//       acc[step.title] = 0;
+//       return acc;
+//     },
+//     {} as Record<string, number>,
+//   ),
+// };
 
 export type TutorialData = {
   tutorialStep: string | null;
@@ -30,7 +54,7 @@ function getTutorialDataLocally(w: Window): TutorialData {
 
   try {
     tutorialData = tutorialDataSchema.parse(
-      tutorialInLocalStorage ? JSON.parse(tutorialInLocalStorage) : {},
+      JSON.parse(tutorialInLocalStorage || DEFAULT_TUTORIAL_DATA_VALUE),
     );
   } catch (e) {
     console.error("Error parsing tutorial data from localStorage:", e);
