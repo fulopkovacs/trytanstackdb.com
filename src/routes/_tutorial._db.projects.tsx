@@ -3,7 +3,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
-export const Route = createFileRoute("/_tempDbRequired/projects")({
+export const Route = createFileRoute("/_tutorial/_db/projects")({
   component: RouteComponent,
   loader: async ({ context }) => {
     // await context.queryClient.ensureQueryData(getProjectsQueryOptions);

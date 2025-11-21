@@ -10,20 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestPgliteRouteImport } from './routes/test-pglite'
-import { Route as TempDbRequiredRouteImport } from './routes/_tempDbRequired'
+import { Route as TutorialRouteImport } from './routes/_tutorial'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TempDbRequiredProjectsRouteImport } from './routes/_tempDbRequired.projects'
-import { Route as TempDbRequiredProjectRootRouteImport } from './routes/_tempDbRequired.project-root'
-import { Route as TempDbRequiredProjectsIndexRouteImport } from './routes/_tempDbRequired.projects.index'
-import { Route as TempDbRequiredProjectsProjectIdRouteImport } from './routes/_tempDbRequired.projects.$projectId'
+import { Route as TutorialDbRouteImport } from './routes/_tutorial._db'
+import { Route as TutorialDbProjectsRouteImport } from './routes/_tutorial._db.projects'
+import { Route as TutorialDbProjectRootRouteImport } from './routes/_tutorial._db.project-root'
+import { Route as TutorialDbProjectsIndexRouteImport } from './routes/_tutorial._db.projects.index'
+import { Route as TutorialDbProjectsProjectIdRouteImport } from './routes/_tutorial._db.projects.$projectId'
 
 const TestPgliteRoute = TestPgliteRouteImport.update({
   id: '/test-pglite',
   path: '/test-pglite',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TempDbRequiredRoute = TempDbRequiredRouteImport.update({
-  id: '/_tempDbRequired',
+const TutorialRoute = TutorialRouteImport.update({
+  id: '/_tutorial',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,54 +32,57 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TempDbRequiredProjectsRoute = TempDbRequiredProjectsRouteImport.update({
+const TutorialDbRoute = TutorialDbRouteImport.update({
+  id: '/_db',
+  getParentRoute: () => TutorialRoute,
+} as any)
+const TutorialDbProjectsRoute = TutorialDbProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
-  getParentRoute: () => TempDbRequiredRoute,
+  getParentRoute: () => TutorialDbRoute,
 } as any)
-const TempDbRequiredProjectRootRoute =
-  TempDbRequiredProjectRootRouteImport.update({
-    id: '/project-root',
-    path: '/project-root',
-    getParentRoute: () => TempDbRequiredRoute,
-  } as any)
-const TempDbRequiredProjectsIndexRoute =
-  TempDbRequiredProjectsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => TempDbRequiredProjectsRoute,
-  } as any)
-const TempDbRequiredProjectsProjectIdRoute =
-  TempDbRequiredProjectsProjectIdRouteImport.update({
+const TutorialDbProjectRootRoute = TutorialDbProjectRootRouteImport.update({
+  id: '/project-root',
+  path: '/project-root',
+  getParentRoute: () => TutorialDbRoute,
+} as any)
+const TutorialDbProjectsIndexRoute = TutorialDbProjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TutorialDbProjectsRoute,
+} as any)
+const TutorialDbProjectsProjectIdRoute =
+  TutorialDbProjectsProjectIdRouteImport.update({
     id: '/$projectId',
     path: '/$projectId',
-    getParentRoute: () => TempDbRequiredProjectsRoute,
+    getParentRoute: () => TutorialDbProjectsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/test-pglite': typeof TestPgliteRoute
-  '/project-root': typeof TempDbRequiredProjectRootRoute
-  '/projects': typeof TempDbRequiredProjectsRouteWithChildren
-  '/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
-  '/projects/': typeof TempDbRequiredProjectsIndexRoute
+  '/project-root': typeof TutorialDbProjectRootRoute
+  '/projects': typeof TutorialDbProjectsRouteWithChildren
+  '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
+  '/projects/': typeof TutorialDbProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/test-pglite': typeof TestPgliteRoute
-  '/project-root': typeof TempDbRequiredProjectRootRoute
-  '/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
-  '/projects': typeof TempDbRequiredProjectsIndexRoute
+  '/project-root': typeof TutorialDbProjectRootRoute
+  '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
+  '/projects': typeof TutorialDbProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_tempDbRequired': typeof TempDbRequiredRouteWithChildren
+  '/_tutorial': typeof TutorialRouteWithChildren
   '/test-pglite': typeof TestPgliteRoute
-  '/_tempDbRequired/project-root': typeof TempDbRequiredProjectRootRoute
-  '/_tempDbRequired/projects': typeof TempDbRequiredProjectsRouteWithChildren
-  '/_tempDbRequired/projects/$projectId': typeof TempDbRequiredProjectsProjectIdRoute
-  '/_tempDbRequired/projects/': typeof TempDbRequiredProjectsIndexRoute
+  '/_tutorial/_db': typeof TutorialDbRouteWithChildren
+  '/_tutorial/_db/project-root': typeof TutorialDbProjectRootRoute
+  '/_tutorial/_db/projects': typeof TutorialDbProjectsRouteWithChildren
+  '/_tutorial/_db/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
+  '/_tutorial/_db/projects/': typeof TutorialDbProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,17 +103,18 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/_tempDbRequired'
+    | '/_tutorial'
     | '/test-pglite'
-    | '/_tempDbRequired/project-root'
-    | '/_tempDbRequired/projects'
-    | '/_tempDbRequired/projects/$projectId'
-    | '/_tempDbRequired/projects/'
+    | '/_tutorial/_db'
+    | '/_tutorial/_db/project-root'
+    | '/_tutorial/_db/projects'
+    | '/_tutorial/_db/projects/$projectId'
+    | '/_tutorial/_db/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  TempDbRequiredRoute: typeof TempDbRequiredRouteWithChildren
+  TutorialRoute: typeof TutorialRouteWithChildren
   TestPgliteRoute: typeof TestPgliteRoute
 }
 
@@ -122,11 +127,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestPgliteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_tempDbRequired': {
-      id: '/_tempDbRequired'
+    '/_tutorial': {
+      id: '/_tutorial'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof TempDbRequiredRouteImport
+      preLoaderRoute: typeof TutorialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -136,70 +141,86 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_tempDbRequired/projects': {
-      id: '/_tempDbRequired/projects'
+    '/_tutorial/_db': {
+      id: '/_tutorial/_db'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof TutorialDbRouteImport
+      parentRoute: typeof TutorialRoute
+    }
+    '/_tutorial/_db/projects': {
+      id: '/_tutorial/_db/projects'
       path: '/projects'
       fullPath: '/projects'
-      preLoaderRoute: typeof TempDbRequiredProjectsRouteImport
-      parentRoute: typeof TempDbRequiredRoute
+      preLoaderRoute: typeof TutorialDbProjectsRouteImport
+      parentRoute: typeof TutorialDbRoute
     }
-    '/_tempDbRequired/project-root': {
-      id: '/_tempDbRequired/project-root'
+    '/_tutorial/_db/project-root': {
+      id: '/_tutorial/_db/project-root'
       path: '/project-root'
       fullPath: '/project-root'
-      preLoaderRoute: typeof TempDbRequiredProjectRootRouteImport
-      parentRoute: typeof TempDbRequiredRoute
+      preLoaderRoute: typeof TutorialDbProjectRootRouteImport
+      parentRoute: typeof TutorialDbRoute
     }
-    '/_tempDbRequired/projects/': {
-      id: '/_tempDbRequired/projects/'
+    '/_tutorial/_db/projects/': {
+      id: '/_tutorial/_db/projects/'
       path: '/'
       fullPath: '/projects/'
-      preLoaderRoute: typeof TempDbRequiredProjectsIndexRouteImport
-      parentRoute: typeof TempDbRequiredProjectsRoute
+      preLoaderRoute: typeof TutorialDbProjectsIndexRouteImport
+      parentRoute: typeof TutorialDbProjectsRoute
     }
-    '/_tempDbRequired/projects/$projectId': {
-      id: '/_tempDbRequired/projects/$projectId'
+    '/_tutorial/_db/projects/$projectId': {
+      id: '/_tutorial/_db/projects/$projectId'
       path: '/$projectId'
       fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof TempDbRequiredProjectsProjectIdRouteImport
-      parentRoute: typeof TempDbRequiredProjectsRoute
+      preLoaderRoute: typeof TutorialDbProjectsProjectIdRouteImport
+      parentRoute: typeof TutorialDbProjectsRoute
     }
   }
 }
 
-interface TempDbRequiredProjectsRouteChildren {
-  TempDbRequiredProjectsProjectIdRoute: typeof TempDbRequiredProjectsProjectIdRoute
-  TempDbRequiredProjectsIndexRoute: typeof TempDbRequiredProjectsIndexRoute
+interface TutorialDbProjectsRouteChildren {
+  TutorialDbProjectsProjectIdRoute: typeof TutorialDbProjectsProjectIdRoute
+  TutorialDbProjectsIndexRoute: typeof TutorialDbProjectsIndexRoute
 }
 
-const TempDbRequiredProjectsRouteChildren: TempDbRequiredProjectsRouteChildren =
-  {
-    TempDbRequiredProjectsProjectIdRoute: TempDbRequiredProjectsProjectIdRoute,
-    TempDbRequiredProjectsIndexRoute: TempDbRequiredProjectsIndexRoute,
-  }
-
-const TempDbRequiredProjectsRouteWithChildren =
-  TempDbRequiredProjectsRoute._addFileChildren(
-    TempDbRequiredProjectsRouteChildren,
-  )
-
-interface TempDbRequiredRouteChildren {
-  TempDbRequiredProjectRootRoute: typeof TempDbRequiredProjectRootRoute
-  TempDbRequiredProjectsRoute: typeof TempDbRequiredProjectsRouteWithChildren
+const TutorialDbProjectsRouteChildren: TutorialDbProjectsRouteChildren = {
+  TutorialDbProjectsProjectIdRoute: TutorialDbProjectsProjectIdRoute,
+  TutorialDbProjectsIndexRoute: TutorialDbProjectsIndexRoute,
 }
 
-const TempDbRequiredRouteChildren: TempDbRequiredRouteChildren = {
-  TempDbRequiredProjectRootRoute: TempDbRequiredProjectRootRoute,
-  TempDbRequiredProjectsRoute: TempDbRequiredProjectsRouteWithChildren,
+const TutorialDbProjectsRouteWithChildren =
+  TutorialDbProjectsRoute._addFileChildren(TutorialDbProjectsRouteChildren)
+
+interface TutorialDbRouteChildren {
+  TutorialDbProjectRootRoute: typeof TutorialDbProjectRootRoute
+  TutorialDbProjectsRoute: typeof TutorialDbProjectsRouteWithChildren
 }
 
-const TempDbRequiredRouteWithChildren = TempDbRequiredRoute._addFileChildren(
-  TempDbRequiredRouteChildren,
+const TutorialDbRouteChildren: TutorialDbRouteChildren = {
+  TutorialDbProjectRootRoute: TutorialDbProjectRootRoute,
+  TutorialDbProjectsRoute: TutorialDbProjectsRouteWithChildren,
+}
+
+const TutorialDbRouteWithChildren = TutorialDbRoute._addFileChildren(
+  TutorialDbRouteChildren,
+)
+
+interface TutorialRouteChildren {
+  TutorialDbRoute: typeof TutorialDbRouteWithChildren
+}
+
+const TutorialRouteChildren: TutorialRouteChildren = {
+  TutorialDbRoute: TutorialDbRouteWithChildren,
+}
+
+const TutorialRouteWithChildren = TutorialRoute._addFileChildren(
+  TutorialRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TempDbRequiredRoute: TempDbRequiredRouteWithChildren,
+  TutorialRoute: TutorialRouteWithChildren,
   TestPgliteRoute: TestPgliteRoute,
 }
 export const routeTree = rootRouteImport

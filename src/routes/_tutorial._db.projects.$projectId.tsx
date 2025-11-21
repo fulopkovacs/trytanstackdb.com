@@ -4,13 +4,8 @@ import { projectsCollection } from "@/collections/projects";
 import { EditableProjectDetails } from "@/components/EditableProjectDetails";
 import { TodoBoards } from "@/components/TodoBoards";
 
-export const Route = createFileRoute("/_tempDbRequired/projects/$projectId")({
+export const Route = createFileRoute("/_tutorial/_db/projects/$projectId")({
   component: RouteComponent,
-  loader: async ({ context }) => {
-    return {
-      tempDbId: context.tempDbId,
-    };
-  },
 });
 
 function RouteComponent() {

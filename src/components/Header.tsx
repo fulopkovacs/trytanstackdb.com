@@ -1,80 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import { ClientOnly } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { DatabaseZap, TimerIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { getExpiryDate } from "@/server/functions/getExpiryDate";
+import { DatabaseZap } from "lucide-react";
+import type { ProjectRecord } from "@/db/schema";
+import { API, getDataFromApi } from "@/local-api";
 import { ModeToggle } from "./mode-toggle";
-
-function ExpiryCounter() {
-  const getExpiryTimeFn = useServerFn(getExpiryDate);
-
-  const getExpiryTimeQ = useQuery({
-    queryKey: ["expiryTime"],
-    queryFn: () => getExpiryTimeFn(),
-    staleTime: Infinity,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    // refetchInterval: 1000,
-  });
-
-  return (
-    <div className="text-sm text-muted-foreground font-mono flex items-center gap-1">
-      {getExpiryTimeQ.data && (
-        <>
-          {" "}
-          <TimerIcon className="h-4 w-4" />
-          <div>
-            Time until this db is destroyed:{" "}
-            <TimeLeft expiryTimestamp={getExpiryTimeQ.data} />
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function TimeLeft({ expiryTimestamp }: { expiryTimestamp: number }) {
-  const calculateTimeLeft = useCallback(
-    (now: number) => {
-      const diff = Math.max(expiryTimestamp - now, 0);
-      const seconds = Math.floor((diff / 1000) % 60);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      return { days, hours, minutes, seconds };
-    },
-    [expiryTimestamp],
-  );
-
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(Date.now()));
-
-  useEffect(() => {
-    if (expiryTimestamp <= Date.now()) return;
-    const interval = setInterval(() => {
-      setTimeLeft(calculateTimeLeft(Date.now()));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [expiryTimestamp, calculateTimeLeft]);
-
-  if (expiryTimestamp <= Date.now()) {
-    return <span>Expired</span>;
-  }
-
-  const { days, hours, minutes, seconds } = timeLeft;
-
-  return (
-    <span>
-      {days > 0 && `${days}d `}
-      {hours.toString().padStart(2, "0")}:{minutes.toString().padStart(2, "0")}:
-      {seconds.toString().padStart(2, "0")}
-    </span>
-  );
-}
-
-// Usage example:
-// <Timer expiryTimestamp={getExpiryTimeQ.data} />
 
 export function Header() {
   return (
@@ -93,13 +20,21 @@ export function Header() {
           <span className="text-muted-foreground">(unofficial!)</span>{" "}
         </div>
       </a>
+      <button
+        type="button"
+        className="underline cursor-pointer"
+        onClick={async () => {
+          // fetch projects
+          const res = await getDataFromApi<ProjectRecord[]>(
+            API["/api/projects"].GET,
+          );
+          console.log({ res });
+        }}
+      >
+        Print the projects to the console
+      </button>
       <div className="flex items-center gap-4 ml-auto">
-        <ClientOnly>
-          <ExpiryCounter />
-        </ClientOnly>
-        <div className="flex items-center gap-2">
-          <ModeToggle />
-        </div>
+        <ModeToggle />
       </div>
     </header>
   );

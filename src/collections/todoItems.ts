@@ -1,10 +1,9 @@
 import { createCollection } from "@tanstack/db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
+import { toast } from "sonner";
 import type { TodoItemRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
-import { getTodoItemsOptions } from "@/server/functions/getTodoItems";
-import { toast } from "sonner";
-import { TodoItemCreateDataType } from "@/local-api/api.todo-items";
+import type { TodoItemCreateDataType } from "@/local-api/api.todo-items";
 
 async function getTodoItems() {
   const res = await fetch("/api/todo-items", { method: "GET" });
@@ -60,7 +59,7 @@ export async function insertTodoItem({
 
 export const todoItemsCollection = createCollection(
   queryCollectionOptions({
-    queryKey: getTodoItemsOptions.queryKey,
+    queryKey: ["todo-items"],
     queryFn: getTodoItems,
     queryClient: TanstackQuery.getContext().queryClient,
     onInsert: async ({ transaction }) => {

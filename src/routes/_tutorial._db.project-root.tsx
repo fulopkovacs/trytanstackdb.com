@@ -17,7 +17,7 @@ const getServerTime = createServerFn()
     tempId,
   }));
 
-export const Route = createFileRoute("/_tempDbRequired/project-root")({
+export const Route = createFileRoute("/_tutorial/_db/project-root")({
   beforeLoad: async () => {},
   component: RouteComponent,
 });

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { projectsTable } from "@/db/schema";
 import { projectErrorNames } from "@/utils/errorNames";
-import { APIRouteHandler, APIType, json } from "./helpers";
+import { type APIRouteHandler, json } from "./helpers";
 
 const projectUpdateData = z.object({
   id: z.string(),
@@ -13,6 +13,8 @@ const projectUpdateData = z.object({
     .record(z.string(), z.array(z.string()))
     .optional(),
 });
+
+export type ProjectUpdateData = z.infer<typeof projectUpdateData>;
 
 const handlers = {
   GET: async () => {

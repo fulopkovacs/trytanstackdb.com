@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { requestSchema } from "@/local-api/helpers";
+import { API } from "@/local-api";
+import { type APIType, requestSchema } from "@/local-api/helpers";
 
 /**
   Set up a service worker proxy that will forward HTTP requests to
@@ -26,7 +27,9 @@ export function useServiceWorkerHttpProxy() {
     async function processRequestInMainThread(body: any) {
       try {
         const requestData = requestSchema.parse(body);
-        const handler = (API as API)[requestData.pathname][requestData.method];
+        const handler = (API as APIType)[requestData.pathname][
+          requestData.method
+        ];
         if (handler) {
           console.log({ requestData });
           return handler(requestData.requestBody);

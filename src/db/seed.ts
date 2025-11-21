@@ -1,4 +1,5 @@
 // Generate a seed script
+
 import { nanoid } from "nanoid";
 import { db } from ".";
 import {
@@ -237,16 +238,18 @@ function getMockData() {
   };
 }
 
-async function cleanAllTables() {
-  // Get all user tables
-  const tables: { name: string }[] = await db.execute(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN ('sqlite_sequence', 'd1_migrations', '_cf_METADATA');",
-  );
-  for (const { name } of tables) {
-    await db.execute(`DELETE FROM "${name}";`);
-  }
-  console.log("All tables have been cleaned up.");
-}
+// TODO: make it possible to reset the tables
+// async function cleanAllTables() {
+//   // Get all user tables
+//   const tables = await db.execute(
+//     sql`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN ('sqlite_sequence', 'd1_migrations', '_cf_METADATA');`,
+//   );
+//
+//   for (const { name } of tables) {
+//     await db.execute(`DELETE FROM "${name}";`);
+//   }
+//   console.log("All tables have been cleaned up.");
+// }
 
 export async function seed() {
   // Make sure the seed script has not been executed before
@@ -299,10 +302,4 @@ export async function seed() {
     console.error("Error during seeding:", error);
     throw error;
   }
-}
-
-export async function resetAndSeed() {
-  await cleanAllTables();
-  await seed();
-  console.log("Database reset and seeded.");
 }
