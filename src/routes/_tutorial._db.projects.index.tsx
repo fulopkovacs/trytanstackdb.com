@@ -4,6 +4,7 @@ import { API, getDataFromApi } from "@/local-api";
 
 export const Route = createFileRoute("/_tutorial/_db/projects/")({
   beforeLoad: async () => {
+    console.log("Redirecting to the first project...");
     const [firstProject] = await getDataFromApi<ProjectRecord[]>(
       API["/api/projects"].GET,
     );

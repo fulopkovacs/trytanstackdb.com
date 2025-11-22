@@ -1,7 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { DatabaseZap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useServiceWorkerHttpProxy } from "@/hooks/useServiceWorkerHttpProxy";
+// import { useServiceWorkerHttpProxy } from "@/hooks/useServiceWorkerHttpProxy";
 import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
 import { getApexDomainRedirectHref } from "@/utils/server/getApexDomainRedirectHref";
 
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
 });
 
 function App() {
-  useServiceWorkerHttpProxy();
+  // useServiceWorkerHttpProxy();
 
   return (
     <div className="min-h-screen flex items-center justify-center flex-col gap-10">
