@@ -273,26 +273,23 @@ export async function seed() {
     no support planned: https://github.com/cloudflare/workers-sdk/issues/2733#issuecomment-271236533
   */
   try {
-    await db.insert(seedTable).values({
-      id: nanoid(),
-      createdAt: new Date(),
-      state: "in_progress",
-    });
-    await db.insert(usersTable).values(mockUsers);
-    await db.insert(projectsTable).values(mockProjects);
-    await db.insert(boardsTable).values(mockBoards);
+    await db.transaction(async (tx) => {
+      const seedScriptId = nanoid();
+      await tx.insert(seedTable).values({
+        id: seedScriptId,
+        createdAt: new Date(),
+        state: "in_progress",
+      });
+      await tx.insert(usersTable).values(mockUsers);
+      await tx.insert(projectsTable).values(mockProjects);
+      await tx.insert(boardsTable).values(mockBoards);
 
-    // Batch insert to avoid "D1_ERROR: too many SQL variables at offset 448: SQLITE_ERROR" errors
-    const BATCH_SIZE = 10; // adjust as needed
+      await tx.insert(todoItemsTable).values(mockTodoItems);
 
-    for (let i = 0; i < mockTodoItems.length; i += BATCH_SIZE) {
-      const batch = mockTodoItems.slice(i, i + BATCH_SIZE);
-      await db.insert(todoItemsTable).values(batch);
-    }
-    await db.insert(seedTable).values({
-      id: nanoid(),
-      createdAt: new Date(),
-      state: "completed",
+      await tx.update(seedTable).set({
+        id: seedScriptId,
+        state: "completed",
+      });
     });
 
     return {
