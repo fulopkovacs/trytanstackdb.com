@@ -1,12 +1,27 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { projectsCollection } from "@/collections/projects";
 import { EditableProjectDetails } from "@/components/EditableProjectDetails";
 import { TodoBoards } from "@/components/TodoBoards";
 
 export const Route = createFileRoute("/_tutorial/_db/projects/$projectId")({
+  loader: async ({ params: { projectId } }) => {
+    if (!projectsCollection.toArray.find((p) => p.id === projectId)) {
+      throw notFound();
+    }
+  },
+  notFoundComponent: NotFoundComponent,
   component: RouteComponent,
 });
+
+function SharedLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="px-4 py-2 flex flex-col gap-4 overflow-hidden flex-1 min-h-0">
+      {children}
+    </div>
+  );
+}
 
 function RouteComponent() {
   const { projectId } = Route.useParams();
@@ -22,13 +37,43 @@ function RouteComponent() {
   );
 
   return (
-    <div className="px-4 py-2 flex flex-col gap-4 overflow-hidden flex-1 min-h-0">
+    <SharedLayout>
       {project && (
         <>
           <EditableProjectDetails project={project} />
           <TodoBoards projectId={projectId} />
         </>
       )}
-    </div>
+    </SharedLayout>
+  );
+}
+
+function NotFoundComponent() {
+  const {
+    data: [firstProject],
+  } = useLiveQuery((q) =>
+    q
+      .from({ project: projectsCollection })
+      .orderBy(({ project }) => project.createdAt)
+      .limit(1),
+  );
+
+  return (
+    <SharedLayout>
+      <div>
+        <p>Project not found.</p>
+        {firstProject && (
+          <Link
+            className="underline hover:opacity-80 transition-opacity text-orange-500"
+            to={"/projects/$projectId"}
+            params={{
+              projectId: firstProject.id,
+            }}
+          >
+            You can visit the "{firstProject.name}" project instead.
+          </Link>
+        )}
+      </div>
+    </SharedLayout>
   );
 }
