@@ -1,7 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { DatabaseZap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// import { useServiceWorkerHttpProxy } from "@/hooks/useServiceWorkerHttpProxy";
 import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
 import { getApexDomainRedirectHref } from "@/utils/server/getApexDomainRedirectHref";
 
@@ -18,8 +17,6 @@ export const Route = createFileRoute("/")({
 });
 
 function App() {
-  // useServiceWorkerHttpProxy();
-
   return (
     <div className="min-h-screen flex items-center justify-center flex-col gap-10">
       <div className="bg-linear-to-r bg-clip-text from-orange-500 to-orange-700 text-transparent flex flex-col items-center gap-2">
@@ -45,39 +42,6 @@ function App() {
 
 You'll have 30 minutes to play with this app (after that the db dies).`}
       </pre>
-
-      <div className="flex gap-4">
-        <Button
-          onClick={() =>
-            fetch("/hello").then(async (res) => {
-              // fetch("/api/messages").then(async (res) => {
-              const payload = await res.json();
-              console.log(payload);
-            })
-          }
-        >
-          /hello
-        </Button>
-        <Button
-          onClick={() =>
-            fetch("/api/projects", {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ projectId: "pr_1" }),
-            }).then(async (res) => {
-              // fetch("/api/messages").then(async (res) => {
-              // const payload = await res.text();
-              const payload = await res.json();
-              console.log(payload);
-            })
-          }
-        >
-          Update projects
-        </Button>
-      </div>
-
       <Button asChild>
         <Link to="/projects">Start the guide 🚀</Link>
       </Button>
