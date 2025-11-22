@@ -1,19 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { useNavigate } from "@tanstack/react-router";
-import { DatabaseZapIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { DatabaseZapIcon, XIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { type ZodDefault, type ZodNumber, z } from "zod";
 import { steps } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { AnimatePresence, motion } from "motion/react";
 
 export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialData";
 export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
@@ -29,23 +23,11 @@ export const tutorialDataSchema = z.object({
       {} as Record<string, ZodDefault<ZodNumber>>,
     ),
   ),
-  // z.record(z.string(), z.number()),
 });
 
 export const DEFAULT_TUTORIAL_DATA_VALUE = JSON.stringify({
   scrollPositions: {},
 });
-//
-// export const defaultValues = {
-//   tutorialStep: null,
-//   scrollPositions: steps.reduce(
-//     (acc, step) => {
-//       acc[step.title] = 0;
-//       return acc;
-//     },
-//     {} as Record<string, number>,
-//   ),
-// };
 
 export type TutorialData = {
   tutorialStep: string | null;
@@ -77,11 +59,11 @@ function getTutorialDataLocally(w: Window): TutorialData {
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
     <div className="border-b border-b-black p-2 flex items-center">
-      <div className="flex items-center gap-1 font-bold flex-grow">
+      <div className="flex items-center gap-1 font-bold grow">
         <DatabaseZapIcon className="h-5 w-5" /> TanStack DB Demo
       </div>
-      <Button variant={"secondary"} size="icon-sm" onClick={toggleWindow}>
-        <Minimize2Icon className="w-4 h-4" />
+      <Button variant="tutorial" size="icon-sm" onClick={toggleWindow}>
+        <XIcon className="w-4 h-4" />
       </Button>
     </div>
   );
