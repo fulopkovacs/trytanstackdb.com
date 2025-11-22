@@ -1,6 +1,7 @@
 import CollectionsIntro from "@/data/tutorial/01-collections-intro.mdx";
 import HowDoCollectionsWork from "@/data/tutorial/02-how-do-collections-work.mdx";
 import OptimisticUpdates from "@/data/tutorial/02-optimistic-updates.mdx";
+import OptimisticActions from "@/data/tutorial/optimistic-actions.mdx";
 import WhatIsNext from "@/data/tutorial/WhatIsNext.mdx";
 
 export type Step = {
@@ -20,7 +21,7 @@ export type Step = {
 //   file: CollectionsIntro,
 // }));
 //
-const stepsWithoutNames: Omit<Step, "nextSteName">[] = [
+const tutorialArticlesWithoutNextSteps: Step[] = [
   {
     title: "What are collections?",
     file: CollectionsIntro,
@@ -39,7 +40,27 @@ const stepsWithoutNames: Omit<Step, "nextSteName">[] = [
   },
 ];
 
-export const steps: Step[] = stepsWithoutNames.map((step, index) => ({
-  ...step,
-  nextStepName: stepsWithoutNames[index + 1]?.title,
-}));
+export const tutorialArticles: Step[] = tutorialArticlesWithoutNextSteps.map(
+  (step, index) => ({
+    ...step,
+    nextStepName: tutorialArticlesWithoutNextSteps[index + 1]?.title,
+  }),
+);
+
+const deepDiveArticlesWithoutNextSteps: Step[] = [
+  {
+    title: "Optimistic Actions",
+    file: OptimisticActions,
+  },
+];
+
+// export const deepDiveArticles: Step[] = deepDiveArticlesWithoutNextSteps.map(
+//   (step, index) => ({
+//     ...step,
+//     nextStepName: deepDiveArticlesWithoutNextSteps[index + 1]?.title,
+//   }),
+// );
+
+export const deepDiveArticles: Step[] = deepDiveArticlesWithoutNextSteps;
+
+export const steps = [...tutorialArticles, ...deepDiveArticles];

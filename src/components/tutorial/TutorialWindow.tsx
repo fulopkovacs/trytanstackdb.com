@@ -2,9 +2,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { useNavigate } from "@tanstack/react-router";
 import { DatabaseZapIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { type ZodDefault, type ZodNumber, z } from "zod";
-import { steps } from "@/data/tutorial";
+import { deepDiveArticles, steps, tutorialArticles } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
@@ -172,19 +172,32 @@ function FloatingWindow({
           onValueChange={handleStepChange}
           className="w-full flex flex-row p-2 h-96 max-h-3/4"
         >
-          <ScrollArea
-            type="hover"
-            className="h-full rounded-lg bg-neutral-200 py-2 px-1"
-          >
-            <TabsList className="w-40 flex-nowrap h-fit overflow-x-auto flex flex-col gap-2 text-sm text-balance">
-              {steps.map((step) => (
-                <TabsTrigger
-                  key={step.title}
-                  className="cursor-pointer flex-1 text-left bg-orange-500/0 px-2 py-1 rounded-md hover:bg-orange-500/20 transition-all data-[state=active]:bg-orange-500/100"
-                  value={step.title}
-                >
-                  {step.title}
-                </TabsTrigger>
+          <ScrollArea type="hover" className="h-full py-2">
+            <TabsList className="w-48 flex-nowrap px-2 h-fit overflow-x-auto flex flex-col gap-2 text-sm text-balance">
+              {[
+                {
+                  sectionTitle: "Tutorial",
+                  articles: tutorialArticles,
+                },
+                {
+                  sectionTitle: "Deep Dive Articles",
+                  articles: deepDiveArticles,
+                },
+              ].map(({ sectionTitle, articles }) => (
+                <Fragment key={sectionTitle}>
+                  <h3 className="font-bold">{sectionTitle}</h3>
+                  <div className="border-l border-neutral-200 ml-3 pl-2 text-neutral-500 flex flex-col gap-1">
+                    {articles.map((step) => (
+                      <TabsTrigger
+                        key={step.title}
+                        className="cursor-pointer flex-1 text-left bg-orange-200/0 px-2 py-1 rounded-md hover:bg-orange-200/20 transition-all data-[state=active]:bg-orange-200 data-[state=active]:text-black hover:text-black"
+                        value={step.title}
+                      >
+                        {step.title}
+                      </TabsTrigger>
+                    ))}
+                  </div>
+                </Fragment>
               ))}
             </TabsList>
           </ScrollArea>
@@ -202,7 +215,7 @@ function FloatingWindow({
             // does is tracked separately for the different steps
             key={activeStep}
             onScroll={handleScroll}
-            className="w-full ml-4 !block overflow-x-hidden display"
+            className="w-full ml-4 block! overflow-x-hidden display"
           >
             {steps.map((step) => (
               <TabsContent
