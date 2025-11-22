@@ -1,8 +1,7 @@
-import { deconstructResponseFromHandler } from "@/hooks/useSetupApiRoutes";
 import boardRoutes from "./api.boards";
 import projectRoutes from "./api.projects";
 import todoRoutes from "./api.todo-items";
-import type { APIType } from "./helpers";
+import { type APIType, deconstructResponseFromHandler } from "./helpers";
 
 export const API = {
   "/api/projects": projectRoutes,

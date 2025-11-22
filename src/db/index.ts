@@ -31,7 +31,7 @@ const dbName = "idb://try-tanstacdb-local-app";
 //   });
 // }
 
-export const client = new PGlite(dbName);
+const client = new PGlite(dbName);
 
 export const db = drizzle({
   client,
