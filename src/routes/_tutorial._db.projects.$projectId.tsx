@@ -7,7 +7,8 @@ import { TodoBoards } from "@/components/TodoBoards";
 
 export const Route = createFileRoute("/_tutorial/_db/projects/$projectId")({
   loader: async ({ params: { projectId } }) => {
-    if (!projectsCollection.toArray.find((p) => p.id === projectId)) {
+    const projectCollectionArray = await projectsCollection.toArrayWhenReady();
+    if (!projectCollectionArray.find((p) => p.id === projectId)) {
       throw notFound();
     }
   },
