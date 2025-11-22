@@ -3,8 +3,9 @@
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 
-// TODO: get dbName from the environment variables
-const dbName = "idb://try-tanstacdb-local-app";
+const dbName = import.meta.env.DEV
+  ? "idb://DEV-trytanstackdb"
+  : "idb://trytanstackdb";
 
 // async function getDb() {
 //   const client = new PGlite(dbName);
