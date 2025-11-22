@@ -1,6 +1,4 @@
 import { DatabaseZap } from "lucide-react";
-import type { ProjectRecord } from "@/db/schema";
-import { API, getDataFromApi } from "@/local-api";
 import { ModeToggle } from "./mode-toggle";
 
 export function Header() {
@@ -20,19 +18,6 @@ export function Header() {
           <span className="text-muted-foreground">(unofficial!)</span>{" "}
         </div>
       </a>
-      <button
-        type="button"
-        className="underline cursor-pointer"
-        onClick={async () => {
-          // fetch projects
-          const res = await getDataFromApi<ProjectRecord[]>(
-            API["/api/projects"].GET,
-          );
-          console.log({ res });
-        }}
-      >
-        Print the projects to the console
-      </button>
       <div className="flex items-center gap-4 ml-auto">
         <ModeToggle />
       </div>
