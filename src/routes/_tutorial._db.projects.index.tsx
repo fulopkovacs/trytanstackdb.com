@@ -1,23 +1,17 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import type { ProjectRecord } from "@/db/schema";
 import { API, getDataFromApi } from "@/local-api";
 
 export const Route = createFileRoute("/_tutorial/_db/projects/")({
   beforeLoad: async () => {
-    console.log("Redirecting to the first project...");
     const [firstProject] = await getDataFromApi<ProjectRecord[]>(
       API["/api/projects"].GET,
     );
 
     const id = firstProject?.id;
+
     if (!id) {
-      throw redirect({
-        to: "/",
-        search: {
-          error:
-            "No projects found in the database. Please create a project first.",
-        },
-      });
+      throw notFound();
     }
 
     throw redirect({
@@ -26,5 +20,8 @@ export const Route = createFileRoute("/_tutorial/_db/projects/")({
         projectId: id,
       },
     });
+  },
+  notFoundComponent: () => {
+    return <div>No projects were found in the database.</div>;
   },
 });
