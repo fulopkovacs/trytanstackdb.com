@@ -72,6 +72,53 @@ const todoItemsList: TodoItemBase[] = [
   },
 ];
 
+const anotherTodoItemsList: TodoItemBase[] = [
+  {
+    title: "Plan vacation",
+    description: "Research destinations and flights",
+    boardName: "Todo",
+    priority: 2,
+  },
+  // In Progress board
+  {
+    title: "Schedule dentist appointment",
+    description: "Call clinic for available slots",
+    boardName: "In Progress",
+    priority: 1,
+  },
+  // Done board
+  {
+    title: "Learn TypeScript",
+    description: "Complete online course modules",
+    boardName: "Done",
+    priority: 3,
+  },
+  {
+    title: "Organize photos",
+    description: "Sort and backup recent pictures",
+    boardName: "Done",
+    priority: 2,
+  },
+  {
+    title: "Prepare presentation",
+    description: "Create slides for team meeting",
+    boardName: "Done",
+    priority: 1,
+  },
+  {
+    title: "Renew library card",
+    description: "Completed renewal online",
+    boardName: "Done",
+    priority: 0,
+  },
+  {
+    title: "Fix leaky faucet",
+    description: "Replaced washer and tested",
+    boardName: "Done",
+    priority: 0,
+  },
+];
+
 const largeTodoItemsList: TodoItemBase[] = Array.from({
   length: 1000,
 }).map((_, index) => {
@@ -183,7 +230,7 @@ function getMockData() {
       name: "Project Beta",
       description: "Second project description",
       createdAt: now,
-      todoItemsBaseArr: todoItemsList,
+      todoItemsBaseArr: anotherTodoItemsList,
     },
     {
       id: nanoid(),
