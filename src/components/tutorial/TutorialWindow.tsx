@@ -1,12 +1,19 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { useNavigate } from "@tanstack/react-router";
 import { DatabaseZapIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { type ZodDefault, type ZodNumber, z } from "zod";
 import { steps } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { AnimatePresence, motion } from "motion/react";
 
 export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialData";
 export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
@@ -80,54 +87,19 @@ function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   );
 }
 
-function MinimizedFloatingWindow({
-  isOpen,
-  toggleWindow,
-  children,
-}: {
-  isOpen: boolean;
-  toggleWindow: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        "fade-in animate-in bg-orange-500 p-2  items-center gap-1 cursor-pointer hover:bg-orange-600 transition-colors",
-        !isOpen ? "flex" : "hidden",
-      )}
-      onClick={toggleWindow}
-    >
-      <div className="shrink wrap-break-word">{children}</div>
-      <Button variant={"secondary"} size="icon-sm">
-        <Maximize2Icon className="" />
-      </Button>
-    </div>
-  );
-}
-
 function FloatingWindow({
-  isOpen,
+  // isOpen,
   toggleWindow,
   tutorialData,
+  activeStep,
+  setActiveStep,
 }: {
   isOpen: boolean;
   toggleWindow: () => void;
   tutorialData: TutorialData;
+  activeStep: string | null;
+  setActiveStep: (step: string) => void;
 }) {
-  const [activeStep, setActiveStep] = useState(
-    tutorialData.tutorialStep || steps[0].title,
-  );
-  // const [scrollPositions, dispatch] = useReducer(
-  //   (state: Record<string, number>, action: { step: string; pos: number }) => {
-  //     return {
-  //       ...tutorialData.scrollPositions,
-  //       ...state,
-  //       [action.step]: action.pos,
-  //     };
-  //   },
-  //   tutorialData.scrollPositions || {},
-  // )
-
   const navigate = useNavigate();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -163,6 +135,7 @@ function FloatingWindow({
     [
       // clear all highlights
       navigate,
+      setActiveStep,
     ],
   );
 
@@ -180,7 +153,7 @@ function FloatingWindow({
   const handleScroll = () => {
     const tutorialData: TutorialData = getTutorialDataLocally(window);
     // get current scroll positions
-    if (scrollRef.current) {
+    if (scrollRef.current && activeStep) {
       const tutorialDataJson = JSON.stringify({
         tutorialStep: activeStep,
         scrollPositions: {
@@ -202,21 +175,18 @@ function FloatingWindow({
         // isOpen ? "translate-y-0" : "pointer-events-none translate-y-2",
       )}
     >
-      <MinimizedFloatingWindow isOpen={isOpen} toggleWindow={toggleWindow}>
-        {activeStep}
-      </MinimizedFloatingWindow>
       <div
         className={cn(
-          "transition-all",
-          isOpen
-            ? "block opacity-100 translate-y-0"
-            : "hidden opacity-0 translate-y-2",
+          "block opacity-100 translate-y-0",
+          // isOpen
+          //   ? "block opacity-100 translate-y-0"
+          //   : "hidden opacity-0 translate-y-2",
         )}
       >
         <FloatingWindowHeader toggleWindow={toggleWindow} />
         <Tabs
           orientation="vertical"
-          value={activeStep}
+          value={activeStep || undefined}
           onValueChange={handleStepChange}
           className="w-full flex flex-row p-2 h-96 max-h-3/4"
         >
@@ -292,31 +262,76 @@ export function TutorialWindow({
 }) {
   const [isOpen, setIsOpen] = useState(true);
 
+  const [activeStep, setActiveStep] = useState(
+    tutorialData.tutorialStep || steps[0].title,
+  );
+
   const toggleWindow = useCallback(() => {
     setIsOpen((o) => !o);
   }, []);
 
   return (
-    <div className="w-0 h-0">
-      <div
-        className={cn(
-          "absolute bottom-0 left-0 p-2 z-[49]",
-          isOpen ? "w-3xl" : "w-fit",
-        )}
-      >
-        <FloatingWindow
-          toggleWindow={toggleWindow}
-          isOpen={isOpen}
-          tutorialData={tutorialData}
-        />
-        <button
-          onClick={toggleWindow}
-          type="button"
-          className="rounded-full w-14 h-14 bg-orange-500 flex items-center justify-center shadow-lg hover:bg-orange-600  cursor-pointer transition-colors"
-        >
-          <DatabaseZapIcon className="text-black" />
-        </button>
+    <AnimatePresence mode="wait" initial={false}>
+      <div className="w-0 h-0">
+        <div className={"absolute bottom-0 left-0 p-2 z-49 overflow-hidden"}>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, translateY: 10 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              exit={{ opacity: 0, translateY: 10 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              <FloatingWindow
+                toggleWindow={toggleWindow}
+                isOpen={isOpen}
+                tutorialData={tutorialData}
+                activeStep={activeStep}
+                setActiveStep={setActiveStep}
+              />
+            </motion.div>
+          )}
+          <motion.button
+            className="relative min-w-14 h-14 text-black inline-flex items-center justify-center gap-2 cursor-pointer bg-orange-500 py-4 px-0 rounded-full hover:bg-orange-600"
+            type="button"
+            onClick={() => toggleWindow()}
+            animate={{
+              width: !isOpen ? "auto" : "56px",
+            }}
+            initial={false}
+            transition={{
+              duration: 0.2,
+              delay: !isOpen ? 0 : 0.2,
+              ease: "easeInOut",
+            }}
+          >
+            <div className="absolute top-0 left-0 h-full flex items-center justify-center w-14 shrink-0">
+              <DatabaseZapIcon className="block" />
+            </div>
+            <div className="w-6 h-14" />
+            <AnimatePresence>
+              {!isOpen && (
+                <div className="mx-4 h-0 pointer-events-none opacity-0">
+                  {activeStep}
+                </div>
+              )}
+            </AnimatePresence>
+            <motion.div
+              initial={false}
+              className="absolute right-0 top-0 m-4"
+              animate={{
+                opacity: !isOpen ? 1 : 0,
+              }}
+              transition={{
+                duration: !isOpen ? 0.2 : 0,
+                ease: "easeInOut",
+                delay: !isOpen ? 0.2 : 0,
+              }}
+            >
+              {activeStep}
+            </motion.div>
+          </motion.button>
+        </div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 }
