@@ -3,6 +3,7 @@ import {
   GHLink,
   HighLightComponent,
   ClearHighlightsButton,
+  LinkToStep,
 } from '/src/components/tutorial'
 
 ## Optimistic updates
@@ -26,21 +27,21 @@ projectsCollection.update(id, (project) => {
 
 <GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/013849f87b6ce7ab5dee3873424d8e1012b810fc/src/components/EditableProjectDetails.tsx#L22-L24" />
 
-The reason why it's fast is that updates, inserts, deletes and more complex
-mutations all update the cache first and handle updating the data in the remote
-db in the background.
+The reason why we see the change so fast is that the displayed data is from the cache which gets updated basically instantly, while the changes are synced back to the remote db in the background.
 
-### Errors and rollbacks
+### What happens when the data in the remote db can't be updated?
 
-Now rename it to a project that already exists (like `Project Beta`).
+Let's rename our current project to the name of another existing project (like `Project Beta`).
 
-1. At first, everything is the same
+1. At first, everything is the same (fast update)
 2. when the update request fails in the background (because all project names
    must be unique)
    - the changes are immediately rolled back,
    - and a toast message appears with the error message
 
 If the update fails, the mutations are rolled back.
+
+Rollbacks work seamlessly even for mutations that involve multiple collections (see the tutorial article on <LinkToStep articleTitle="Optimistic Actions">Optimistic Actions</LinkToStep>).
 
 **"Okay, but how does the syncing happen? Is it magic???"**. Glad you asked.
 Everything is magic if you just believe in it, let me show you how it works in
