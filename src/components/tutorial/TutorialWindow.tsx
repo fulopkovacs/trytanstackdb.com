@@ -233,7 +233,7 @@ function FloatingWindow({
                           step.nextStepName &&
                           handleStepChange(step.nextStepName)
                         }
-                        className="text-orange-500 underline hover:text-orange-600 transition-colorscursor-pointer"
+                        className="text-orange-500 underline hover:text-orange-600 transition-colors cursor-pointer"
                       >
                         Next: {step.nextStepName}
                       </button>
