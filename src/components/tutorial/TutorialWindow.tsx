@@ -226,7 +226,7 @@ function FloatingWindow({
                 value={step.title}
                 className="overflow-y-auto w-full overflow-x-hidden pb-3"
               >
-                <div className="prose prose-sm prose-neutral prose-base bg-white text-black dark:prose-neutral dark:bg-white dark:text-black">
+                <div className="fade-in animate-in prose prose-sm prose-neutral prose-base bg-white text-black dark:prose-neutral dark:bg-white dark:text-black">
                   {<step.file />}
                   {step.nextStepName && (
                     <div className="mt-4">
