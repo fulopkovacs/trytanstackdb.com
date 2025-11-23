@@ -3,7 +3,7 @@ import { GithubIcon, HighlighterIcon, XCircleIcon } from "lucide-react";
 import { useMemo } from "react";
 import z from "zod";
 
-/**s
+/**
   Naming convention:
     - `project` highlights any ids starting with `project` (e.g., `project`, `project_sidebar`)
 */
