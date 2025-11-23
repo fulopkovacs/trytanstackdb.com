@@ -219,21 +219,21 @@ function getMockData() {
 
   const mockProjects: ProjectBase[] = [
     {
-      id: nanoid(),
+      id: "project-1",
       name: "Project Alpha",
       description: "First project description",
       createdAt: now,
       todoItemsBaseArr: todoItemsList,
     },
     {
-      id: nanoid(),
+      id: "project-2",
       name: "Project Beta",
       description: "Second project description",
       createdAt: now,
       todoItemsBaseArr: anotherTodoItemsList,
     },
     {
-      id: nanoid(),
+      id: "project-3",
       name: "Large Project",
       description: "Third project description",
       createdAt: now,
