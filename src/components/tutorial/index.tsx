@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { GithubIcon, HighlighterIcon, XCircleIcon } from "lucide-react";
-import { useMemo } from "react";
+import { type ReactNode, useMemo } from "react";
 import z from "zod";
 
 /**
@@ -56,7 +56,7 @@ export function HighLightComponent({
   children,
 }: {
   h_id: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   const highlight = useMemo(() => {
     try {
@@ -103,5 +103,30 @@ export function ClearHighlightsButton() {
         Clear Highlights
       </Link>
     </div>
+  );
+}
+
+export function LinkToStep({
+  children,
+  articleTitle,
+}: {
+  children: ReactNode;
+  articleTitle: string;
+}) {
+  const encodedTitle = useMemo(
+    () => encodeURIComponent(articleTitle),
+    [articleTitle],
+  );
+
+  return (
+    <Link
+      to="."
+      search={{
+        step: encodedTitle,
+      }}
+      className="text-orange-500 underline hover:text-orange-600 transition-colors cursor-pointer"
+    >
+      {children}
+    </Link>
   );
 }
