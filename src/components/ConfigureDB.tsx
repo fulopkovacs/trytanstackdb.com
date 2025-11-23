@@ -52,7 +52,7 @@ export function ConfigureDB() {
         </AnimatePresence>
       </div>
       <TooltipContent>
-        This demo app runs a pglite (Postgres in WASM) db instance locally.
+        This demo app runs a PGlite (Postgres in WASM) db instance locally.
       </TooltipContent>
     </Tooltip>
   );
