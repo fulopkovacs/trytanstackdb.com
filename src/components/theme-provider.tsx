@@ -59,10 +59,10 @@ const setupPreferredListener = createClientOnlyFn(() => {
 const themeScript = (() => {
   function themeFn() {
     try {
-      const storedTheme = localStorage.getItem("ui-theme") || defaultTheme;
+      const storedTheme = localStorage.getItem("ui-theme") || "defaultTheme";
       const validTheme = ["light", "dark", "system"].includes(storedTheme)
         ? storedTheme
-        : "system";
+        : "defaultTheme";
 
       if (validTheme === "system") {
         const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
@@ -74,15 +74,15 @@ const themeScript = (() => {
         document.documentElement.classList.add(validTheme);
       }
     } catch (e) {
-      // const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-      //   .matches
-      //   ? "dark"
-      //   : "light";
-      document.documentElement.classList.add(defaultTheme, "system");
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+      document.documentElement.classList.add(systemTheme, "system");
     }
   }
   return `(${themeFn.toString()})();`.replace(
-    "defaultTheme",
+    '"defaultTheme"',
     JSON.stringify(defaultTheme),
   );
 })();
