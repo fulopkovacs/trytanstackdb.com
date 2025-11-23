@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/router.tsx",
+    "src/routeTree.gen.ts",
+    "src/routes/**/*.tsx",
+    "src/components/**/*.tsx",
+    "src/data/**/*.ts"
+  ],
+  "project": ["src/**/*.ts"],
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "ignoreDependencies": [
+    "@mdx-js/react",
+    "tailwindcss",
+    "tw-animate-css",
+    "@tailwindcss/typography"
+  ],
+  "tags": ["-lintignore"]
+}
