@@ -1,4 +1,5 @@
 import { CircleIcon } from "lucide-react";
+import { useCallback } from "react";
 import { todoItemsCollection } from "@/collections/todoItems";
 import { Button } from "./ui/button";
 import {
@@ -7,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useCallback } from "react";
 
 const icons = [
   <CircleIcon key="0" className="text-muted-foreground h-4 w-4" />,

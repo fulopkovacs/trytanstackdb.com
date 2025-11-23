@@ -2,18 +2,12 @@ import z from "zod";
 
 type Pathname = string;
 
-export type APIRequest = {
-  path: string;
-  method: string;
-  body: any;
+type ResponseData = {
+  status: number;
+  body?: any;
 };
 
-export const projectUpdateDataSchema = z.object({
-  id: z.string(),
-  name: z.string().optional(),
-});
-
-export const methodShema = z.enum(["GET", "PATCH", "POST", "DELETE"]);
+const methodShema = z.enum(["GET", "PATCH", "POST", "DELETE"]);
 
 type Method = z.infer<typeof methodShema>;
 
@@ -29,13 +23,7 @@ export const requestSchema = z.object({
   requestBody: z.any().optional(),
 });
 
-export const responseSchema = z.object({
-  body: z.any().optional(),
-  status: z.number(),
-});
-
 export type RequestData = z.infer<typeof requestSchema>;
-export type ResponseData = z.infer<typeof responseSchema>;
 
 export function json(
   body: any,

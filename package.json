@@ -17,7 +17,8 @@
     "deploy.prod": "CLOUDFLARE_ENV=production vite build && CLOUDFLARE_ENV=production wrangler deploy",
     "db.local.migrate": "wrangler d1 migrations apply D1_DB",
     "db.prod.migrate": "wrangler d1 migrations apply a4035948-b2c4-472c-bf80-c478b225df88 --remote",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "knip": "knip"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.13.8",
@@ -49,7 +50,6 @@
     "@tanstack/react-router": "^1.132.0",
     "@tanstack/react-router-ssr-query": "^1.131.7",
     "@tanstack/react-start": "^1.132.0",
-    "@tanstack/router-plugin": "^1.132.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.44.7",
@@ -72,8 +72,6 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
     "@tailwindcss/typography": "^0.5.19",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/react": "^16.3.0",
     "@types/node": "^22.19.1",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
@@ -81,11 +79,11 @@
     "dotenv": "^16.6.1",
     "drizzle-kit": "^0.31.6",
     "jsdom": "^27.2.0",
+    "knip": "^5.70.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vite": "^7.2.2",
     "vitest": "^3.2.4",
-    "web-vitals": "^5.1.0",
     "wrangler": "^4.48.0"
   },
   "pnpm": {

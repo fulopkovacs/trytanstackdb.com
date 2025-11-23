@@ -14,7 +14,6 @@ import { Route as TutorialRouteImport } from './routes/_tutorial'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TutorialDbRouteImport } from './routes/_tutorial._db'
 import { Route as TutorialDbProjectsRouteImport } from './routes/_tutorial._db.projects'
-import { Route as TutorialDbProjectRootRouteImport } from './routes/_tutorial._db.project-root'
 import { Route as TutorialDbProjectsIndexRouteImport } from './routes/_tutorial._db.projects.index'
 import { Route as TutorialDbProjectsProjectIdRouteImport } from './routes/_tutorial._db.projects.$projectId'
 
@@ -41,11 +40,6 @@ const TutorialDbProjectsRoute = TutorialDbProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => TutorialDbRoute,
 } as any)
-const TutorialDbProjectRootRoute = TutorialDbProjectRootRouteImport.update({
-  id: '/project-root',
-  path: '/project-root',
-  getParentRoute: () => TutorialDbRoute,
-} as any)
 const TutorialDbProjectsIndexRoute = TutorialDbProjectsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -61,7 +55,6 @@ const TutorialDbProjectsProjectIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/test-pglite': typeof TestPgliteRoute
-  '/project-root': typeof TutorialDbProjectRootRoute
   '/projects': typeof TutorialDbProjectsRouteWithChildren
   '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
   '/projects/': typeof TutorialDbProjectsIndexRoute
@@ -69,7 +62,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/test-pglite': typeof TestPgliteRoute
-  '/project-root': typeof TutorialDbProjectRootRoute
   '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
   '/projects': typeof TutorialDbProjectsIndexRoute
 }
@@ -79,7 +71,6 @@ export interface FileRoutesById {
   '/_tutorial': typeof TutorialRouteWithChildren
   '/test-pglite': typeof TestPgliteRoute
   '/_tutorial/_db': typeof TutorialDbRouteWithChildren
-  '/_tutorial/_db/project-root': typeof TutorialDbProjectRootRoute
   '/_tutorial/_db/projects': typeof TutorialDbProjectsRouteWithChildren
   '/_tutorial/_db/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
   '/_tutorial/_db/projects/': typeof TutorialDbProjectsIndexRoute
@@ -89,24 +80,17 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/test-pglite'
-    | '/project-root'
     | '/projects'
     | '/projects/$projectId'
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/test-pglite'
-    | '/project-root'
-    | '/projects/$projectId'
-    | '/projects'
+  to: '/' | '/test-pglite' | '/projects/$projectId' | '/projects'
   id:
     | '__root__'
     | '/'
     | '/_tutorial'
     | '/test-pglite'
     | '/_tutorial/_db'
-    | '/_tutorial/_db/project-root'
     | '/_tutorial/_db/projects'
     | '/_tutorial/_db/projects/$projectId'
     | '/_tutorial/_db/projects/'
@@ -155,13 +139,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TutorialDbProjectsRouteImport
       parentRoute: typeof TutorialDbRoute
     }
-    '/_tutorial/_db/project-root': {
-      id: '/_tutorial/_db/project-root'
-      path: '/project-root'
-      fullPath: '/project-root'
-      preLoaderRoute: typeof TutorialDbProjectRootRouteImport
-      parentRoute: typeof TutorialDbRoute
-    }
     '/_tutorial/_db/projects/': {
       id: '/_tutorial/_db/projects/'
       path: '/'
@@ -193,12 +170,10 @@ const TutorialDbProjectsRouteWithChildren =
   TutorialDbProjectsRoute._addFileChildren(TutorialDbProjectsRouteChildren)
 
 interface TutorialDbRouteChildren {
-  TutorialDbProjectRootRoute: typeof TutorialDbProjectRootRoute
   TutorialDbProjectsRoute: typeof TutorialDbProjectsRouteWithChildren
 }
 
 const TutorialDbRouteChildren: TutorialDbRouteChildren = {
-  TutorialDbProjectRootRoute: TutorialDbProjectRootRoute,
   TutorialDbProjectsRoute: TutorialDbProjectsRouteWithChildren,
 }
 
