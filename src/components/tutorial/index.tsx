@@ -77,7 +77,6 @@ export function HighLightComponent({
             ...s,
             highlight,
           })}
-          from="/projects"
           className="flex items-center no-underline text-white"
         >
           <HighlighterIcon className="h-4 2-4" />
@@ -98,7 +97,6 @@ export function ClearHighlightsButton() {
           ...s,
           highlight: undefined,
         })}
-        from="/projects"
         className="flex items-center no-underline text-neutral-700 hover:text-black transition-colors"
       >
         <XCircleIcon className="h-4 2-4" />
