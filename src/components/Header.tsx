@@ -1,6 +1,7 @@
-import { DatabaseZap } from "lucide-react";
+import { BugIcon, DatabaseZap } from "lucide-react";
 import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
+import { Button } from "./ui/button";
 
 export function Header() {
   return (
@@ -34,6 +35,15 @@ export function Header() {
       <div className="ml-auto">
         <ConfigureDB />
       </div>
+      <a
+        href="https://github.com/fulopkovacs/trytanstackdb.com/issues/new"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <Button variant={"outline"}>
+          <BugIcon /> Report a bug
+        </Button>
+      </a>
       <div className="flex items-center gap-4">
         <ModeToggle />
       </div>
