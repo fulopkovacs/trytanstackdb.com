@@ -14,15 +14,17 @@ export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
 
 export const tutorialDataSchema = z.object({
   tutorialStep: z.string().default(steps[0].title),
-  scrollPositions: z.object(
-    steps.reduce(
-      (acc, step) => {
-        acc[step.title] = z.number().default(0);
-        return acc;
-      },
-      {} as Record<string, ZodDefault<ZodNumber>>,
-    ),
-  ),
+  scrollPositions: z
+    .object(
+      steps.reduce(
+        (acc, step) => {
+          acc[step.title] = z.number().default(0);
+          return acc;
+        },
+        {} as Record<string, ZodDefault<ZodNumber>>,
+      ),
+    )
+    .catch({}),
 });
 
 export const DEFAULT_TUTORIAL_DATA_VALUE = JSON.stringify({
