@@ -23,7 +23,6 @@ const handlers = {
     return json(results);
   },
   PATCH: async ({ request }) => {
-    console.log({ request });
     let updatedData: z.infer<typeof projectUpdateData>;
 
     // biome-ignore lint/suspicious/noExplicitAny: it can be any here
@@ -31,9 +30,6 @@ const handlers = {
 
     try {
       bodyObj = await request.json();
-      // console.log(
-      //   `Received PATCH /api/projects with body: ${JSON.stringify(bodyObj, null, 2)}.`,
-      // );
     } catch (e) {
       console.error("Error parsing JSON body:", e);
       return new Response(`Invalid JSON body`, { status: 400 });
@@ -66,8 +62,9 @@ const handlers = {
     } catch (error) {
       if (
         error instanceof Error &&
+        error.cause instanceof Error &&
         updatedData.name &&
-        error.message.includes("UNIQUE constraint failed: projects.name")
+        error.cause.message.includes("unique constraint")
       ) {
         return new Response(
           `${projectErrorNames.PROJECT_NAME_EXISTS}: "${updatedData.name}" `,

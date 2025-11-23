@@ -93,10 +93,16 @@ async function handleFetch(event) {
   });
 
   // TODO: Handle errors
-
-  // Respond with the result as JSON
-  return new Response(JSON.stringify(responseData.body), {
-    status: responseData.status,
-    headers: { "Content-Type": "application/json" },
-  });
+  if (responseData.contentType === "application/json") {
+    // Respond with the result as JSON
+    return new Response(JSON.stringify(responseData.body), {
+      status: responseData.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  } else {
+    return new Response(responseData.body, {
+      status: responseData.status,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
 }

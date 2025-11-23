@@ -3,6 +3,7 @@ import z from "zod";
 type Pathname = string;
 
 type ResponseData = {
+  contentType: "application/json" | "text/plain";
   status: number;
   body?: any;
 };
@@ -72,6 +73,7 @@ export async function deconstructResponseFromHandler(
   const contentType = response.headers?.get("Content-Type") || "";
   let body: any = null;
   const clone = response.clone();
+  console.info({ response });
 
   try {
     if (contentType.includes("application/json")) {
@@ -86,6 +88,9 @@ export async function deconstructResponseFromHandler(
   }
 
   return {
+    contentType: contentType.includes("application/json")
+      ? "application/json"
+      : "text/plain",
     body,
     status: response.status,
   } satisfies ResponseData;
