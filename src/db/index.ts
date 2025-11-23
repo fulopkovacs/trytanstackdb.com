@@ -32,7 +32,7 @@ const dbName = import.meta.env.DEV
 //   });
 // }
 
-const client = new PGlite(dbName);
+export const client = new PGlite(dbName);
 
 export const db = drizzle({
   client,

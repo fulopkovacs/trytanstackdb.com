@@ -8,6 +8,7 @@ import { deepDiveArticles, steps, tutorialArticles } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { ConfigureDB } from "../ConfigureDB";
 
 export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialData";
 export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
@@ -64,9 +65,12 @@ function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
       <div className="flex items-center gap-1 font-bold grow">
         <DatabaseZapIcon className="h-5 w-5" /> TanStack DB Demo
       </div>
-      <Button variant="tutorial" size="icon-sm" onClick={toggleWindow}>
-        <XIcon className="w-4 h-4" />
-      </Button>
+      <div className="flex items-center gap-2">
+        <ConfigureDB />
+        <Button variant="tutorial" size="icon-sm" onClick={toggleWindow}>
+          <XIcon className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }
