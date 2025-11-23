@@ -73,7 +73,6 @@ export async function deconstructResponseFromHandler(
   const contentType = response.headers?.get("Content-Type") || "";
   let body: any = null;
   const clone = response.clone();
-  console.info({ response });
 
   try {
     if (contentType.includes("application/json")) {
