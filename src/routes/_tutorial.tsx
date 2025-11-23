@@ -45,6 +45,7 @@ export const Route = createFileRoute("/_tutorial")({
   validateSearch: z
     .object({
       temp_db_missing: z.string().optional(),
+      step: z.string().optional(),
     })
     .extend(highlightParamSchema.shape),
   beforeLoad: async () => {
