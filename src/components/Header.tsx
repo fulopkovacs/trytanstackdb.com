@@ -12,12 +12,24 @@ export function Header() {
         rel="noopener"
       >
         <DatabaseZap className="h-4 text-orange-500" />
-        <div>
-          <span className="bg-linear-to-r bg-clip-text from-orange-500 to-orange-700 text-transparent">
-            TanTanck DB Demo{" "}
-          </span>
-          <span className="text-muted-foreground">(unofficial!)</span>{" "}
-        </div>
+        <span className="cursor-pointer bg-linear-to-r bg-clip-text from-orange-500 to-orange-700 text-transparent">
+          TanStack DB Tutorial{" "}
+        </span>
+        <span className="underline">(docs)</span>
+      </a>
+      <span className="text-muted-foreground text-sm">by</span>
+      <a
+        href="https://fulop.dev"
+        target="_blank"
+        rel="noreferrer"
+        className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 text-sm"
+      >
+        <img
+          alt="fuko"
+          src="https://avatars.githubusercontent.com/u/43729152?s=96&v=4"
+          className="inline h-6 w-6 rounded-full"
+        />
+        fuko
       </a>
       <div className="ml-auto">
         <ConfigureDB />

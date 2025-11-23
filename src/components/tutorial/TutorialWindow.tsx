@@ -62,7 +62,7 @@ function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
     <div className="border-b border-b-black p-2 flex items-center">
       <div className="flex items-center gap-1 font-bold grow">
-        <DatabaseZapIcon className="h-5 w-5" /> TanStack DB Demo
+        <DatabaseZapIcon className="h-5 w-5" /> TanStack DB Tutorial
       </div>
       <Button variant="tutorial" size="icon-sm" onClick={toggleWindow}>
         <XIcon className="w-4 h-4" />
