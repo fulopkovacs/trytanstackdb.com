@@ -1,9 +1,10 @@
 import { DatabaseZap } from "lucide-react";
+import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
 
 export function Header() {
   return (
-    <header className="flex items-center justify-between px-4 py-2 border-b bg-background sticky top-0">
+    <header className="flex gap-2 items-center justify-between px-4 py-2 border-b bg-background sticky top-0">
       <a
         target="_blank"
         href="https://tanstack.com/db/latest/docs/overview"
@@ -18,7 +19,10 @@ export function Header() {
           <span className="text-muted-foreground">(unofficial!)</span>{" "}
         </div>
       </a>
-      <div className="flex items-center gap-4 ml-auto">
+      <div className="ml-auto">
+        <ConfigureDB />
+      </div>
+      <div className="flex items-center gap-4">
         <ModeToggle />
       </div>
     </header>
