@@ -33,15 +33,13 @@ The reason why we see the change so fast is that the displayed data is from the 
 
 Let's rename our current project to the name of another existing project (like `Project Beta`).
 
-1. At first, everything is the same (fast update)
-2. when the update request fails in the background (because all project names
+1. at first, everything is the same (fast update)
+2. when the http request fails in the background (because all project names
    must be unique)
    - the changes are immediately rolled back,
    - and a toast message appears with the error message
 
-If the update fails, the mutations are rolled back.
-
-Rollbacks work seamlessly even for mutations that involve multiple collections (see the tutorial article on <LinkToStep articleTitle="Optimistic Actions">Optimistic Actions</LinkToStep>).
+When an update fails, the mutations are rolled back. Rollbacks work seamlessly even for mutations that involve multiple collections (see the tutorial article on <LinkToStep articleTitle="Optimistic Actions">Optimistic Actions</LinkToStep>).
 
 **"Okay, but how does the syncing happen? Is it magic???"**. Glad you asked.
 Everything is magic if you just believe in it, let me show you how it works in

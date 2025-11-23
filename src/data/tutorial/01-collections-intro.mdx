@@ -3,14 +3,15 @@ import {GHLink, HighLightComponent, ClearHighlightsButton} from "/src/components
 
 ## What are collections?
 
-With TanStack DB, you can store and manage data from your remote db and the client-side cache using
-<a href="https://tanstack.com/db/latest/docs/overview#defining-collections" target="\_blank"> collections</a>.
+### A quick demo
 
-For example, the `projectsCollection` mirrors the data in our remote database (<a href="developers.cloudflare.com/d1/" target="/_blank">`CloudFlare D1`</a> in our case). We have several components that use that collection as a single source of truth, querying it to retrieve the data they need.
-
-Click the button below to see these components:
+We have a `projects` table in our database. If you click the button below, you can see all the components that to display data from this table:
 
 <HighLightComponent h_id="project">Highlight components</HighLightComponent>
+
+In a traditional React app, both of them would probably fetch the data they need from the server, managing their own cache. If you update something somewhere (e.g. rename a project), you need to manually update the cache, and after a while even knowing what to update becomes a challenge.
+
+What about TanStack DB? Here, you can create a collection for the data of the projects use it as a single source of truth everywhere.
 
 In the `AppSidebar` component, we use this query to get the list of projects:
 
