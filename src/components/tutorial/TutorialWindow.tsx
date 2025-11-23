@@ -270,7 +270,7 @@ export function TutorialWindow({
     if (activeStepFromSearch && typeof activeStepFromSearch === "string") {
       const stepInSearch = decodeURIComponent(activeStepFromSearch);
       if (steps.find((step) => step.title === stepInSearch)) {
-        setActiveStep(activeStepFromSearch);
+        setActiveStep(stepInSearch);
       }
     }
   }, [activeStepFromSearch]);
