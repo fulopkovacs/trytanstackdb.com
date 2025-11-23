@@ -4,36 +4,6 @@
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
-  "vars": {
-    "NODE_ENV": "development",
-    // 1 year
-    "TEMP_DB_LIFETIME_MINUTES": 525600
-  },
-  "env": {
-    "production": {
-      "name": "trytanstackdb",
-      "vars": {
-        "NODE_ENV": "production",
-        "TEMP_DB_LIFETIME_MINUTES": 30
-      },
-      "d1_databases": [
-        {
-          "binding": "D1_DB",
-          "database_name": "db-trytanstackdb",
-          "database_id": "a4035948-b2c4-472c-bf80-c478b225df88",
-          "migrations_dir": "drizzle/migrations"
-        }
-      ]
-    }
-  },
-  "d1_databases": [
-    {
-      "binding": "D1_DB",
-      "database_name": "db-trytanstackdb",
-      "database_id": "a4035948-b2c4-472c-bf80-c478b225df88",
-      "migrations_dir": "drizzle/migrations"
-    }
-  ],
   "routes": [
     {
       "zone_name": "trytanstackdb.com",
