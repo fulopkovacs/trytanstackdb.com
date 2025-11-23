@@ -9,6 +9,7 @@ import {
   tutorialDataSchema,
 } from "@/components/tutorial/TutorialWindow";
 import { getTutorialDataFromCookie } from "@/server/functions/getTutorialDataFromCookie";
+import { HomeIntro } from "@/components/HomeIntro";
 
 const mockUser = {
   id: "1",
@@ -46,6 +47,7 @@ export const Route = createFileRoute("/_tutorial")({
     .object({
       temp_db_missing: z.string().optional(),
       step: z.string().optional(),
+      show_home_intro: z.enum(["true", "false"]).optional().catch("false"),
     })
     .extend(highlightParamSchema.shape),
   beforeLoad: async () => {
@@ -87,10 +89,15 @@ export const Route = createFileRoute("/_tutorial")({
 
 function RouteComponent() {
   const { tutorialData } = Route.useLoaderData();
+  const { show_home_intro } = Route.useSearch();
 
   return (
     <>
       <Outlet />
+      <HomeIntro
+        activeStep={tutorialData.tutorialStep}
+        show_home_intro={show_home_intro}
+      />
       <TutorialWindow tutorialData={tutorialData} />
     </>
   );
