@@ -1,4 +1,4 @@
-import { BugIcon, DatabaseZap } from "lucide-react";
+import { BugIcon, DatabaseZap, GithubIcon } from "lucide-react";
 import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
@@ -35,6 +35,15 @@ export function Header() {
       <div className="ml-auto">
         <ConfigureDB />
       </div>
+      <a
+        href="https://github.com/fulopkovacs/trytanstackdb.com"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <Button variant={"outline"} size="icon">
+          <GithubIcon />
+        </Button>
+      </a>
       <a
         href="https://github.com/fulopkovacs/trytanstackdb.com/issues/new"
         target="_blank"
