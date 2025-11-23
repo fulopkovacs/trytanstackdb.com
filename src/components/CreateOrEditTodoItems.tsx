@@ -43,7 +43,6 @@ const createTodoItem = createOptimisticAction({
     });
   },
   mutationFn: async (newItemData: CreateTodoItemInput) => {
-    // do something
     await insertTodoItem({
       data: newItemData,
     });
