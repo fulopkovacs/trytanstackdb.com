@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { DatabaseZapIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
@@ -260,9 +260,20 @@ export function TutorialWindow({
 }) {
   const [isOpen, setIsOpen] = useState(true);
 
+  const { step: activeStepFromSearch } = useSearch({ strict: false });
+
   const [activeStep, setActiveStep] = useState(
     tutorialData.tutorialStep || steps[0].title,
   );
+
+  useEffect(() => {
+    if (activeStepFromSearch && typeof activeStepFromSearch === "string") {
+      const stepInSearch = decodeURIComponent(activeStepFromSearch);
+      if (steps.find((step) => step.title === stepInSearch)) {
+        setActiveStep(activeStepFromSearch);
+      }
+    }
+  }, [activeStepFromSearch]);
 
   const toggleWindow = useCallback(() => {
     setIsOpen((o) => !o);
