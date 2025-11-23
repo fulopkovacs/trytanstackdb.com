@@ -49,6 +49,7 @@ const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(async () => {
           requestData.method
         ];
         if (handler) {
+          // simulate some delay with setTimeout
           return await deconstructResponseFromHandler(
             await handler(constructRequestForHandler(requestData)),
           );
