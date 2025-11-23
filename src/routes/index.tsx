@@ -1,18 +1,8 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { DatabaseZap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getSubdomainAndApexFromHost } from "@/server/functions/getSubdomainAndApexFromHost";
-import { getApexDomainRedirectHref } from "@/utils/server/getApexDomainRedirectHref";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async () => {
-    const { subdomain, apex, protocol } = await getSubdomainAndApexFromHost();
-    if (subdomain) {
-      throw redirect({
-        href: getApexDomainRedirectHref(apex, protocol),
-      });
-    }
-  },
   component: App,
 });
 
