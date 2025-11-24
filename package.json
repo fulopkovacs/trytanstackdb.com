@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "vite dev --port 3542",
     "build": "vite build",
-    "build.prod": "CLOUDFLARE_ENV=production vite build",
     "serve": "vite preview",
     "test": "vitest run",
     "format": "biome format",
@@ -14,9 +13,6 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "db.generate": "drizzle-kit generate && tsx src/db/compile-migrations.ts",
-    "deploy.prod": "CLOUDFLARE_ENV=production vite build && CLOUDFLARE_ENV=production wrangler deploy",
-    "db.local.migrate": "wrangler d1 migrations apply D1_DB",
-    "db.prod.migrate": "wrangler d1 migrations apply a4035948-b2c4-472c-bf80-c478b225df88 --remote",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "knip": "knip"
   },
