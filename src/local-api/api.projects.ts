@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
 import { projectsTable } from "@/db/schema";
 import { projectErrorNames } from "@/utils/errorNames";
 import { type APIRouteHandler, json } from "./helpers";
+import { getDb } from "@/db";
 
 const projectUpdateData = z.object({
   id: z.string(),
@@ -18,11 +18,13 @@ export type ProjectUpdateData = z.infer<typeof projectUpdateData>;
 
 const handlers = {
   GET: async () => {
+    const { db } = await getDb();
     const results = await db.select().from(projectsTable);
 
     return json(results);
   },
   PATCH: async ({ request }) => {
+    const { db } = await getDb();
     let updatedData: z.infer<typeof projectUpdateData>;
 
     // biome-ignore lint/suspicious/noExplicitAny: it can be any here

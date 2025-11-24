@@ -1,3 +1,4 @@
+import { ClientOnly } from "@tanstack/react-router";
 import { BugIcon, DatabaseZap, GithubIcon } from "lucide-react";
 import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
@@ -32,9 +33,11 @@ export function Header() {
         />
         fuko
       </a>
-      <div className="ml-auto">
-        <ConfigureDB />
-      </div>
+      <ClientOnly fallback={null}>
+        <div className="ml-auto">
+          <ConfigureDB />
+        </div>
+      </ClientOnly>
       <a
         href="https://github.com/fulopkovacs/trytanstackdb.com"
         target="_blank"

@@ -1,12 +1,12 @@
 import { eq } from "drizzle-orm";
 import z from "zod";
-import { db } from "@/db";
 import {
   projectsTable,
   type TodoItemRecord,
   todoItemsTable,
 } from "@/db/schema";
 import { type APIRouteHandler, json } from "./helpers";
+import { getDb } from "@/db";
 
 const todoItemCreateData = z.object({
   id: z.string().min(1),
@@ -29,11 +29,14 @@ const todoItemUpdateData = z.object({
 
 export default {
   GET: async () => {
+    const { db } = await getDb();
     const results = await db.select().from(todoItemsTable);
 
     return json(results);
   },
   POST: async ({ request }) => {
+    const { db } = await getDb();
+
     // Create new todo item
     let newTodoItemData: Omit<z.infer<typeof todoItemCreateData>, "projectId">;
     let projectId: string;
@@ -130,6 +133,7 @@ export default {
     );
   },
   PATCH: async ({ request }) => {
+    const { db } = await getDb();
     let updatedData: z.infer<typeof todoItemUpdateData>;
 
     // biome-ignore lint/suspicious/noExplicitAny: it can be any here

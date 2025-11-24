@@ -1,5 +1,5 @@
 // import type { MigrationConfig } from "drizzle-orm/migrator";
-import { db } from ".";
+import { DB, getDb } from ".";
 import migrations from "./migrations.json";
 
 // export async function migrate() {
@@ -10,7 +10,7 @@ import migrations from "./migrations.json";
 //   } satisfies Omit<MigrationConfig, "migrationsFolder">);
 // }
 
-async function ensureMigrationsTable() {
+async function ensureMigrationsTable(db: DB) {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS drizzle_migrations (
       hash TEXT PRIMARY KEY,
@@ -19,14 +19,14 @@ async function ensureMigrationsTable() {
   `);
 }
 
-async function getMigratedHashes(): Promise<string[]> {
+async function getMigratedHashes(db: DB): Promise<string[]> {
   const result = await db.execute(`
     SELECT hash FROM drizzle_migrations ORDER BY created_at ASC
   `);
   return result.rows.map((row) => row.hash as string);
 }
 
-async function recordMigration(hash: string) {
+async function recordMigration(hash: string, db: DB) {
   await db.execute(
     `
     INSERT INTO drizzle_migrations (hash, created_at)
@@ -39,11 +39,13 @@ async function recordMigration(hash: string) {
 export async function migrate() {
   console.log("🚀 Starting pglite migration...");
 
+  const { db } = await getDb();
+
   // Ensure migrations table exists
-  await ensureMigrationsTable();
+  await ensureMigrationsTable(db);
 
   // Get already executed migrations
-  const executedHashes = await getMigratedHashes();
+  const executedHashes = await getMigratedHashes(db);
 
   // Filter and execute pending migrations
   const pendingMigrations = migrations.filter(
@@ -67,7 +69,7 @@ export async function migrate() {
       }
 
       // Record successful migration
-      await recordMigration(migration.hash);
+      await recordMigration(migration.hash, db);
       console.log(`✅ Successfully completed migration: ${migration.hash}`);
     } catch (error) {
       console.error(`❌ Failed to execute migration ${migration.hash}:`, error);

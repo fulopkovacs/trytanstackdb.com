@@ -1,39 +1,22 @@
 // import { config } from "dotenv";
 
-import { PGlite } from "@electric-sql/pglite";
-import { drizzle } from "drizzle-orm/pglite";
+export const getDb = async () => {
+  if (typeof window === "undefined") {
+    throw new Error("PGlite is only supported in the browser environment.");
+  }
+  const { PGlite } = await import("@electric-sql/pglite");
+  const { drizzle } = await import("drizzle-orm/pglite");
 
-const dbName = import.meta.env.DEV
-  ? "idb://DEV-trytanstackdb"
-  : "idb://trytanstackdb";
+  const dbName = import.meta.env.DEV
+    ? "idb://DEV-trytanstackdb"
+    : "idb://trytanstackdb";
 
-// async function getDb() {
-//   const client = new PGlite(dbName);
-//
-//   // wait until the db is ready
-//   // NOTE: shouldn't be necesseray according to the docs,
-//   // because query methods are supposed to wait until the db
-//   // is fully initialized
-//   // src: https://pglite.dev/docs/api#waitready
-//   console.log("waiting for the db to be ready...");
-//   console.log({
-//     dbReadyBefore: client.ready,
-//   });
-//   await client.waitReady;
-//   console.log("the db is ready");
-//   console.log({
-//     dbReadyAfter: client.ready,
-//   });
-//
-//   // config();
-//
-//   return drizzle({
-//     client,
-//   });
-// }
+  const client = new PGlite(dbName);
 
-export const client = new PGlite(dbName);
+  const db = drizzle({
+    client,
+  });
+  return { db, client };
+};
 
-export const db = drizzle({
-  client,
-});
+export type DB = Awaited<ReturnType<typeof getDb>>["db"];

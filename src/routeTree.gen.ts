@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestPgliteRouteImport } from './routes/test-pglite'
 import { Route as TutorialRouteImport } from './routes/_tutorial'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TutorialDbRouteImport } from './routes/_tutorial._db'
@@ -17,11 +16,6 @@ import { Route as TutorialDbProjectsRouteImport } from './routes/_tutorial._db.p
 import { Route as TutorialDbProjectsIndexRouteImport } from './routes/_tutorial._db.projects.index'
 import { Route as TutorialDbProjectsProjectIdRouteImport } from './routes/_tutorial._db.projects.$projectId'
 
-const TestPgliteRoute = TestPgliteRouteImport.update({
-  id: '/test-pglite',
-  path: '/test-pglite',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TutorialRoute = TutorialRouteImport.update({
   id: '/_tutorial',
   getParentRoute: () => rootRouteImport,
@@ -54,14 +48,12 @@ const TutorialDbProjectsProjectIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/test-pglite': typeof TestPgliteRoute
   '/projects': typeof TutorialDbProjectsRouteWithChildren
   '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
   '/projects/': typeof TutorialDbProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/test-pglite': typeof TestPgliteRoute
   '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
   '/projects': typeof TutorialDbProjectsIndexRoute
 }
@@ -69,7 +61,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_tutorial': typeof TutorialRouteWithChildren
-  '/test-pglite': typeof TestPgliteRoute
   '/_tutorial/_db': typeof TutorialDbRouteWithChildren
   '/_tutorial/_db/projects': typeof TutorialDbProjectsRouteWithChildren
   '/_tutorial/_db/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
@@ -77,19 +68,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/test-pglite'
-    | '/projects'
-    | '/projects/$projectId'
-    | '/projects/'
+  fullPaths: '/' | '/projects' | '/projects/$projectId' | '/projects/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/test-pglite' | '/projects/$projectId' | '/projects'
+  to: '/' | '/projects/$projectId' | '/projects'
   id:
     | '__root__'
     | '/'
     | '/_tutorial'
-    | '/test-pglite'
     | '/_tutorial/_db'
     | '/_tutorial/_db/projects'
     | '/_tutorial/_db/projects/$projectId'
@@ -99,18 +84,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TutorialRoute: typeof TutorialRouteWithChildren
-  TestPgliteRoute: typeof TestPgliteRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test-pglite': {
-      id: '/test-pglite'
-      path: '/test-pglite'
-      fullPath: '/test-pglite'
-      preLoaderRoute: typeof TestPgliteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_tutorial': {
       id: '/_tutorial'
       path: ''
@@ -196,7 +173,6 @@ const TutorialRouteWithChildren = TutorialRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TutorialRoute: TutorialRouteWithChildren,
-  TestPgliteRoute: TestPgliteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
