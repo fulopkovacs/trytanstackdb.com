@@ -1,6 +1,6 @@
+import { createClientOnlyFn } from "@tanstack/react-start";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { client } from "@/db";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -8,20 +8,26 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 /** Minimum time to show the loading state to avoid flickering */
 const MIN_DB_LOADING_TIME = 1_000;
 
+const checkConnection = createClientOnlyFn(async (cb) => {
+  const { getDb } = await import("@/db");
+  const { client } = await getDb();
+  if (client.ready) {
+    cb();
+  } else {
+    await client.waitReady;
+    cb();
+  }
+});
+
 export function ConfigureDB() {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    const checkConnection = async () => {
-      if (client.ready) {
-        setIsConnected(true);
-      } else {
-        await client.waitReady;
-        setIsConnected(true);
-      }
-    };
-    timeoutId = setTimeout(checkConnection, MIN_DB_LOADING_TIME);
+    timeoutId = setTimeout(
+      () => checkConnection(() => setIsConnected(true)),
+      MIN_DB_LOADING_TIME,
+    );
     return () => clearTimeout(timeoutId);
   }, []);
 

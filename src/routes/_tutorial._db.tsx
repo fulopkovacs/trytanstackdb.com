@@ -1,7 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { createIsomorphicFn } from "@tanstack/react-start";
-import { migrate } from "@/db/migrate";
-import { seed } from "@/db/seed";
 import { API } from "@/local-api";
 import {
   type APIType,
@@ -11,17 +9,8 @@ import {
 } from "@/local-api/helpers";
 
 const setupPglite = createIsomorphicFn().client(async () => {
-  const pgliteVarName = "__PG_LITE_SETUP_DONE__";
-
-  // @ts-expect-error
-  if (!window[pgliteVarName]) {
-    await migrate();
-    await seed();
-    // @ts-expect-error
-    window[pgliteVarName] = true;
-  }
-  // BUG: On Chrome, the user might reload the page to see the interface
-  // it's because of pglite or something
+  const { setupPgliteInTheBrowser } = await import("@/client/pgliteHelpers");
+  await setupPgliteInTheBrowser();
 });
 
 const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(async () => {

@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_tutorial/_db/projects")({
       user: context.user,
     };
   },
-  ssr: "data-only",
+  ssr: false,
 });
 
 function RouteComponent() {

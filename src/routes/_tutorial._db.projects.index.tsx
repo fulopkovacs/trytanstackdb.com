@@ -1,13 +1,18 @@
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
+import { createClientOnlyFn } from "@tanstack/react-start";
 import type { ProjectRecord } from "@/db/schema";
-import { API, getDataFromApi } from "@/local-api";
+
+const getFirstProject = createClientOnlyFn(async () => {
+  const { API, getDataFromApi } = await import("@/local-api");
+  const [firstProject] = await getDataFromApi<ProjectRecord[]>(
+    API["/api/projects"].GET,
+  );
+  return firstProject;
+});
 
 export const Route = createFileRoute("/_tutorial/_db/projects/")({
   beforeLoad: async () => {
-    const [firstProject] = await getDataFromApi<ProjectRecord[]>(
-      API["/api/projects"].GET,
-    );
-
+    const firstProject = await getFirstProject();
     const id = firstProject?.id;
 
     if (!id) {
