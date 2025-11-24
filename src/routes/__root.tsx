@@ -9,8 +9,8 @@ import appCss from "../styles.css?url";
 import "prismjs/themes/prism-tomorrow.css"; // or any other Prism theme
 import { ScriptOnce } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
+import ogImage from "@/og-image.png";
 import { seo } from "@/utils/seo";
-import ogImage from "public/og-image.png";
 
 interface MyRouterContext {
   queryClient: QueryClient;
