@@ -16,29 +16,16 @@ export const Route = createFileRoute("/_tutorial/_db/projects/")({
     const firstProject = await getFirstProject();
     const id = firstProject?.id;
 
-    // if (!id) {
-    //   throw notFound();
-    // }
+    if (!id) {
+      throw notFound();
+    }
 
-    // throw redirect({
-    //   to: "/projects/$projectId",
-    //   params: {
-    //     projectId: id,
-    //   },
-    // });
-  },
-  component: () => {
-    return (
-      <div>
-        <button
-          className="underline"
-          type="button"
-          onClick={async () => await getFirstProject()}
-        >
-          print projects
-        </button>
-      </div>
-    );
+    throw redirect({
+      to: "/projects/$projectId",
+      params: {
+        projectId: id,
+      },
+    });
   },
   notFoundComponent: () => {
     return <div>No projects were found in the database.</div>;
