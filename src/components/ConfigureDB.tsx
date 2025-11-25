@@ -52,7 +52,12 @@ export function ConfigureDB() {
                       : "animate-pulse bg-yellow-400",
                   )}
                 />
-                {isConnected ? "Connected to the db" : "Connecting to db..."}
+                <span className="hidden lg:inline">
+                  {isConnected ? "Connected to the db" : "Connecting to db..."}
+                </span>
+                <span className="inline lg:hidden">
+                  {isConnected ? "Connected" : "Connecting"}
+                </span>
               </Badge>
             </motion.div>
           </TooltipTrigger>
