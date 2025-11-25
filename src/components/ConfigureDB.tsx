@@ -4,19 +4,21 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { client } from "@/db";
 
 /** Minimum time to show the loading state to avoid flickering */
 const MIN_DB_LOADING_TIME = 1_000;
 
-const checkConnection = createIsomorphicFn().client(async (cb) => {
-  const { client } = await import("@/db");
-  if (client.ready) {
-    cb();
-  } else {
-    await client.waitReady;
-    cb();
-  }
-});
+const checkConnection = createIsomorphicFn().client(
+  async (cb: (state: boolean) => void) => {
+    if (client.ready) {
+      cb(true);
+    } else {
+      await client.waitReady;
+      cb(true);
+    }
+  },
+);
 
 export function ConfigureDB() {
   const [isConnected, setIsConnected] = useState(false);
@@ -24,7 +26,7 @@ export function ConfigureDB() {
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     timeoutId = setTimeout(
-      () => checkConnection(() => setIsConnected(true)),
+      () => checkConnection(setIsConnected),
       MIN_DB_LOADING_TIME,
     );
     return () => clearTimeout(timeoutId);
