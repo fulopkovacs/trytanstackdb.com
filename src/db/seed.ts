@@ -12,7 +12,7 @@ import {
   type UserRecord,
   usersTable,
 } from "./schema";
-import { getDb } from ".";
+import { db } from ".";
 
 type BoardName = "Todo" | "In Progress" | "Done";
 type TodoItemBase = Omit<
@@ -299,7 +299,6 @@ function getMockData() {
 // }
 
 export async function seed() {
-  const { db } = await getDb();
   // Make sure the seed script has not been executed before
   const [existingSeed] = await db.select().from(seedTable).limit(1);
 

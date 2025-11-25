@@ -1,10 +1,10 @@
 import { createIsomorphicFn } from "@tanstack/react-start";
-import { getDb } from "@/db";
 import { migrate } from "@/db/migrate";
 import { projectsTable } from "@/db/schema";
 import { seed } from "@/db/seed";
 import { API } from "@/local-api";
 import type { APIType } from "@/local-api/helpers";
+import { db } from "@/db";
 
 export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
   async () => {
@@ -79,7 +79,6 @@ export async function setupPgliteInTheBrowser() {
 
     Maybe it has to do something with dynamic imports?? Not sure...
   */
-  const { db } = await getDb();
   const projects = await db.select().from(projectsTable);
   console.log({ projectsFromSetpPGlite: projects });
 }

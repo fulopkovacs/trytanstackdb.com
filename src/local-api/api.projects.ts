@@ -3,7 +3,7 @@ import { z } from "zod";
 import { projectsTable } from "@/db/schema";
 import { projectErrorNames } from "@/utils/errorNames";
 import { type APIRouteHandler, json } from "./helpers";
-import { getDb } from "@/db";
+import { db } from "@/db";
 
 const projectUpdateData = z.object({
   id: z.string(),
@@ -18,7 +18,6 @@ export type ProjectUpdateData = z.infer<typeof projectUpdateData>;
 
 const handlers = {
   GET: async () => {
-    const { db } = await getDb();
     const results = await db.select().from(projectsTable);
 
     console.log({ results });
@@ -26,7 +25,6 @@ const handlers = {
     return json(results);
   },
   PATCH: async ({ request }) => {
-    const { db } = await getDb();
     let updatedData: z.infer<typeof projectUpdateData>;
 
     // biome-ignore lint/suspicious/noExplicitAny: it can be any here
