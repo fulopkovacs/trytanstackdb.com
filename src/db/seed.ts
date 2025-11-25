@@ -340,6 +340,9 @@ export async function seed() {
       });
     });
 
+    const projects = await db.select().from(projectsTable);
+    console.log("Seeding completed. Projects in DB:", projects);
+
     return {
       firstProjectId: mockProjects[0].id,
     };
