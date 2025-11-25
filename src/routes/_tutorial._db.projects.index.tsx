@@ -7,7 +7,6 @@ const getFirstProject = createClientOnlyFn(async () => {
   const [firstProject] = await getDataFromApi<ProjectRecord[]>(
     API["/api/projects"].GET,
   );
-  console.log({ firstProject });
   return firstProject;
 });
 
