@@ -1,7 +1,5 @@
-import { eq, useLiveQuery } from "@tanstack/react-db";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { projectsCollection } from "@/collections/projects";
 import { EditableProjectDetails } from "@/components/EditableProjectDetails";
 import { TodoBoards } from "@/components/TodoBoards";
 
@@ -40,12 +38,7 @@ function RouteComponent() {
   return (
     <SharedLayout>
       <EditableProjectDetails projectId={projectId} />
-      {/* {project && ( */}
-      {/*   <> */}
-      {/*     <EditableProjectDetails project={project} /> */}
-      {/*     <TodoBoards projectId={projectId} /> */}
-      {/*   </> */}
-      {/* )} */}
+      <TodoBoards projectId={projectId} />
     </SharedLayout>
   );
 }

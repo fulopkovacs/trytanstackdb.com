@@ -1,11 +1,12 @@
+import { eq } from "drizzle-orm";
 import z from "zod";
+import { db } from "@/db";
 import {
   projectsTable,
   type TodoItemRecord,
   todoItemsTable,
 } from "@/db/schema";
 import { type APIRouteHandler, json } from "./helpers";
-import { db } from "@/db";
 
 const todoItemCreateData = z.object({
   id: z.string().min(1),
