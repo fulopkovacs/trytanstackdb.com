@@ -1,3 +1,4 @@
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { CheckIcon, Edit2Icon } from "lucide-react";
 import { useState } from "react";
 import { projectsCollection } from "@/collections/projects";
@@ -70,22 +71,28 @@ function EditProjectNamePopover({ name, id }: { name: string; id: string }) {
   );
 }
 
-export function EditableProjectDetails({
-  project,
-}: {
-  project: { name: string; description?: string; id: string };
-}) {
-  return (
+export function EditableProjectDetails({ projectId }: { projectId: string }) {
+  const {
+    data: [project],
+  } = useLiveQuery(
+    (q) =>
+      q
+        .from({ project: projectsCollection })
+        .where(({ project }) => eq(project.id, projectId)),
+    [projectId],
+  );
+
+  return project ? (
     <HighlightWrapper highlightId="project_projectPage">
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight">
-            {project.name || "Project"}
+            {project.name}
           </h1>
           <EditProjectNamePopover name={project.name} id={project.id} />
         </div>
-        <p>{project?.description || ""}</p>
+        <p>{project.description}</p>
       </div>
     </HighlightWrapper>
-  );
+  ) : null;
 }
