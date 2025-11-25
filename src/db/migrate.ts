@@ -1,5 +1,5 @@
 // import type { MigrationConfig } from "drizzle-orm/migrator";
-import { DB, getDb } from ".";
+import { DB, db } from ".";
 import migrations from "./migrations.json";
 
 // export async function migrate() {
@@ -38,8 +38,6 @@ async function recordMigration(hash: string, db: DB) {
 
 export async function migrate() {
   console.log("🚀 Starting pglite migration...");
-
-  const { db } = await getDb();
 
   // Ensure migrations table exists
   await ensureMigrationsTable(db);

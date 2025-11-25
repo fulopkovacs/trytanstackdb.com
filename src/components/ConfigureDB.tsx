@@ -9,8 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 const MIN_DB_LOADING_TIME = 1_000;
 
 const checkConnection = createIsomorphicFn().client(async (cb) => {
-  const { getDb } = await import("@/db");
-  const { client } = await getDb();
+  const { client } = await import("@/db");
   if (client.ready) {
     cb();
   } else {
