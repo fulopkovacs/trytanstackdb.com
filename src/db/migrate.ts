@@ -1,5 +1,5 @@
 // import type { MigrationConfig } from "drizzle-orm/migrator";
-import { DB, db } from ".";
+import { type DB, db } from ".";
 import migrations from "./migrations.json";
 
 // export async function migrate() {
