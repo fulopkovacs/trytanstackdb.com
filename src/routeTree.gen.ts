@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TutorialDbRouteImport } from './routes/_tutorial._db'
 import { Route as TutorialDbProjectsRouteImport } from './routes/_tutorial._db.projects'
 import { Route as TutorialDbProjectRootRouteImport } from './routes/_tutorial._db.project-root'
+import { Route as TutorialDbProjectsIndexRouteImport } from './routes/_tutorial._db.projects.index'
 
 const TutorialRoute = TutorialRouteImport.update({
   id: '/_tutorial',
@@ -38,16 +39,22 @@ const TutorialDbProjectRootRoute = TutorialDbProjectRootRouteImport.update({
   path: '/project-root',
   getParentRoute: () => TutorialDbRoute,
 } as any)
+const TutorialDbProjectsIndexRoute = TutorialDbProjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TutorialDbProjectsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/project-root': typeof TutorialDbProjectRootRoute
-  '/projects': typeof TutorialDbProjectsRoute
+  '/projects': typeof TutorialDbProjectsRouteWithChildren
+  '/projects/': typeof TutorialDbProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/project-root': typeof TutorialDbProjectRootRoute
-  '/projects': typeof TutorialDbProjectsRoute
+  '/projects': typeof TutorialDbProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -55,11 +62,12 @@ export interface FileRoutesById {
   '/_tutorial': typeof TutorialRouteWithChildren
   '/_tutorial/_db': typeof TutorialDbRouteWithChildren
   '/_tutorial/_db/project-root': typeof TutorialDbProjectRootRoute
-  '/_tutorial/_db/projects': typeof TutorialDbProjectsRoute
+  '/_tutorial/_db/projects': typeof TutorialDbProjectsRouteWithChildren
+  '/_tutorial/_db/projects/': typeof TutorialDbProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/project-root' | '/projects'
+  fullPaths: '/' | '/project-root' | '/projects' | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/project-root' | '/projects'
   id:
@@ -69,6 +77,7 @@ export interface FileRouteTypes {
     | '/_tutorial/_db'
     | '/_tutorial/_db/project-root'
     | '/_tutorial/_db/projects'
+    | '/_tutorial/_db/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -113,17 +122,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TutorialDbProjectRootRouteImport
       parentRoute: typeof TutorialDbRoute
     }
+    '/_tutorial/_db/projects/': {
+      id: '/_tutorial/_db/projects/'
+      path: '/'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof TutorialDbProjectsIndexRouteImport
+      parentRoute: typeof TutorialDbProjectsRoute
+    }
   }
 }
 
+interface TutorialDbProjectsRouteChildren {
+  TutorialDbProjectsIndexRoute: typeof TutorialDbProjectsIndexRoute
+}
+
+const TutorialDbProjectsRouteChildren: TutorialDbProjectsRouteChildren = {
+  TutorialDbProjectsIndexRoute: TutorialDbProjectsIndexRoute,
+}
+
+const TutorialDbProjectsRouteWithChildren =
+  TutorialDbProjectsRoute._addFileChildren(TutorialDbProjectsRouteChildren)
+
 interface TutorialDbRouteChildren {
   TutorialDbProjectRootRoute: typeof TutorialDbProjectRootRoute
-  TutorialDbProjectsRoute: typeof TutorialDbProjectsRoute
+  TutorialDbProjectsRoute: typeof TutorialDbProjectsRouteWithChildren
 }
 
 const TutorialDbRouteChildren: TutorialDbRouteChildren = {
   TutorialDbProjectRootRoute: TutorialDbProjectRootRoute,
-  TutorialDbProjectsRoute: TutorialDbProjectsRoute,
+  TutorialDbProjectsRoute: TutorialDbProjectsRouteWithChildren,
 }
 
 const TutorialDbRouteWithChildren = TutorialDbRoute._addFileChildren(

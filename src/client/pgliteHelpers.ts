@@ -1,25 +1,10 @@
 import { createIsomorphicFn } from "@tanstack/react-start";
+import { getDb } from "@/db";
 import { migrate } from "@/db/migrate";
+import { projectsTable } from "@/db/schema";
 import { seed } from "@/db/seed";
 import { API } from "@/local-api";
 import type { APIType } from "@/local-api/helpers";
-
-export const setupPglite = createIsomorphicFn().client(async () => {
-  if (typeof window === "undefined")
-    throw new Error("PGlite is only supported in the browser environment.");
-
-  const pgliteVarName = "__PG_LITE_SETUP_DONE__";
-
-  // @ts-expect-error
-  if (!window[pgliteVarName]) {
-    await migrate();
-    await seed();
-    // @ts-expect-error
-    window[pgliteVarName] = true;
-  }
-  // BUG: On Chrome, the user might reload the page to see the interface
-  // it's because of pglite or something
-});
 
 export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
   async () => {
@@ -83,4 +68,18 @@ export async function setupPgliteInTheBrowser() {
     // @ts-expect-error
     window[pgliteVarName] = true;
   }
+
+  /*
+    NOTE: without these lines (printing the projects to the
+    console), the db returns results as if it were empty
+    to every other db query.
+
+    TODO: it should be removed, because it's used in a beforeRoute
+    function and adds latency to changing routes.
+
+    Maybe it has to do something with dynamic imports?? Not sure...
+  */
+  const { db } = await getDb();
+  const projects = await db.select().from(projectsTable);
+  // console.log({ projectsFromSetpPGlite: projects });
 }
