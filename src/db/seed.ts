@@ -1,6 +1,7 @@
 // Generate a seed script
 
 import { nanoid } from "nanoid";
+import { db } from ".";
 import {
   type BoardRecord,
   boardsTable,
@@ -12,7 +13,6 @@ import {
   type UserRecord,
   usersTable,
 } from "./schema";
-import { db } from ".";
 
 type BoardName = "Todo" | "In Progress" | "Done";
 type TodoItemBase = Omit<
@@ -338,9 +338,6 @@ export async function seed() {
         state: "completed",
       });
     });
-
-    const projects = await db.select().from(projectsTable);
-    console.log("Seeding completed. Projects in DB:", projects);
 
     return {
       firstProjectId: mockProjects[0].id,
