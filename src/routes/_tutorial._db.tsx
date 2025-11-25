@@ -3,6 +3,7 @@ import {
   setupPGlite,
   setupServiceWorkerHttpsProxy,
 } from "@/client/pgliteHelpers";
+import { FakeProgressIndicator } from "@/components/FakeProgressIndicator";
 
 export const Route = createFileRoute("/_tutorial/_db")({
   // the database is local to the browser, so no SSR
@@ -13,11 +14,11 @@ export const Route = createFileRoute("/_tutorial/_db")({
     await setupPGlite();
   },
   component: RouteComponent,
+  pendingComponent: FakeProgressIndicator,
+  // Show the pending component for at least 500ms
+  pendingMinMs: 500,
 });
 
 function RouteComponent() {
-  // Setup the API routes to handle requests
-  // useSetupApiRoutes();
-
   return <Outlet />;
 }
