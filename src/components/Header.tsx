@@ -10,14 +10,13 @@ export function Header() {
       <a
         target="_blank"
         href="https://tanstack.com/db/latest/docs/overview"
-        className="flex items-center gap-2 text-sm cursor-pointer"
+        className="flex items-center text-sm cursor-pointer"
         rel="noopener"
       >
         <DatabaseZap className="h-4 text-orange-500" />
         <span className="cursor-pointer bg-linear-to-r bg-clip-text from-orange-500 to-orange-700 text-transparent">
           TanStack DB Tutorial{" "}
         </span>
-        <span className="underline">(docs)</span>
       </a>
       <span className="text-muted-foreground text-sm">by</span>
       <a
