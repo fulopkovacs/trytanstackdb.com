@@ -1,4 +1,7 @@
+/** TODO: rename this file */
+
 import { createIsomorphicFn } from "@tanstack/react-start";
+import { client } from "@/db";
 import { migrate } from "@/db/migrate";
 import { seed } from "@/db/seed";
 import { API } from "@/local-api";
@@ -20,6 +23,8 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
           const port = event.ports[0]; // MessageChannel port for response
           // const {body, method, pathname} = event.data;
 
+          // Ensure the database client is ready
+          await client.waitReady;
           // Call your function with the request body (dummy processing here)
           const result = await processRequestInMainThread(event.data.body);
 
@@ -56,7 +61,7 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
   },
 );
 
-export async function setupPgliteInTheBrowser() {
+export const setupPGlite = createIsomorphicFn().client(async () => {
   const pgliteVarName = "__PG_LITE_SETUP_DONE__";
 
   // @ts-expect-error
@@ -66,4 +71,4 @@ export async function setupPgliteInTheBrowser() {
     // @ts-expect-error
     window[pgliteVarName] = true;
   }
-}
+});
