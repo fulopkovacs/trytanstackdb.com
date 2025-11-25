@@ -96,7 +96,6 @@ function FloatingWindow({
         search: ({ highlight: _, ...old }) => {
           return { ...old };
         },
-        from: "/projects",
       });
 
       if (typeof window !== "undefined") {
