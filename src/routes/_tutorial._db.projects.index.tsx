@@ -1,9 +1,9 @@
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
-import { createClientOnlyFn } from "@tanstack/react-start";
+import { createIsomorphicFn } from "@tanstack/react-start";
 import type { ProjectRecord } from "@/db/schema";
+import { API, getDataFromApi } from "@/local-api";
 
-const getFirstProject = createClientOnlyFn(async () => {
-  const { API, getDataFromApi } = await import("@/local-api");
+const getFirstProject = createIsomorphicFn().client(async () => {
   const [firstProject] = await getDataFromApi<ProjectRecord[]>(
     API["/api/projects"].GET,
   );
