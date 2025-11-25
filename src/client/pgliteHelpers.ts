@@ -81,5 +81,5 @@ export async function setupPgliteInTheBrowser() {
   */
   const { db } = await getDb();
   const projects = await db.select().from(projectsTable);
-  // console.log({ projectsFromSetpPGlite: projects });
+  console.log({ projectsFromSetpPGlite: projects });
 }
