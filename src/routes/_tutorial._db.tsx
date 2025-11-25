@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { createIsomorphicFn } from "@tanstack/react-start";
+import { setupPgliteInTheBrowser } from "@/client/pgliteHelpers";
 import { API } from "@/local-api";
 import {
   type APIType,
@@ -9,7 +10,6 @@ import {
 } from "@/local-api/helpers";
 
 const setupPglite = createIsomorphicFn().client(async () => {
-  const { setupPgliteInTheBrowser } = await import("@/client/pgliteHelpers");
   await setupPgliteInTheBrowser();
 });
 
