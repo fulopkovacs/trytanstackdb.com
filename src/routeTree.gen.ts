@@ -13,8 +13,7 @@ import { Route as TutorialRouteImport } from './routes/_tutorial'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TutorialDbRouteImport } from './routes/_tutorial._db'
 import { Route as TutorialDbProjectsRouteImport } from './routes/_tutorial._db.projects'
-import { Route as TutorialDbProjectsIndexRouteImport } from './routes/_tutorial._db.projects.index'
-import { Route as TutorialDbProjectsProjectIdRouteImport } from './routes/_tutorial._db.projects.$projectId'
+import { Route as TutorialDbProjectRootRouteImport } from './routes/_tutorial._db.project-root'
 
 const TutorialRoute = TutorialRouteImport.update({
   id: '/_tutorial',
@@ -34,51 +33,42 @@ const TutorialDbProjectsRoute = TutorialDbProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => TutorialDbRoute,
 } as any)
-const TutorialDbProjectsIndexRoute = TutorialDbProjectsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => TutorialDbProjectsRoute,
+const TutorialDbProjectRootRoute = TutorialDbProjectRootRouteImport.update({
+  id: '/project-root',
+  path: '/project-root',
+  getParentRoute: () => TutorialDbRoute,
 } as any)
-const TutorialDbProjectsProjectIdRoute =
-  TutorialDbProjectsProjectIdRouteImport.update({
-    id: '/$projectId',
-    path: '/$projectId',
-    getParentRoute: () => TutorialDbProjectsRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/projects': typeof TutorialDbProjectsRouteWithChildren
-  '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
-  '/projects/': typeof TutorialDbProjectsIndexRoute
+  '/project-root': typeof TutorialDbProjectRootRoute
+  '/projects': typeof TutorialDbProjectsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
-  '/projects': typeof TutorialDbProjectsIndexRoute
+  '/project-root': typeof TutorialDbProjectRootRoute
+  '/projects': typeof TutorialDbProjectsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_tutorial': typeof TutorialRouteWithChildren
   '/_tutorial/_db': typeof TutorialDbRouteWithChildren
-  '/_tutorial/_db/projects': typeof TutorialDbProjectsRouteWithChildren
-  '/_tutorial/_db/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
-  '/_tutorial/_db/projects/': typeof TutorialDbProjectsIndexRoute
+  '/_tutorial/_db/project-root': typeof TutorialDbProjectRootRoute
+  '/_tutorial/_db/projects': typeof TutorialDbProjectsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/projects' | '/projects/$projectId' | '/projects/'
+  fullPaths: '/' | '/project-root' | '/projects'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/projects/$projectId' | '/projects'
+  to: '/' | '/project-root' | '/projects'
   id:
     | '__root__'
     | '/'
     | '/_tutorial'
     | '/_tutorial/_db'
+    | '/_tutorial/_db/project-root'
     | '/_tutorial/_db/projects'
-    | '/_tutorial/_db/projects/$projectId'
-    | '/_tutorial/_db/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -116,42 +106,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TutorialDbProjectsRouteImport
       parentRoute: typeof TutorialDbRoute
     }
-    '/_tutorial/_db/projects/': {
-      id: '/_tutorial/_db/projects/'
-      path: '/'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof TutorialDbProjectsIndexRouteImport
-      parentRoute: typeof TutorialDbProjectsRoute
-    }
-    '/_tutorial/_db/projects/$projectId': {
-      id: '/_tutorial/_db/projects/$projectId'
-      path: '/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof TutorialDbProjectsProjectIdRouteImport
-      parentRoute: typeof TutorialDbProjectsRoute
+    '/_tutorial/_db/project-root': {
+      id: '/_tutorial/_db/project-root'
+      path: '/project-root'
+      fullPath: '/project-root'
+      preLoaderRoute: typeof TutorialDbProjectRootRouteImport
+      parentRoute: typeof TutorialDbRoute
     }
   }
 }
 
-interface TutorialDbProjectsRouteChildren {
-  TutorialDbProjectsProjectIdRoute: typeof TutorialDbProjectsProjectIdRoute
-  TutorialDbProjectsIndexRoute: typeof TutorialDbProjectsIndexRoute
-}
-
-const TutorialDbProjectsRouteChildren: TutorialDbProjectsRouteChildren = {
-  TutorialDbProjectsProjectIdRoute: TutorialDbProjectsProjectIdRoute,
-  TutorialDbProjectsIndexRoute: TutorialDbProjectsIndexRoute,
-}
-
-const TutorialDbProjectsRouteWithChildren =
-  TutorialDbProjectsRoute._addFileChildren(TutorialDbProjectsRouteChildren)
-
 interface TutorialDbRouteChildren {
-  TutorialDbProjectsRoute: typeof TutorialDbProjectsRouteWithChildren
+  TutorialDbProjectRootRoute: typeof TutorialDbProjectRootRoute
+  TutorialDbProjectsRoute: typeof TutorialDbProjectsRoute
 }
 
 const TutorialDbRouteChildren: TutorialDbRouteChildren = {
-  TutorialDbProjectsRoute: TutorialDbProjectsRouteWithChildren,
+  TutorialDbProjectRootRoute: TutorialDbProjectRootRoute,
+  TutorialDbProjectsRoute: TutorialDbProjectsRoute,
 }
 
 const TutorialDbRouteWithChildren = TutorialDbRoute._addFileChildren(

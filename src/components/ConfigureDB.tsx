@@ -1,4 +1,4 @@
-import { createClientOnlyFn } from "@tanstack/react-start";
+import { createIsomorphicFn } from "@tanstack/react-start";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 /** Minimum time to show the loading state to avoid flickering */
 const MIN_DB_LOADING_TIME = 1_000;
 
-const checkConnection = createClientOnlyFn(async (cb) => {
+const checkConnection = createIsomorphicFn().client(async (cb) => {
   const { getDb } = await import("@/db");
   const { client } = await getDb();
   if (client.ready) {
