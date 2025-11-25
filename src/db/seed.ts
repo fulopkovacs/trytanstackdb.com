@@ -219,24 +219,24 @@ function getMockData() {
 
   const mockProjects: ProjectBase[] = [
     {
-      id: "project-1",
+      id: "wQLI4Nzvmls31l4aep9LqnU", // these are 2 chars longer than nanoid default
       name: "Project Alpha",
       description: "First project description",
       createdAt: now,
       todoItemsBaseArr: todoItemsList,
     },
     {
-      id: "project-2",
+      id: "sMv-_1QjNWdfdoZrRp_XmAM",
       name: "Project Beta",
       description: "Second project description",
-      createdAt: now,
+      createdAt: new Date(now.getTime() - 1000),
       todoItemsBaseArr: anotherTodoItemsList,
     },
     {
-      id: "project-3",
+      id: "VmUxqWMcQ12A0FwfIUEaCa5",
       name: "Large Project",
       description: "Third project description",
-      createdAt: now,
+      createdAt: new Date(now.getTime() - 2000),
       todoItemsBaseArr: largeTodoItemsList,
     },
   ];
