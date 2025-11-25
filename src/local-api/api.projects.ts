@@ -20,8 +20,6 @@ const handlers = {
   GET: async () => {
     const results = await db.select().from(projectsTable);
 
-    console.log({ results });
-
     return json(results);
   },
   PATCH: async ({ request }) => {
