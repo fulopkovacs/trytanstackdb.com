@@ -13,8 +13,6 @@ export const Route = createFileRoute("/_tutorial/_db/projects")({
     };
   },
   ssr: false,
-  pendingMinMs: 0,
-  pendingMs: 0,
 });
 
 function RouteComponent() {

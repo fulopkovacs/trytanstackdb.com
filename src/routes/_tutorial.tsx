@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { createIsomorphicFn } from "@tanstack/react-start";
 import z from "zod";
+import { HomeIntro } from "@/components/HomeIntro";
 import { highlightParamSchema } from "@/components/tutorial";
 import {
   TUTORIAL_DATA_LOCAL_STORAGE_KEY,
@@ -9,7 +10,6 @@ import {
   tutorialDataSchema,
 } from "@/components/tutorial/TutorialWindow";
 import { getTutorialDataFromCookie } from "@/server/functions/getTutorialDataFromCookie";
-import { HomeIntro } from "@/components/HomeIntro";
 
 const mockUser = {
   id: "1",

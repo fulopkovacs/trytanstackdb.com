@@ -27,17 +27,19 @@ function getProgress(
   startTime: number,
   duration: number,
   [p0, p1, p2, p3]: [Point, Point, Point, Point],
+  initialProgress: number,
 ): number {
   const now = Date.now();
   const elapsed = Math.min(now - startTime, duration);
   const t = elapsed / duration;
   const point = cubicBezier(p0, p1, p2, p3, t);
-  return point.y * 100; // progress from 0 to 100
+  return initialProgress + point.y * (100 - initialProgress); // progress from 0 to 100
 }
 
 export function FakeProgressIndicator() {
   // fake progress indicator
-  const [progress, setProgress] = useState(0);
+  const initialProgress = 5;
+  const [progress, setProgress] = useState(initialProgress);
 
   // const p0 = { x: 0.0, y: 0 };
   // const p1 = { x: 0.42, y: 0 };
@@ -56,7 +58,12 @@ export function FakeProgressIndicator() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const newProgress = getProgress(startTime, duration, [p0, p1, p2, p3]);
+      const newProgress = getProgress(
+        startTime,
+        duration,
+        [p0, p1, p2, p3],
+        initialProgress,
+      );
       setProgress(newProgress);
       if (newProgress >= 100) {
         clearInterval(interval);
