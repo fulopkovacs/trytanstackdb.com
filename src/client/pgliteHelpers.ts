@@ -3,6 +3,11 @@ import { migrate } from "@/db/migrate";
 import { seed } from "@/db/seed";
 import { API } from "@/local-api";
 import type { APIType } from "@/local-api/helpers";
+import {
+  constructRequestForHandler,
+  deconstructResponseFromHandler,
+  requestSchema,
+} from "@/local-api/helpers";
 
 export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
   async () => {
@@ -24,11 +29,6 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
       });
 
       async function processRequestInMainThread(body: any) {
-        const {
-          constructRequestForHandler,
-          deconstructResponseFromHandler,
-          requestSchema,
-        } = await import("@/local-api/helpers");
         try {
           const requestData = requestSchema.parse(body);
           const handler = (API as APIType)[requestData.pathname][
