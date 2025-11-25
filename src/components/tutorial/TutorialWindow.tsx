@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { useNavigate, useSearch } from "@tanstack/react-router";
-import { DatabaseZapIcon, XIcon } from "lucide-react";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { DatabaseZapIcon, ExternalLinkIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { type ZodDefault, type ZodNumber, z } from "zod";
@@ -181,6 +181,14 @@ function FloatingWindow({
         >
           <ScrollArea type="hover" className="h-full py-2">
             <TabsList className="w-48 flex-nowrap px-2 h-fit overflow-x-auto flex flex-col gap-2 text-sm text-balance">
+              <a
+                href="https://tanstack.com/db/latest"
+                target="_blank"
+                rel="noreferrer"
+                className="text-black font-bold flex items-center hover:text-orange-500 transition-colors mb-2"
+              >
+                Official docs <ExternalLinkIcon className="h-4" />
+              </a>
               {[
                 {
                   sectionTitle: "Tutorial",
