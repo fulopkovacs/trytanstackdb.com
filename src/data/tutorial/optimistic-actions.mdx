@@ -38,8 +38,8 @@ projectsCollection.update(/* ... */);
 
 There's a problem with this approach: what happens if one of the requests fail? For example:
 
-- ✅ new todo item is inserted successfully
-- ❌project can't be updated for some reason
+- ✅ the new todo item gets inserted successfully,
+- ❌but the project can't be updated for some reason
     - this means that the changes made to the project will be rolled back
 
 Oh no! 💀 Now we don't know where the task is on the board.
