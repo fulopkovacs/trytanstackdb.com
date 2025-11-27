@@ -19,7 +19,7 @@ function RouteComponent() {
   // const { data: projects } = useSuspenseQuery(getProjectsQueryOptions);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="w-auto" defaultOpen>
       <AppSidebar />
       <main className="flex flex-1 flex-col overflow-hidden max-h-screen h-screen">
         <Header />
