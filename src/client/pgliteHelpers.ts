@@ -38,7 +38,14 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
             requestData.method
           ];
           if (handler) {
-            // simulate some delay with setTimeout
+            /*
+              TODO: Currently, this request will not show up in the
+              Network tab of DevTools until the delay is over.
+              We should find a way to make it appear in a PENDING state.
+            */
+            // Simulate a delay for demonstration purposes
+            await new Promise((resolve) => setTimeout(resolve, 1_000));
+
             return await deconstructResponseFromHandler(
               await handler(constructRequestForHandler(requestData)),
             );
