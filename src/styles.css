@@ -138,19 +138,3 @@ code {
     @apply bg-background text-foreground;
   }
 }
-
-/* /* Ensure code blocks don't overflow their parent */
-*/
-/* pre, */
-/* pre code { */
-/*   max-width: 100%; */
-/*   overflow-x: auto; */
-/*   display: block; */
-/*   /* Optional: prevent wrapping for code */
-*/
-/*   white-space: pre; */
-/*   /* Optional: add padding for better readability */
-*/
-/*   padding: 1em; */
-/*   box-sizing: border-box; */
-/* } */
