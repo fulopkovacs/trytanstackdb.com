@@ -17,15 +17,13 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
     const serviceProxyEnabledVar = "__SERVICE_WORKER_HTTP_PROXY_ENABLED__";
     // @ts-expect-error
     if (!window[serviceProxyEnabledVar]) {
-      // console.log("---->adding the event listener");
       navigator.serviceWorker.addEventListener("message", async (event) => {
         if (event.data?.type === "PROCESS_REQUEST") {
           const port = event.ports[0]; // MessageChannel port for response
-          // const {body, method, pathname} = event.data;
 
           // Ensure the database client is ready
           await client.waitReady;
-          // Call your function with the request body (dummy processing here)
+
           const result = await processRequestInMainThread(event.data.body);
 
           // Send result back to the service worker on the dedicated port
@@ -52,8 +50,6 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
           throw e;
           // return { error: "Invalid request data" };
         }
-        // Your main thread logic here (simulate async work)
-        // return `Processed payload: ${JSON.stringify(body)}`;
       }
       // @ts-expect-error
       window[serviceProxyEnabledVar] = true;
