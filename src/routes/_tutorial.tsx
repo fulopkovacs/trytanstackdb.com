@@ -42,7 +42,6 @@ const getTutorialWindowData = createIsomorphicFn()
   });
 
 export const Route = createFileRoute("/_tutorial")({
-  // component: RouteComponent,
   validateSearch: z
     .object({
       temp_db_missing: z.string().optional(),
@@ -63,27 +62,6 @@ export const Route = createFileRoute("/_tutorial")({
       tutorialData,
     };
   },
-  // loader: async ({ context }) => {
-  //   const { subdomain, apex, protocol } = await getSubdomainAndApexFromHost();
-  //
-  //   if (subdomain) {
-  //     const tempDbExists = await checkIfTempDbExists({
-  //       data: { tempDbId: subdomain },
-  //     });
-  //
-  //     if (!tempDbExists) {
-  //       // redirect to the apex
-  //       // throw new Response("Temporary database not found", { status: 404 });
-  //       throw redirect({
-  //         href: `${getApexDomainRedirectHref(apex, protocol)}?temp_db_missing=${subdomain}`,
-  //       });
-  //     }
-  //   }
-  //
-  //   return {
-  //     tempDbId: context.tempDbId,
-  //   };
-  // },
   component: RouteComponent,
 });
 
