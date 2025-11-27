@@ -18,6 +18,7 @@ export function Header() {
           TanStack DB Tutorial{" "}
         </span>
       </a>
+      <span className="text-sm">BETA</span>
       <span className="text-muted-foreground text-sm">by</span>
       <a
         href="https://fulop.dev"

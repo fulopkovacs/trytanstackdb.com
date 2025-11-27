@@ -47,7 +47,8 @@ export function HomeIntro({
             <CardHeader>
               <CardTitle className="flex justify-center">
                 <div className="text-sm bg-linear-to-r from-orange-500 to-orange-700 flex gap-2 items-center text-black px-4 py-1 rounded-full">
-                  <DatabaseZap className="h-4" /> trytanstackdb.com
+                  <DatabaseZap className="h-4" /> trytanstackdb.com{" "}
+                  <span className="text-white">BETA</span>
                 </div>
               </CardTitle>
               <CardDescription className="text-center">
