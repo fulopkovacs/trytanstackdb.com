@@ -3,10 +3,12 @@ import { BugIcon, DatabaseZap, GithubIcon } from "lucide-react";
 import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
+import { SidebarTrigger } from "./ui/sidebar";
 
 export function Header() {
   return (
     <header className="flex gap-2 items-center justify-between px-4 py-2 border-b bg-background sticky top-0">
+      <SidebarTrigger className="md:hidden" />
       <a
         target="_blank"
         href="https://tanstack.com/db/latest/docs/overview"
@@ -48,12 +50,23 @@ export function Header() {
         </Button>
       </a>
       <a
+        className="hidden lg:block"
         href="https://github.com/fulopkovacs/trytanstackdb.com/issues/new"
         target="_blank"
         rel="noreferrer"
       >
         <Button variant={"outline"}>
           <BugIcon /> Report a bug
+        </Button>
+      </a>
+      <a
+        className="block lg:hidden"
+        href="https://github.com/fulopkovacs/trytanstackdb.com/issues/new"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <Button variant={"outline"} size="icon">
+          <BugIcon />
         </Button>
       </a>
       <div className="flex items-center gap-4">

@@ -294,7 +294,11 @@ export function TutorialWindow({
   return (
     <AnimatePresence mode="wait" initial={false}>
       <div className="w-0 h-0">
-        <div className={"absolute bottom-0 left-0 p-2 z-49 overflow-hidden"}>
+        <div
+          className={
+            "absolute bottom-0 left-0 p-2 z-51 overflow-hidden max-w-full"
+          }
+        >
           {isOpen && (
             <motion.div
               initial={{ opacity: 0, translateY: 10 }}
