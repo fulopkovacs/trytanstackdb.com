@@ -236,7 +236,7 @@ function FloatingWindow({
               <TabsContent
                 key={step.title}
                 value={step.title}
-                className="overflow-y-auto w-full overflow-x-hidden pb-3"
+                className="w-full overflow-x-hidden pb-3"
               >
                 <div className="fade-in animate-in prose prose-sm prose-neutral prose-base bg-white text-black dark:prose-neutral dark:bg-white dark:text-black">
                   {<step.file />}
