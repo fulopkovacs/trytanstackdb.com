@@ -9,7 +9,6 @@ import appCss from "../styles.css?url";
 import "prismjs/themes/prism-tomorrow.css"; // or any other Prism theme
 import { ScriptOnce } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
-import ogImage from "@/og-image.png";
 import { seo } from "@/utils/seo";
 
 interface MyRouterContext {
@@ -29,7 +28,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       ...seo({
         title: "trytanstackdb | The interactive guide",
         description: `An interactive tutorial for learning TanStack DB.`,
-        image: `https://tanstack.com${ogImage}`,
+        image: `/og-image.png`,
         keywords: "tanstack,tanstack db,reactjs,tutorial",
       }),
     ],
