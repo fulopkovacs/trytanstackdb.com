@@ -135,7 +135,7 @@ function Board({
   orderedIds: string[];
   projectId: string;
 }) {
-  const { data: todoItems } = useLiveQuery((q) =>
+  const { data: todoItems, isLoading } = useLiveQuery((q) =>
     q
       .from({ todoItem: todoItemsCollection })
       .where(({ todoItem }) => eq(todoItem.boardId, board.id)),
@@ -226,6 +226,16 @@ function Board({
   );
 }
 
+function LoadingTodoBoards() {
+  return (
+    <>
+      <Card className="bg-sidebar flex flex-col flex-1 min-h-0" />
+      <Card className="bg-sidebar flex flex-col flex-1 min-h-0" />
+      <Card className="bg-sidebar flex flex-col flex-1 min-h-0" />
+    </>
+  );
+}
+
 export function TodoBoards({ projectId }: { projectId: string }) {
   // const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -233,7 +243,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
   // const [inProgresIdsOrdered, setInProgressIdsOrdered] =
   //   useState<string[]>(initialOrder);
 
-  const { data: boards } = useLiveQuery(
+  const { data: boards, isLoading: isLoadingBoards } = useLiveQuery(
     (q) =>
       q
         .from({ board: boardCollection })
@@ -378,6 +388,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     <div className="flex-1 min-h-0">
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-3 gap-4 h-full min-h-0">
+          {isLoadingBoards && <LoadingTodoBoards />}
           {sortedBoards.map((board) => (
             <Board
               projectId={projectId}
