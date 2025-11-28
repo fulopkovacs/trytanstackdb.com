@@ -1,4 +1,6 @@
-# trytanstackdb.com
+# trytanstackdb.com _(ALPHA version)_
+
+> Note that this project is still in its early stages.
 
 An interactive guide for taking the first steps with
 [`@tanstack/tanstack-db`](https://tanstack.com/db/latest/docs/overview) by
