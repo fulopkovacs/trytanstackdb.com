@@ -129,6 +129,16 @@ code {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.progress-animated {
+  animation: progress-fill 5s cubic-bezier(0.66, 0, 0.34, 1) forwards;
+  animation-fill-mode: forwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
