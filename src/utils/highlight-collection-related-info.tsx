@@ -1,5 +1,6 @@
 import { useSearch } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import type { HighlightParam } from "@/components/tutorial";
 import { cn } from "@/lib/utils";
 
 export function HighlightWrapper({
@@ -7,7 +8,7 @@ export function HighlightWrapper({
   children,
   // asChild,
 }: {
-  highlightId: string;
+  highlightId: Exclude<HighlightParam, undefined>;
   children: ReactNode;
   // asChild?: boolean;
 }) {
