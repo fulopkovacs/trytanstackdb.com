@@ -13,7 +13,6 @@ export const Route = createFileRoute("/_tutorial/_db")({
     await setupServiceWorkerHttpsProxy();
     await setupPGlite();
   },
-  loader: async () => {},
   component: RouteComponent,
   pendingComponent: FakeProgressIndicator,
   // Show the pending component for at least 500ms

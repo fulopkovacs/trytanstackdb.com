@@ -6,6 +6,13 @@ import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
 import type { ProjectUpdateData } from "@/local-api/api.projects";
 import { projectErrorNames } from "@/utils/errorNames";
 
+export class ProjectsNotFoundFromAPIError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ProjectsNotFoundError";
+  }
+}
+
 export const projectsCollection = createCollection(
   queryCollectionOptions({
     queryKey: ["projects"],
@@ -36,7 +43,15 @@ export const projectsCollection = createCollection(
 async function getProjects() {
   const res = await fetch("/api/projects");
   if (res.status !== 200) {
-    throw new Error("Failed to fetch projects");
+    if (res.status === 404) {
+      /*
+        Sometimes the service worker serving responding to the
+        API requests is acting up, causing 404s.
+      */
+      throw new ProjectsNotFoundFromAPIError("No projects found");
+    } else {
+      throw new Error("Failed to fetch projects");
+    }
   }
 
   const data: ProjectRecord[] = await res.json();
