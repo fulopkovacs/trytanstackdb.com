@@ -1,9 +1,9 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
+import { db } from "@/db";
 import { projectsTable } from "@/db/schema";
 import { projectErrorNames } from "@/utils/errorNames";
 import { type APIRouteHandler, json } from "./helpers";
-import { db } from "@/db";
 
 const projectUpdateData = z.object({
   id: z.string(),
@@ -18,7 +18,10 @@ export type ProjectUpdateData = z.infer<typeof projectUpdateData>;
 
 const handlers = {
   GET: async () => {
-    const results = await db.select().from(projectsTable);
+    const results = await db
+      .select()
+      .from(projectsTable)
+      .orderBy(asc(projectsTable.createdAt));
 
     return json(results);
   },
