@@ -1,6 +1,7 @@
 /** TODO: rename this file */
 
 import { createIsomorphicFn } from "@tanstack/react-start";
+import z from "zod";
 import { client } from "@/db";
 import { migrate } from "@/db/migrate";
 import { seed } from "@/db/seed";
@@ -11,6 +12,14 @@ import {
   deconstructResponseFromHandler,
   requestSchema,
 } from "@/local-api/helpers";
+
+export const NETWORK_LATENCY_LOCALSTORAGE_KEY =
+  "__TRYTANSTACKDB_API_DELAY_MS__";
+export const networkLatencyInMsSchema = z
+  .string()
+  .transform((t) => parseInt(t, 10))
+  .default(1_000)
+  .catch(1_000);
 
 export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
   async () => {
@@ -44,7 +53,12 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
               We should find a way to make it appear in a PENDING state.
             */
             // Simulate a delay for demonstration purposes
-            await new Promise((resolve) => setTimeout(resolve, 1_000));
+
+            const delay = networkLatencyInMsSchema.parse(
+              localStorage.getItem(NETWORK_LATENCY_LOCALSTORAGE_KEY),
+            );
+
+            await new Promise((resolve) => setTimeout(resolve, delay));
 
             return await deconstructResponseFromHandler(
               await handler(constructRequestForHandler(requestData)),

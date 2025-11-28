@@ -4,6 +4,7 @@ import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
+import { NetworkLatencyConfigurator } from "./NetworkLatencyConfigurator";
 
 export function Header() {
   return (
@@ -39,6 +40,9 @@ export function Header() {
         <div className="ml-auto">
           <ConfigureDB />
         </div>
+      </ClientOnly>
+      <ClientOnly fallback={null}>
+        <NetworkLatencyConfigurator />
       </ClientOnly>
       <a
         href="https://github.com/fulopkovacs/trytanstackdb.com"
