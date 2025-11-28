@@ -27,6 +27,14 @@ projectsCollection.update(id, (project) => {
 
 <GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/013849f87b6ce7ab5dee3873424d8e1012b810fc/src/components/EditableProjectDetails.tsx#L22-L24" />
 
+The change will be instantaneous even for large network latencies. Let's test it! Click the button below to highlight the network latency configurator in the header.
+
+<HighLightComponent h_id="networkLatencyCofigurator">Highlight the network latency configurator button</HighLightComponent>
+
+Set the network latency to 5s and <a href="">reload the page</a>. You'll see that the reload takes some time.
+
+Now rename the project again. It still changes immediately!
+
 The reason why we see the change so fast is that the displayed data is from the cache which gets updated basically instantly, while the changes are synced back to the remote db in the background.
 
 ### What happens when the data in the remote db can't be updated?

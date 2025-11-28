@@ -15,9 +15,12 @@ export const highlightParamSchema = z.object({
       "project_projectPage",
       "board",
       "editProject",
+      "networkLatencyCofigurator",
     ])
     .optional(),
 });
+
+export type HighlightParam = z.infer<typeof highlightParamSchema>["highlight"];
 
 function getFilePathFromGithubFileUrl(href: string) {
   return href.split("src/")[1].replace(/#.*/, "");
