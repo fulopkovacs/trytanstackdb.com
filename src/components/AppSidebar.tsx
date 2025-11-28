@@ -24,11 +24,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { Skeleton } from "./ui/skeleton";
 
 export function AppSidebar() {
   const { toggleSidebar } = useSidebar();
 
-  const { data: projects } = useLiveQuery((q) =>
+  const { data: projects, isLoading: isLoadingProjects } = useLiveQuery((q) =>
     q.from({
       project: projectsCollection,
     }),
@@ -67,13 +68,26 @@ export function AppSidebar() {
                     <CollapsibleTrigger asChild className="flex items-center">
                       <SidebarMenuButton className={cn("grow")}>
                         <FolderClosedIcon />
-                        <span> Projects ({projects.length})</span>
+                        <span>
+                          Projects{" "}
+                          {!isLoadingProjects && (
+                            <span>({projects.length})</span>
+                          )}
+                        </span>
                         {/* <SidebarMenuBadge>{boards.length}</SidebarMenuBadge> */}
                         <ChevronDownIcon className="ml-auto transition-transform duration-200 ease-in-out group-data-[state=open]/collapsible:rotate-180" />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
+                        {isLoadingProjects &&
+                          Array.from({ length: 3 }).map((_, idx) => (
+                            <SidebarMenuSubItem key={idx}>
+                              <SidebarMenuSubButton>
+                                <Skeleton className="h-(--text-base) w-40" />
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
                         {projects.map((project) => (
                           <SidebarMenuSubItem key={project.id}>
                             <SidebarMenuSubButton
