@@ -13,6 +13,7 @@ export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialData";
 export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
 
 export const tutorialDataSchema = z.object({
+  isClosed: z.boolean().default(false),
   tutorialStep: z.string().default(steps[0].title),
   scrollPositions: z
     .object(
@@ -32,6 +33,7 @@ export const DEFAULT_TUTORIAL_DATA_VALUE = JSON.stringify({
 });
 
 export type TutorialData = {
+  isClosed: boolean;
   tutorialStep: string | null;
   scrollPositions: Record<string, number>;
 };
@@ -44,12 +46,17 @@ function getTutorialDataLocally(w: Window): TutorialData {
   let tutorialData: TutorialData;
 
   try {
+    /*
+      TODO: there are more elegant ways to solve this with
+       zod (.catch())
+    */
     tutorialData = tutorialDataSchema.parse(
       JSON.parse(tutorialInLocalStorage || DEFAULT_TUTORIAL_DATA_VALUE),
     );
   } catch (e) {
     console.error("Error parsing tutorial data from localStorage:", e);
     tutorialData = {
+      isClosed: true,
       tutorialStep: null,
       scrollPositions: {},
     };
@@ -77,13 +84,11 @@ function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
 }
 
 function FloatingWindow({
-  // isOpen,
   toggleWindow,
   tutorialData,
   activeStep,
   setActiveStep,
 }: {
-  isOpen: boolean;
   toggleWindow: () => void;
   tutorialData: TutorialData;
   activeStep: string | null;
@@ -144,6 +149,7 @@ function FloatingWindow({
     // get current scroll positions
     if (scrollRef.current && activeStep) {
       const tutorialDataJson = JSON.stringify({
+        isClosed: tutorialData.isClosed,
         tutorialStep: activeStep,
         scrollPositions: {
           ...tutorialData.scrollPositions,
@@ -270,7 +276,7 @@ export function TutorialWindow({
 }: {
   tutorialData: TutorialData;
 }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isClosed, setIsClosed] = useState(tutorialData.isClosed);
 
   const { step: activeStepFromSearch } = useSearch({ strict: false });
 
@@ -288,8 +294,24 @@ export function TutorialWindow({
   }, [activeStepFromSearch]);
 
   const toggleWindow = useCallback(() => {
-    setIsOpen((o) => !o);
-  }, []);
+    setIsClosed((o) => !o);
+    // TODO: Make this a hook or something, this looks dumb
+
+    // TODO: do we need localStorage and cookies too???
+    // TODO: clean this mess up
+    const tutorialData: TutorialData = getTutorialDataLocally(window);
+    const tutorialDataJson = JSON.stringify({
+      ...tutorialData,
+      isClosed: !isClosed,
+    } satisfies TutorialData);
+
+    // biome-ignore lint/suspicious/noDocumentCookie: we need this cookie!
+    window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${tutorialDataJson}; path=/;`;
+    window.localStorage.setItem(
+      TUTORIAL_DATA_LOCAL_STORAGE_KEY,
+      tutorialDataJson,
+    );
+  }, [isClosed]);
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -299,7 +321,7 @@ export function TutorialWindow({
             "absolute bottom-0 left-0 p-2 z-51 overflow-hidden max-w-full"
           }
         >
-          {isOpen && (
+          {!isClosed && (
             <motion.div
               initial={{ opacity: 0, translateY: 10 }}
               animate={{ opacity: 1, translateY: 0 }}
@@ -308,7 +330,6 @@ export function TutorialWindow({
             >
               <FloatingWindow
                 toggleWindow={toggleWindow}
-                isOpen={isOpen}
                 tutorialData={tutorialData}
                 activeStep={activeStep}
                 setActiveStep={setActiveStep}
@@ -320,12 +341,12 @@ export function TutorialWindow({
             type="button"
             onClick={() => toggleWindow()}
             animate={{
-              width: !isOpen ? "auto" : "56px",
+              width: isClosed ? "auto" : "56px",
             }}
             initial={false}
             transition={{
               duration: 0.2,
-              delay: !isOpen ? 0 : 0.2,
+              delay: isClosed ? 0 : 0.2,
               ease: "easeInOut",
             }}
           >
@@ -334,7 +355,7 @@ export function TutorialWindow({
             </div>
             <div className="w-6 h-14" />
             <AnimatePresence>
-              {!isOpen && (
+              {isClosed && (
                 <div className="mx-4 h-0 pointer-events-none opacity-0">
                   {activeStep}
                 </div>
@@ -344,12 +365,12 @@ export function TutorialWindow({
               initial={false}
               className="absolute right-0 top-0 m-4"
               animate={{
-                opacity: !isOpen ? 1 : 0,
+                opacity: isClosed ? 1 : 0,
               }}
               transition={{
-                duration: !isOpen ? 0.2 : 0,
+                duration: isClosed ? 0.2 : 0,
                 ease: "easeInOut",
-                delay: !isOpen ? 0.2 : 0,
+                delay: isClosed ? 0.2 : 0,
               }}
             >
               {activeStep}

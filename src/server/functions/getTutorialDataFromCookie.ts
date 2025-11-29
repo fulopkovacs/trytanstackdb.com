@@ -23,6 +23,7 @@ export const getTutorialDataFromCookie = createServerFn().handler(
     }
 
     return {
+      isClosed: false,
       tutorialStep: null,
       scrollPositions: {},
     };
