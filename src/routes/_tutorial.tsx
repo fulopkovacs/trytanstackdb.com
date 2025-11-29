@@ -35,6 +35,7 @@ const getTutorialWindowData = createIsomorphicFn()
     } catch (e) {
       console.error("Error parsing tutorial data from localStorage:", e);
       return {
+        isClosed: false,
         tutorialStep: null,
         scrollPositions: {},
       };
