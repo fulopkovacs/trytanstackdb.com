@@ -8,9 +8,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import appCss from "../styles.css?url";
 import "prismjs/themes/prism-tomorrow.css"; // or any other Prism theme
 import { ScriptOnce } from "@tanstack/react-router";
-import { createIsomorphicFn } from "@tanstack/react-start";
-import { configure as configureAnalytics } from "onedollarstats";
-import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { seo } from "@/utils/seo";
 
@@ -83,19 +80,7 @@ function ServiceWorkerLoader() {
   return <ScriptOnce children={serviceWorkerScript} />;
 }
 
-const setupAnalytics = createIsomorphicFn().client(() => {
-  configureAnalytics({
-    collectorUrl: "https://collector.onedollarstats.com/events",
-    autocollect: true,
-    trackLocalhostAs: "trytanstackdb.com",
-  });
-});
-
 function RootDocument({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    setupAnalytics();
-  }, []);
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
