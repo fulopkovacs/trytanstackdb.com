@@ -2,9 +2,9 @@ import { ClientOnly } from "@tanstack/react-router";
 import { BugIcon, DatabaseZap, GithubIcon } from "lucide-react";
 import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
+import { NetworkLatencyConfigurator } from "./NetworkLatencyConfigurator";
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
-import { NetworkLatencyConfigurator } from "./NetworkLatencyConfigurator";
 
 export function Header() {
   return (

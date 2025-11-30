@@ -5,10 +5,10 @@ import {
   networkLatencyInMsSchema,
 } from "@/client/pgliteHelpers";
 import { cn } from "@/lib/utils";
+import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
-import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 
 type NetworkLatency = 0 | 1000 | 2000 | 5000;
 

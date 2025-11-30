@@ -1,10 +1,10 @@
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { client } from "@/db";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { client } from "@/db";
 
 /** Minimum time to show the loading state to avoid flickering */
 const MIN_DB_LOADING_TIME = 1_000;
