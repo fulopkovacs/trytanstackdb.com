@@ -7,21 +7,17 @@ import {
 
 ## How do collections work?
 
-### Syncing
+By default, collections are synced with the remote source when they are first used in a live query, and every time a mutation occurs (update, insert, delete, etc).
 
-By default, collections are synced with the remote source when they are first
-used in a live query, and every time a mutation occurs (update, insert, delete,
-etc).
+For most use cases, collections live on the front end. They don't know how to fetch or update remote data on their own, so you need to use a sync engine that handles that part.
 
-Look at this beautiful image <a target="_blank" href="https://tanstack.com/db/latest/docs/guides/mutations">from the docs</a>:
+### Query Collections
 
-![image](https://raw.githubusercontent.com/TanStack/db/main/docs/unidirectional-data-flow.png)
+_Query Collections_ are using `TanStack Query` (you've probably heard of at least the React lib <a href="https://www.npmjs.com/package/@tanstack/react-query" target="_blank">`@tanstack/react-query`</a>) to sync with your backend.
 
-Great, now you get it (or read <a target="_blank" href="https://tanstack.com/db/latest/docs/guides/mutations">the docs</a> if you don't, this is just a quick guide 🙃).
+It's important to note that collections are part of your front-end code. They don't know how to receive or send data to the server themselves, you need a sync engine for that.
 
-### Defining a collection
-
-This is how the `projectsCollection` is defined:
+Check out the definition of the `projectsCollection` below for an example:
 
 ```ts
 export const projectsCollection = createCollection(
@@ -47,8 +43,13 @@ export const projectsCollection = createCollection(
 <GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/09ae096063694c0d03cf0c6ffc93b820fce1a02c/src/collections/projects.ts#L19-L64" />
 
 
-The `getProjects` function is essentially just a `fetch` request:
+### What about the backend?
 
+Using `queryCollection`-s doesn't place any constraints on your backend. **You can use whatever database or language you want!**
+
+The only thing `queryCollection`-s need are API endpoint it can call in the data fetching method (`queryFn`), and additional endpoints that handle the mutations (`onUpdate`, `onInsert`, `onDelete`, etc).
+
+The `projectsCollection`'s `queryFn` (`getProjects`) is basically just a simple fetch request:
 
 ```ts
 async function getProjects() {
@@ -63,6 +64,17 @@ async function getProjects() {
 ```
 <GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/8b670ab8d08795fa9c65981ec5107046b84cb3c1/src/collections/projects.ts#L36-L44" />
 
-### Sync engines
+### Uni-directional Data Flow
 
-Here we used `@tanstack/react-query`, but you can use others like the one from <a target="_blank" href="https://tanstack.com/db/latest/docs/installation#electric-collection">`ElectricSQL`</a> for real-time syncing (e.g. for collaborative apps).
+TanStack DB implements a uni-directional data flow, where the source of truth is always the remote data source. Even in the case of mutations (e.g.: renaming projects), we've seen that if the mutation failed remotely, the local changes were rolled back automatically.
+
+![image](https://raw.githubusercontent.com/TanStack/db/main/docs/unidirectional-data-flow.png)
+(This image is from the <a target="_blank" href="https://tanstack.com/db/latest/docs/overview#uni-directional-data-flow">docs</a>.)
+
+### Other sync engines
+
+Sometimes Query Collections are too little or too much for a specific use case. Luckily, there are other ones that can cover these situations:
+- <a target="_blank" href="https://tanstack.com/db/latest/docs/collections/local-only-collection">`LocalOnly`</a>: for in-memory data
+- <a target="_blank" href="https://tanstack.com/db/latest/docs/collections/local-storage-collection">`LocalStorage`</a>: data stored in local storage
+- <a target="_blank" href="https://tanstack.com/db/latest/docs/collections/electric-collection">`Electric`</a>: real-time sync using Electric's sync engine
+- and <a target="_blank" href="https://tanstack.com/db/latest/docs/overview#built-in-collection-types">more</a>!
