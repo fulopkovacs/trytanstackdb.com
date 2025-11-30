@@ -11,7 +11,7 @@ We have a `projects` table in our database. If you click the button below, you c
 
 In a traditional React app, both of them would probably fetch the data they need from the server, managing their own cache. If you update something somewhere (e.g. rename a project), you need to manually update the cache, and after a while even knowing what to update becomes a challenge.
 
-What about TanStack DB? Here, you can create a collection for the data of the projects use it as a single source of truth everywhere.
+TanStack DB provides you with a new option. You can store the projects' data in a collection, and use it as a single source of truth everywhere.
 
 In the `AppSidebar` component, we use this query to get the list of projects:
 

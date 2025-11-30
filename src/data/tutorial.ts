@@ -1,8 +1,8 @@
-import CollectionsIntro from "@/data/tutorial/01-collections-intro.mdx";
-import HowDoCollectionsWork from "@/data/tutorial/02-how-do-collections-work.mdx";
-import OptimisticUpdates from "@/data/tutorial/02-optimistic-updates.mdx";
+import CollectionsIntro from "@/data/tutorial/collections-intro.mdx";
+import HowDoCollectionsWork from "@/data/tutorial/how-do-collections-work.mdx";
 import OptimisticActions from "@/data/tutorial/optimistic-actions.mdx";
-import WhatIsNext from "@/data/tutorial/WhatIsNext.mdx";
+import OptimisticUpdates from "@/data/tutorial/optimistic-updates.mdx";
+import WhatIsNext from "@/data/tutorial/what-is-next.mdx";
 
 export type Step = {
   title: string;
