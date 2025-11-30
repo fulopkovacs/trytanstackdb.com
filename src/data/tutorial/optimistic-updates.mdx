@@ -27,7 +27,7 @@ projectsCollection.update(id, (project) => {
 
 <GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/013849f87b6ce7ab5dee3873424d8e1012b810fc/src/components/EditableProjectDetails.tsx#L22-L24" />
 
-The change will be instantaneous even for large network latencies. Let's test it! Click the button below to highlight the network latency configurator in the header.
+The change will be instantaneous even for poor connections. Let's test it! Click the button below to highlight the network latency configurator in the header.
 
 <HighLightComponent h_id="networkLatencyCofigurator">Highlight the network latency configurator button</HighLightComponent>
 
@@ -45,7 +45,7 @@ Let's rename our current project to the name of another existing project (like `
 2. when the http request fails in the background (because all project names
    must be unique)
    - the changes are immediately rolled back,
-   - and a toast message appears with the error message
+   - and a toast error message appears in the top right corner
 
 When an update fails, the mutations are rolled back. Rollbacks work seamlessly even for mutations that involve multiple collections (see the tutorial article on <LinkToStep articleTitle="Optimistic Actions">Optimistic Actions</LinkToStep>).
 
