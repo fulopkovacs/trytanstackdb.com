@@ -10,6 +10,16 @@ An interactive guide for taking the first steps with
 
 ## 🚀 Main goals, motivations
 
+It took a while for TanStack DB to "click" for me, but it's not because this
+library is too nieche. When I used it for a POC and showed that to my
+colleagues, they seemed to immediately understand the advantages of TanStack DB,
+because I could show exactly the things I explained.
+
+This project aims to bring the same interactive and practical learning
+experience to everybody elseon the internet.
+
+### Target audience
+
 There are two types of people in the target audience of this project:
 
 1. Devs, who just heard about TanStack DB, and want to understand what it is,
@@ -19,23 +29,22 @@ There are two types of people in the target audience of this project:
 
 ## Architecture
 
-There are two problems that make it hard to show the main strengths of TanStack
-DB:
+The architecture was designed around the two things that I wanted to highlight
+in the interactive tutorial:
 
-1. it can make applications feel incredibly fast
-   - but that is hard to show without the network latency (everything is fast
-     locally)
-2. contrary to conventional local-first approaches, it doesn't require big
-   technical changes on the back end (works with any DB, no need for adding new
-   libs to your backend, simple api endpoints work just fine)
-   - can't simulate the db in stackblitz examples
+1. TanStack DB can make applications feel incredibly fast, even when the network
+   latency is large
+2. contrary to conventional local-first approaches, this library doesn't require
+   big technical changes on the back end (works with any database, no need for
+   adding new libs to your backend, simple api endpoints work just fine)
 
-Databases are expensive, so instead of running one on a server this app uses a
+Databases are expensive, so instead of running one on a server, this app uses a
 local Postgres instance in WASM via [PGlite](https://pglite.dev/).
 
-For educational purposes, I had to make it possible to inspect `fetch` requests
-in the browser. That is achieved by a service worker that proxies http requests
-between front end and the API handlers (which are also part of the front end).
+I wanted to make it possible to inspect `fetch` requests in the browser to make
+the syncing mechanisms more observable. That is achieved by a service worker
+that proxies http requests between front end and the API handlers (which are
+also part of the front end).
 
 ```mermaid
 sequenceDiagram
