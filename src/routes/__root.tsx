@@ -92,6 +92,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           {children}
           <Toaster position="top-right" />
         </ThemeProvider>
+        <script
+          defer
+          src="https://assets.onedollarstats.com/stonks.js"
+        ></script>
         <Scripts />
       </body>
     </html>
