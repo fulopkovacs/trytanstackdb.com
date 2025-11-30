@@ -135,7 +135,7 @@ function Board({
   orderedIds: string[];
   projectId: string;
 }) {
-  const { data: todoItems, isLoading } = useLiveQuery((q) =>
+  const { data: todoItems } = useLiveQuery((q) =>
     q
       .from({ todoItem: todoItemsCollection })
       .where(({ todoItem }) => eq(todoItem.boardId, board.id)),
