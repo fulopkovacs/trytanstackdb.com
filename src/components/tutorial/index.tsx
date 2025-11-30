@@ -109,7 +109,7 @@ export function ClearHighlightsButton() {
   );
 }
 
-export function LinkToStep({
+export function LinkToArticle({
   children,
   articleTitle,
 }: {
