@@ -93,6 +93,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Toaster position="top-right" />
         </ThemeProvider>
         <Scripts />
+        <script
+          defer
+          src="https://assets.onedollarstats.com/stonks.js"
+          // Use this for local debugging
+          // data-debug="trystanstackdb.com"
+        ></script>
       </body>
     </html>
   );
