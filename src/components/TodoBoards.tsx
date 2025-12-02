@@ -141,9 +141,9 @@ function Board({
       .where(({ todoItem }) => eq(todoItem.boardId, board.id)),
   );
 
-  const { active } = useDndContext();
+  const { active, over } = useDndContext();
 
-  const { orderedTodoItems } = useMemo(() => {
+  const { orderedTodoItems, dropIndex } = useMemo(() => {
     const orderMap = new Map<string, number>();
     orderedIds.forEach((id, idx) => {
       orderMap.set(id, idx);
@@ -165,8 +165,38 @@ function Board({
       return idxA - idxB;
     });
 
-    return { orderedTodoItems, activeTaskIndex };
-  }, [todoItems, orderedIds, active]);
+    // Calculate drop index for indicator
+    let dropIndex = -1;
+    if (active && over && active.id !== over.id) {
+      const overTaskIndex = orderedTodoItems.findIndex(
+        (item) => item.id === over.id,
+      );
+      if (overTaskIndex !== -1) {
+        // Show indicator before the over item
+        const activeTaskIndex = orderedTodoItems.findIndex(
+          (item) => item.id === active.id,
+        );
+        // Only hide the indicator if the active item is in this column and would be in the same position
+        if (activeTaskIndex === -1 || activeTaskIndex !== overTaskIndex - 1) {
+          dropIndex = overTaskIndex;
+        }
+      } else if (over.id === board.id) {
+        // Dropping on this column (empty or at the end)
+        const activeTaskIndex = orderedTodoItems.findIndex(
+          (item) => item.id === active.id,
+        );
+        // Only hide the indicator if the active item is in this column and would be at the end
+        if (
+          activeTaskIndex === -1 ||
+          activeTaskIndex !== orderedTodoItems.length - 1
+        ) {
+          dropIndex = orderedTodoItems.length;
+        }
+      }
+    }
+
+    return { orderedTodoItems, dropIndex };
+  }, [todoItems, orderedIds, active, over, board.id]);
 
   const { setNodeRef } = useDroppable({ id: board.id });
 
@@ -212,13 +242,20 @@ function Board({
           items={orderedTodoItems.map((task) => task.id)}
         >
           <VList>
-            {orderedTodoItems.map((todoItem) => {
+            {orderedTodoItems.map((todoItem, index) => {
+              const showDropIndicator = active && dropIndex === index;
               return (
                 <div key={`${todoItem.id}-wrapper`}>
+                  {showDropIndicator && (
+                    <div className="h-0.5 bg-blue-500 mx-2 my-1 rounded-full" />
+                  )}
                   <DraggableTask projectId={projectId} task={todoItem} />
                 </div>
               );
             })}
+            {active && dropIndex === orderedTodoItems.length && (
+              <div className="h-0.5 bg-blue-500 mx-2 my-1 rounded-full" />
+            )}
           </VList>
         </SortableContext>
       </CardContent>
