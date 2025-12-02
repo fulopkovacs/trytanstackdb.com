@@ -149,8 +149,6 @@ function Board({
       orderMap.set(id, idx);
     });
 
-    const activeTaskIndex = orderMap.get(active?.id as string) || -1;
-
     const orderedTodoItems = todoItems.sort((a, b) => {
       // If id not found, put it at the end
       const practicallyInfinite = 10_0000; // realistically we won't have this many items in this array
