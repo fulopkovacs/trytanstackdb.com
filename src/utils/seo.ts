@@ -22,12 +22,13 @@ export const seo = ({
     { property: "og:type", content: "website" },
     { property: "og:title", content: title },
     { property: "og:description", content: description },
+    { property: "og:url", content: "https://trytanstackdb.com" },
     ...(image
       ? [
-          { name: "twitter:image", content: image },
-          { name: "twitter:card", content: "summary_large_image" },
-          { property: "og:image", content: image },
-        ]
+        { name: "twitter:image", content: image },
+        { name: "twitter:card", content: "summary_large_image" },
+        { property: "og:image", content: image },
+      ]
       : []),
   ];
 
