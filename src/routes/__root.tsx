@@ -10,6 +10,7 @@ import "prismjs/themes/prism-tomorrow.css"; // or any other Prism theme
 import { ScriptOnce } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { seo } from "@/utils/seo";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -40,7 +41,46 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
   shellComponent: RootDocument,
+  errorComponent: ErrorComponent,
 });
+
+function ErrorComponent({ error }: { error: unknown }) {
+  const isServiceWorkerError =
+    error instanceof Error &&
+    error.message.includes("navigator.serviceWorker.addEventListener");
+
+  return (
+    <div className="flex justify-center items-center w-full h-full min-h-screen p-6">
+      <Card>
+        <CardHeader>
+          <h2 className="text-2xl font-bold text-destructive-foreground text-center">
+            An error occurred
+          </h2>
+        </CardHeader>
+
+        <CardContent className="flex flex-col gap-4">
+          {isServiceWorkerError ? (
+            <>
+              <p className="block sm:hidden">
+                Embedded browsers (like those in some social media apps) might
+                not support Service Workers properly.
+              </p>
+              <p className="hidden sm:block">
+                It seems like your browser is having issues with Service
+                Workers. Please try using a different browser or updating your
+                current one.
+              </p>
+            </>
+          ) : null}
+          <p className="font-bold">Error message:</p>
+          <pre className="wrap-break-word whitespace-pre-wrap text max-h-40 text-muted-foreground">
+            {error instanceof Error ? error.message : String(error)}
+          </pre>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 function ServiceWorkerLoader() {
   const serviceWorkerScript = (() => {
