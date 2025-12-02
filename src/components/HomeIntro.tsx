@@ -22,8 +22,8 @@ export function HomeIntro({
 }) {
   const [open, setOpen] = useState(
     activeStep === null ||
-      // used for debugging
-      show_home_intro === "true",
+    // used for debugging
+    show_home_intro === "true",
   );
 
   const navigate = useNavigate();
@@ -40,10 +40,10 @@ export function HomeIntro({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className={cn(
-            "fixed top-0 left-0 right-0 bottom-0 bg-black/80 z-52 flex items-center justify-center",
+            "fixed top-0 left-0 right-0 p-6 bottom-0 bg-black/80 z-52 flex items-center justify-center",
           )}
         >
-          <Card className="w-lg p-6 gap-10">
+          <Card className="w-lg p-6 gap-10 max-h-full overflow-y-auto">
             <CardHeader>
               <CardTitle className="flex justify-center">
                 <div className="text-sm bg-linear-to-r from-orange-500 to-orange-700 flex gap-2 items-center text-black px-4 py-1 rounded-full">
