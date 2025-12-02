@@ -61,7 +61,7 @@ jobs:
     needs: ci
     environment:
       name: Preview
-      url: ${{ steps.deploy.outputs.url }}
+      url: ${{ steps.deploy.outputs.deployment-url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,6 +95,47 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Find Existing Comment
+        id: find-comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const botComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🚀 Preview Deployment')
+            );
+
+            if (botComment) {
+              console.log(`Found existing comment: ${botComment.id}`);
+              return botComment.id;
+            }
+            return null;
+
+      - name: Create Loading Comment
+        if: steps.find-comment.outputs.result == 'null'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const response = await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Preview Deployment
+
+            **Status:** ⏳ Loading...
+
+            **Commit:** \`${{ github.sha }}\`
+
+            _Deployment in progress..._`
+            });
+            console.log(`Created comment: ${response.data.id}`);
+
       - name: Deploy Preview
         id: deploy
         uses: cloudflare/wrangler-action@v3
@@ -103,20 +144,62 @@ jobs:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           command: versions upload
 
-      - name: Comment PR
+      - name: Update Comment with Success
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🚀 Preview deployment is ready!
+            const deploymentUrl = '${{ steps.deploy.outputs.deployment-url }}';
+            const commentId = '${{ steps.find-comment.outputs.result }}';
 
-            **Preview URL:** ${{ steps.deploy.outputs.deployment-url }}
+            const commentBody = `## 🚀 Preview Deployment
 
-            Built from commit: ${{ github.sha }}`
-            })
+            **Status:** ✅ Ready!
+
+            **Preview URL:** [Open Preview](${deploymentUrl})
+
+            **Commit:** \`${{ github.sha }}\`
+
+            _Built and deployed successfully_`;
+
+            if (commentId && commentId !== 'null') {
+              await github.rest.issues.updateComment({
+                comment_id: commentId,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              });
+              console.log(`Updated existing comment: ${commentId}`);
+            } else {
+              // Find the loading comment we just created
+              const comments = await github.rest.issues.listComments({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              
+              const loadingComment = comments.data.find(comment => 
+                comment.user.type === 'Bot' && 
+                comment.body.includes('⏳ Loading...')
+              );
+              
+              if (loadingComment) {
+                await github.rest.issues.updateComment({
+                  comment_id: loadingComment.id,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: commentBody
+                });
+                console.log(`Updated loading comment: ${loadingComment.id}`);
+              } else {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: commentBody
+                });
+                console.log('Created new comment');
+              }
+            }
 
   deploy-production:
     name: Deploy Production
