@@ -130,7 +130,7 @@ jobs:
 
             **Status:** ⏳ Loading...
 
-            **Commit:** \`${{ github.sha }}\`
+            **Commit:** \`${{ github.event.pull_request.head.sha }}\`
 
             _Deployment in progress..._`
             });
@@ -157,7 +157,7 @@ jobs:
 
             **Preview URL:** [Open Preview](${deploymentUrl})
 
-            **Commit:** \`${{ github.sha }}\`
+            **Commit:** \`${{ github.event.pull_request.head.sha }}\`
 
             _Built and deployed successfully_`;
 
