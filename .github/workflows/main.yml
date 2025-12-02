@@ -92,14 +92,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build
+        run: pnpm build
+
       - name: Deploy Preview
         id: deploy
-        run: |
-          pnpm deploy.preview
-          echo "url=https://preview.${{ github.event.pull_request.number }}.trytanstackdb.com" >> $GITHUB_OUTPUT
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: versions upload
 
       - name: Comment PR
         uses: actions/github-script@v7
@@ -109,9 +111,9 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚀 Preview deployment is ready! 
+              body: `🚀 Preview deployment is ready!
 
-            **Preview URL:** ${{ steps.deploy.outputs.url }}
+            **Preview URL:** ${{ steps.deploy.outputs.deployment-url }}
 
             Built from commit: ${{ github.sha }}`
             })
@@ -159,4 +161,3 @@ jobs:
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-
