@@ -50,9 +50,6 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Build
-        run: pnpm build
-
   deploy-preview:
     name: Deploy Preview
     if: github.event_name == 'pull_request'
