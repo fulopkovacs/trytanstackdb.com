@@ -8,6 +8,10 @@ An interactive guide for taking the first steps with
 
 [trytanstackdb.com](https://trytanstackdb.com)
 
+## TODO
+
+[Check out the todo list here.](./TODO.md)
+
 ## 🚀 Main goals, motivations
 
 It took a while for TanStack DB to "click" for me, but it's not because this
