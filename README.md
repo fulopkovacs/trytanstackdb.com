@@ -12,7 +12,7 @@ https://github.com/user-attachments/assets/32efe3de-f976-4009-9970-40605f1f1b51
 
 ## TODO
 
-See [TODO.md](./TODO.md)
+See [TODO.md](./TODO.md).
 
 ## 🚀 Main goals, motivations
 
