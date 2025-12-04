@@ -6,11 +6,13 @@ An interactive guide for taking the first steps with
 [`@tanstack/tanstack-db`](https://tanstack.com/db/latest/docs/overview) by
 [fuko](fulop.dev/).
 
-[trytanstackdb.com](https://trytanstackdb.com)
+[🔗 trytanstackdb.com](https://trytanstackdb.com)
+
+https://github.com/user-attachments/assets/32efe3de-f976-4009-9970-40605f1f1b51
 
 ## TODO
 
-[Check out the todo list here.](./TODO.md)
+See [TODO.md](./TODO.md)
 
 ## 🚀 Main goals, motivations
 
