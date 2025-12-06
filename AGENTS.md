@@ -35,6 +35,10 @@ For database-related tasks:
 Never use npm, yarn, or any other package manager in this project. All package
 operations should be performed with pnpm.
 
+## Project Setup
+
+This project uses TanStack Start. The root route is at `src/route/__root.tsx`.
+
 # Tests
 
 We use `vitest` for the tests.
