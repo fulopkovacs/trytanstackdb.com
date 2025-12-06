@@ -22,8 +22,8 @@ export function HomeIntro({
 }) {
   const [open, setOpen] = useState(
     activeStep === null ||
-    // used for debugging
-    show_home_intro === "true",
+      // used for debugging
+      show_home_intro === "true",
   );
 
   const navigate = useNavigate();
