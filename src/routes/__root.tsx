@@ -50,8 +50,8 @@ function ErrorComponent({ error }: { error: unknown }) {
     error.message.includes("navigator.serviceWorker.addEventListener");
 
   return (
-    <div className="flex justify-center items-center w-full h-full min-h-screen p-6">
-      <Card>
+    <div className="fixed inset-0 w-screen h-screen flex justify-center items-center p-6 bg-background">
+      <Card className="max-w-2xl w-full">
         <CardHeader>
           <h2 className="text-2xl font-bold text-destructive-foreground text-center">
             An error occurred
