@@ -5,8 +5,9 @@
   - maybe the todos -> per board
 - [ ] (feature) paced mutations
   - maybe editing the todos
-- [x] Add intro video to the README.md
+- [ ] Make the root error page responsive
 - [ ] Floating window
   - [ ] Fix the open/close animation (chunky)
   - [ ] Make it resizable
   - [ ] Design overhaul
+- [x] Add intro video to the README.md
