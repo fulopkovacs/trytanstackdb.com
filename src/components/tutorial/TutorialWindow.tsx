@@ -461,19 +461,37 @@ export function TutorialWindow({
   }, [isClosed, router]);
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <div className="w-0 h-0">
-        <div
-          className={
-            "absolute bottom-0 left-0 p-2 z-51 overflow-hidden max-w-full"
-          }
-        >
+    <div className="w-0 h-0">
+      <div
+        className={
+          "absolute bottom-0 left-0 p-2 z-51 overflow-hidden max-w-full"
+        }
+      >
+        <AnimatePresence initial={false}>
           {!isClosed && (
             <motion.div
-              initial={{ opacity: 0, translateY: 10 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: 10 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
+              key="floating-window"
+              initial={{
+                opacity: 0,
+                translateY: 10,
+                filter: "blur(4px)", // add blur to initial
+              }}
+              animate={{ opacity: 1, translateY: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, translateY: 10, filter: "blur(4px)" }} // add blur to exit
+              transition={{
+                translateY: {
+                  type: "spring",
+                  stiffness: 600,
+                },
+                opacity: {
+                  duration: 0.2,
+                  ease: "easeInOut",
+                },
+                filter: {
+                  duration: 0.2,
+                  ease: "easeInOut",
+                },
+              }}
             >
               <FloatingWindow
                 toggleWindow={toggleWindow}
@@ -483,13 +501,13 @@ export function TutorialWindow({
               />
             </motion.div>
           )}
-          <FloatingWindowButton
-            isClosed={isClosed}
-            activeStep={activeStep}
-            toggleWindow={toggleWindow}
-          />
-        </div>
+        </AnimatePresence>
+        <FloatingWindowButton
+          isClosed={isClosed}
+          activeStep={activeStep}
+          toggleWindow={toggleWindow}
+        />
       </div>
-    </AnimatePresence>
+    </div>
   );
 }
