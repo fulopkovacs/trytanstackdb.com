@@ -38,7 +38,7 @@ function parseTutorialDataString(
   return data;
 }
 
-export const tutorialDataSchema = z
+const tutorialDataSchema = z
   .object({
     isClosed: z.boolean().default(false),
     tutorialStep: z.string().default(steps[0].title),
