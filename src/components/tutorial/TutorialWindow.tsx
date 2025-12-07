@@ -3,67 +3,14 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { DatabaseZapIcon, ExternalLinkIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { type ZodDefault, type ZodNumber, z } from "zod";
 import { deepDiveArticles, steps, tutorialArticles } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
+import {
+  getTutorialDataHandlers,
+  type TutorialData,
+} from "@/utils/getTutorialDataHandlers";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-
-export const TUTORIAL_DATA_LOCAL_STORAGE_KEY = "tutorialData";
-export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
-
-export const tutorialDataSchema = z.object({
-  isClosed: z.boolean().default(false),
-  tutorialStep: z.string().default(steps[0].title),
-  scrollPositions: z
-    .object(
-      steps.reduce(
-        (acc, step) => {
-          acc[step.title] = z.number().default(0);
-          return acc;
-        },
-        {} as Record<string, ZodDefault<ZodNumber>>,
-      ),
-    )
-    .catch({}),
-});
-
-export const DEFAULT_TUTORIAL_DATA_VALUE = JSON.stringify({
-  scrollPositions: {},
-});
-
-export type TutorialData = {
-  isClosed: boolean;
-  tutorialStep: string | null;
-  scrollPositions: Record<string, number>;
-};
-
-function getTutorialDataLocally(w: Window): TutorialData {
-  const tutorialInLocalStorage = w.localStorage.getItem(
-    TUTORIAL_DATA_LOCAL_STORAGE_KEY,
-  );
-
-  let tutorialData: TutorialData;
-
-  try {
-    /*
-      TODO: there are more elegant ways to solve this with
-       zod (.catch())
-    */
-    tutorialData = tutorialDataSchema.parse(
-      JSON.parse(tutorialInLocalStorage || DEFAULT_TUTORIAL_DATA_VALUE),
-    );
-  } catch (e) {
-    console.error("Error parsing tutorial data from localStorage:", e);
-    tutorialData = {
-      isClosed: true,
-      tutorialStep: null,
-      scrollPositions: {},
-    };
-  }
-
-  return tutorialData;
-}
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
@@ -150,7 +97,7 @@ function FloatingWindow({
   }, [windowSize, isResizing]);
 
   const handleStepChange = useCallback(
-    (stepTitle: string) => {
+    async (stepTitle: string) => {
       // clear all highlights
       navigate({
         to: ".",
@@ -159,22 +106,15 @@ function FloatingWindow({
         },
       });
 
-      if (typeof window !== "undefined") {
-        // TODO: do we need localStorage and cookies too???
-        // TODO: clean this mess up
-        const tutorialData: TutorialData = getTutorialDataLocally(window);
+      const { tutorialData, updateTutorialData } =
+        await getTutorialDataHandlers();
 
-        tutorialData.tutorialStep = stepTitle;
+      tutorialData.tutorialStep = stepTitle;
 
-        const tutorialDataJson = JSON.stringify(tutorialData);
+      updateTutorialData({
+        tutorialStep: stepTitle,
+      });
 
-        // biome-ignore lint/suspicious/noDocumentCookie: we need this cookie!
-        window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${tutorialDataJson}; path=/;`;
-        window.localStorage.setItem(
-          TUTORIAL_DATA_LOCAL_STORAGE_KEY,
-          tutorialDataJson,
-        );
-      }
       setActiveStep(stepTitle);
     },
     [
@@ -195,22 +135,18 @@ function FloatingWindow({
   }, [tutorialData]);
 
   // Save scroll position on scroll
-  const handleScroll = () => {
-    const tutorialData: TutorialData = getTutorialDataLocally(window);
+  const handleScroll = async () => {
+    const { updateTutorialData, tutorialData } =
+      await getTutorialDataHandlers();
     // get current scroll positions
     if (scrollRef.current && activeStep) {
-      const tutorialDataJson = JSON.stringify({
-        isClosed: tutorialData.isClosed,
+      updateTutorialData({
         tutorialStep: activeStep,
         scrollPositions: {
           ...tutorialData.scrollPositions,
           [activeStep]: scrollRef.current.scrollTop,
         },
-      } satisfies TutorialData);
-
-      // biome-ignore lint/suspicious/noDocumentCookie: we need this>
-      window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${tutorialDataJson}; path=/;`;
-      localStorage.setItem(TUTORIAL_DATA_LOCAL_STORAGE_KEY, tutorialDataJson);
+      });
     }
   };
 
@@ -439,24 +375,17 @@ export function TutorialWindow({
     }
   }, [activeStepFromSearch]);
 
-  const toggleWindow = useCallback(() => {
+  const toggleWindow = useCallback(async () => {
     setIsClosed((o) => !o);
     // TODO: Make this a hook or something, this looks dumb
 
     // TODO: do we need localStorage and cookies too???
     // TODO: clean this mess up
-    const tutorialData: TutorialData = getTutorialDataLocally(window);
-    const tutorialDataJson = JSON.stringify({
-      ...tutorialData,
-      isClosed: !isClosed,
-    } satisfies TutorialData);
+    const { updateTutorialData } = await getTutorialDataHandlers();
 
-    // biome-ignore lint/suspicious/noDocumentCookie: we need this cookie!
-    window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${tutorialDataJson}; path=/;`;
-    window.localStorage.setItem(
-      TUTORIAL_DATA_LOCAL_STORAGE_KEY,
-      tutorialDataJson,
-    );
+    updateTutorialData({
+      isClosed: !isClosed,
+    });
   }, [isClosed]);
 
   return (
