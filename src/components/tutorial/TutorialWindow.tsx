@@ -97,6 +97,57 @@ function FloatingWindow({
   const navigate = useNavigate();
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Window size state with min/max constraints
+  const MIN_WIDTH = 600;
+  const MAX_WIDTH = 850;
+  const MIN_HEIGHT = 300;
+  const MAX_HEIGHT = window.innerHeight * 0.75;
+
+  const [windowSize, setWindowSize] = useState(() => {
+    // Try to restore from localStorage
+    const saved = localStorage.getItem("tutorialWindowSize");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          width: Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, parsed.width)),
+          height: Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, parsed.height)),
+        };
+      } catch {
+        // Fall through to defaults
+      }
+    }
+    return { width: 800, height: 500 };
+  });
+
+  // Resize state
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeDirection, setResizeDirection] = useState<
+    "top" | "right" | "corner" | null
+  >(null);
+  const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const saveTimeoutRef = useRef<number | undefined>(undefined);
+
+  // Debounced save to localStorage (only save after resize stops)
+  useEffect(() => {
+    if (isResizing) return; // Don't save while actively resizing
+
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    saveTimeoutRef.current = window.setTimeout(() => {
+      localStorage.setItem("tutorialWindowSize", JSON.stringify(windowSize));
+    }, 100);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [windowSize, isResizing]);
 
   const handleStepChange = useCallback(
     (stepTitle: string) => {
@@ -163,27 +214,129 @@ function FloatingWindow({
     }
   };
 
+  // Resize handlers
+  const handleResizeStart = (
+    e: React.MouseEvent,
+    direction: "top" | "right" | "corner",
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    setResizeDirection(direction);
+    resizeStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      width: windowSize.width,
+      height: windowSize.height,
+    };
+  };
+
+  useEffect(() => {
+    if (!isResizing || !containerRef.current) return;
+
+    const container = containerRef.current;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
+
+      const deltaX = e.clientX - resizeStart.current.x;
+      const deltaY = e.clientY - resizeStart.current.y;
+
+      let newWidth = resizeStart.current.width;
+      let newHeight = resizeStart.current.height;
+
+      if (resizeDirection === "right" || resizeDirection === "corner") {
+        newWidth = Math.max(
+          MIN_WIDTH,
+          Math.min(MAX_WIDTH, resizeStart.current.width + deltaX),
+        );
+      }
+
+      if (resizeDirection === "top" || resizeDirection === "corner") {
+        // For top resize, we subtract deltaY because dragging up should increase height
+        newHeight = Math.max(
+          MIN_HEIGHT,
+          Math.min(MAX_HEIGHT, resizeStart.current.height - deltaY),
+        );
+      }
+
+      // Direct DOM manipulation - no React re-render
+      container.style.width = `${newWidth}px`;
+      container.style.height = `${newHeight}px`;
+    };
+
+    const handleMouseUp = () => {
+      // Sync final size to React state
+      if (containerRef.current) {
+        const finalWidth = containerRef.current.offsetWidth;
+        const finalHeight = containerRef.current.offsetHeight;
+        setWindowSize({ width: finalWidth, height: finalHeight });
+      }
+
+      setIsResizing(false);
+      setResizeDirection(null);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove, { passive: false });
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing, resizeDirection, MAX_HEIGHT]);
+
   return (
     <div
+      ref={containerRef}
       className={cn(
-        "bg-white text-black transition-all mb-2 shadow-lg rounded-lg shadow-orange-500/10 border border-orange-500 dark:border-orange-500/10 overflow-hidden",
-        // isOpen ? "translate-y-0" : "pointer-events-none translate-y-2",
+        "bg-white text-black mb-2 shadow-lg rounded-lg shadow-orange-500/10 border border-orange-500 dark:border-orange-500/10 overflow-hidden relative",
+        !isResizing && "transition-all",
+        isResizing && "select-none",
       )}
+      style={{
+        width: `${windowSize.width}px`,
+        height: `${windowSize.height}px`,
+        willChange: isResizing ? "width, height" : "auto",
+        contain: isResizing ? "layout style paint" : "none",
+      }}
     >
+      {/* Top resize handle - larger hit area with invisible padding */}
       <div
-        className={cn(
-          "block opacity-100 translate-y-0",
-          // isOpen
-          //   ? "block opacity-100 translate-y-0"
-          //   : "hidden opacity-0 translate-y-2",
-        )}
+        className="absolute top-0 left-0 right-0 cursor-ns-resize z-50 group h-2 -mt-1"
+        onMouseDown={(e) => handleResizeStart(e, "top")}
+      >
+        <div className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 group-hover:bg-orange-500/30 transition-colors" />
+      </div>
+
+      {/* Right resize handle - larger hit area with invisible padding */}
+      <div
+        className="absolute top-0 right-0 bottom-0 cursor-ew-resize z-50 group -mr-1 w-2"
+        onMouseDown={(e) => handleResizeStart(e, "right")}
+      >
+        <div className="absolute top-0 left-1/2 bottom-0 w-px -translate-x-1/2 group-hover:bg-orange-500/30 transition-colors" />
+      </div>
+
+      {/* Corner resize handle - larger hit area */}
+      <div
+        className="absolute top-0 right-0 cursor-nesw-resize z-50 group w-4 h-4 -mt-1 -mr-1"
+        onMouseDown={(e) => handleResizeStart(e, "corner")}
+      >
+        <div className="absolute top-1/2 left-1/2 w-1 h-1 -translate-x-1/2 -translate-y-1/2 group-hover:bg-orange-500/50 transition-colors rounded-full" />
+      </div>
+
+      <div
+        className={cn("block opacity-100 translate-y-0 h-full flex flex-col")}
       >
         <FloatingWindowHeader toggleWindow={toggleWindow} />
         <Tabs
           orientation="vertical"
           value={activeStep || undefined}
           onValueChange={handleStepChange}
-          className="w-full flex flex-row p-2 h-96 max-h-3/4"
+          className={cn(
+            "w-full flex-1 flex flex-row p-2 overflow-hidden",
+            isResizing && "pointer-events-none",
+          )}
         >
           <ScrollArea type="hover" className="h-full py-2">
             <TabsList className="w-48 flex-nowrap px-2 h-fit overflow-x-auto flex flex-col gap-2 text-sm text-balance">
@@ -222,21 +375,15 @@ function FloatingWindow({
               ))}
             </TabsList>
           </ScrollArea>
-          {/*
-              NOTE: Scrollbar had issues with code blacks that were too wide
-              */}
-          {/* <ScrollArea */}
-          {/*   type="auto" */}
-          {/*   className="w-full ml-4 !block overflow-x-hidden display" */}
-          {/*   doNotUseTable */}
-          {/* > */}
           <div
             ref={scrollRef}
-            // NOTE: we need to use this key to make sure the scrollPosition
-            // does is tracked separately for the different steps
             key={activeStep}
             onScroll={handleScroll}
-            className="w-full ml-4 block! overflow-x-hidden display"
+            className={cn(
+              "w-full h-full ml-4 overflow-y-auto overflow-x-hidden",
+              isResizing && "pointer-events-none",
+              isResizing ? "contain-strict" : "contain-none",
+            )}
           >
             {steps.map((step) => (
               <TabsContent
@@ -263,7 +410,6 @@ function FloatingWindow({
                 </div>
               </TabsContent>
             ))}
-            {/* </ScrollArea> */}
           </div>
         </Tabs>
       </div>
