@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { DatabaseZapIcon, ExternalLinkIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
@@ -46,28 +46,83 @@ function FloatingWindow({
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Window size state with min/max constraints
-  const MIN_WIDTH = 600;
-  const MAX_WIDTH = 850;
-  const MIN_HEIGHT = 300;
-  const MAX_HEIGHT = window.innerHeight * 0.75;
+  const [windowSize, setWindowSize] = useState(tutorialData.windowSize);
 
-  const [windowSize, setWindowSize] = useState(() => {
-    // Try to restore from localStorage
-    const saved = localStorage.getItem("tutorialWindowSize");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return {
-          width: Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, parsed.width)),
-          height: Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, parsed.height)),
-        };
-      } catch {
-        // Fall through to defaults
-      }
-    }
-    return { width: 800, height: 500 };
+  // Store initial limits as constants that never change
+  const INITIAL_MIN_WIDTH = 400;
+  const INITIAL_MAX_WIDTH = 850;
+  const INITIAL_MIN_HEIGHT = 300;
+  const INITIAL_MAX_HEIGHT = 2000;
+
+  const [
+    { MIN_WIDTH, MAX_WIDTH, MIN_HEIGHT, MAX_HEIGHT },
+    setWindowSizeLimits,
+  ] = useState({
+    MIN_WIDTH: INITIAL_MIN_WIDTH,
+    MAX_WIDTH: INITIAL_MAX_WIDTH,
+    MIN_HEIGHT: INITIAL_MIN_HEIGHT,
+    MAX_HEIGHT: INITIAL_MAX_HEIGHT,
   });
+
+  const updateWindowSizeLimits = useCallback(() => {
+    if (typeof window !== "undefined") {
+      // Calculate new limits based on current window size
+      // MIN values: can't be larger than initial values, but can be smaller if window is small
+      // MAX values: can grow and shrink with window size
+      const newMinWidth = Math.min(window.innerWidth - 16, INITIAL_MIN_WIDTH);
+      const newMinHeight = Math.min(
+        window.innerHeight - 65,
+        INITIAL_MIN_HEIGHT,
+      );
+
+      const newLimits = {
+        MIN_WIDTH: newMinWidth,
+        // MAX_WIDTH should be at least MIN_WIDTH but never exceed what fits in viewport
+        MAX_WIDTH: Math.max(
+          newMinWidth,
+          Math.min(window.innerWidth * 0.9, INITIAL_MAX_WIDTH),
+        ),
+        MIN_HEIGHT: newMinHeight,
+        // MAX_HEIGHT should be at least MIN_HEIGHT but never exceed what fits in viewport
+        MAX_HEIGHT: Math.max(
+          newMinHeight,
+          Math.min(window.innerHeight * 0.75, INITIAL_MAX_HEIGHT),
+        ),
+      };
+
+      setWindowSizeLimits(newLimits);
+
+      // Clamp the current window size to fit within new limits
+      // Use a callback to get the current state value, not the saved tutorialData value
+      setWindowSize((currentSize) => ({
+        width: Math.max(
+          newLimits.MIN_WIDTH,
+          Math.min(newLimits.MAX_WIDTH, currentSize.width),
+        ),
+        height: Math.max(
+          newLimits.MIN_HEIGHT,
+          Math.min(newLimits.MAX_HEIGHT, currentSize.height),
+        ),
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Make sure the window size is within limits
+    updateWindowSizeLimits();
+    if (typeof window !== "undefined") {
+      // getTutorialDataHandlers().then(({ tutorialData }) => {
+      //   setWindowSize(tutorialData.windowSize);
+      // });
+      window.addEventListener("resize", updateWindowSizeLimits);
+      return () => {
+        window.removeEventListener("resize", updateWindowSizeLimits);
+      };
+    }
+  }, [
+    // Make sure the window size is within limits
+    updateWindowSizeLimits,
+  ]);
 
   // Resize state
   const [isResizing, setIsResizing] = useState(false);
@@ -86,7 +141,11 @@ function FloatingWindow({
     }
 
     saveTimeoutRef.current = window.setTimeout(() => {
-      localStorage.setItem("tutorialWindowSize", JSON.stringify(windowSize));
+      getTutorialDataHandlers().then(({ updateTutorialData }) => {
+        updateTutorialData({
+          windowSize,
+        });
+      });
     }, 100);
 
     return () => {
@@ -220,7 +279,14 @@ function FloatingWindow({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isResizing, resizeDirection, MAX_HEIGHT]);
+  }, [
+    isResizing,
+    resizeDirection,
+    MAX_HEIGHT,
+    MAX_WIDTH,
+    MIN_HEIGHT,
+    MIN_WIDTH,
+  ]);
 
   return (
     <div
@@ -261,9 +327,7 @@ function FloatingWindow({
         <div className="absolute top-1/2 left-1/2 w-1 h-1 -translate-x-1/2 -translate-y-1/2 group-hover:bg-orange-500/50 transition-colors rounded-full" />
       </div>
 
-      <div
-        className={cn("block opacity-100 translate-y-0 h-full flex flex-col")}
-      >
+      <div className={cn("opacity-100 translate-y-0 h-full flex flex-col")}>
         <FloatingWindowHeader toggleWindow={toggleWindow} />
         <Tabs
           orientation="vertical"
@@ -375,18 +439,31 @@ export function TutorialWindow({
     }
   }, [activeStepFromSearch]);
 
+  const router = useRouter();
+
   const toggleWindow = useCallback(async () => {
     setIsClosed((o) => !o);
     // TODO: Make this a hook or something, this looks dumb
 
     // TODO: do we need localStorage and cookies too???
     // TODO: clean this mess up
-    const { updateTutorialData } = await getTutorialDataHandlers();
+    const { updateTutorialData, tutorialData } =
+      await getTutorialDataHandlers();
+
+    /*
+      We need to invalidate the route so that any components using
+      the `tutorialData` from the loader get the updated data
+      (important for the `tutorialData.windowSize`).
+    */
+    router.invalidate({
+      filter: (route) => route.id === "/_tutorial",
+    });
+    console.log(tutorialData.windowSize);
 
     updateTutorialData({
       isClosed: !isClosed,
     });
-  }, [isClosed]);
+  }, [isClosed, router]);
 
   return (
     <AnimatePresence mode="wait" initial={false}>

@@ -7,6 +7,10 @@ export type TutorialData = {
   isClosed: boolean;
   tutorialStep: string | null;
   scrollPositions: Record<string, number>;
+  windowSize: {
+    width: number;
+    height: number;
+  };
 };
 
 type TutorialDataHandlers = {
@@ -38,6 +42,12 @@ export const tutorialDataSchema = z
   .object({
     isClosed: z.boolean().default(false),
     tutorialStep: z.string().default(steps[0].title),
+    windowSize: z
+      .object({
+        width: z.number().default(0),
+        height: z.number().default(0),
+      })
+      .default({ width: 0, height: 0 }),
     scrollPositions: z
       .object(
         steps.reduce(
@@ -54,6 +64,7 @@ export const tutorialDataSchema = z
     isClosed: false,
     tutorialStep: steps[0].title,
     scrollPositions: {},
+    windowSize: { width: 0, height: 0 },
   });
 
 export const getTutorialDataHandlers = createIsomorphicFn()
