@@ -72,7 +72,7 @@ export const getTutorialDataHandlers = createIsomorphicFn()
     // get data from cookie
     const tutorialDataString = await getTutorialDataFromCookie();
     return {
-      updateTutorialData: async (data: Partial<TutorialData>) => {
+      updateTutorialData: async () => {
         /**
           Currently, there is no data in TutorialData that
           needs to be updated on the server side.
