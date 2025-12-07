@@ -12,4 +12,5 @@
   - [ ] Fix the open/close animation (chunky)
   - [ ] Make it resizable
   - [ ] Design overhaul
+- [ ] Maybe mobile view?
 - [x] Add intro video to the README.md
