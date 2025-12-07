@@ -443,10 +443,6 @@ export function TutorialWindow({
 
   const toggleWindow = useCallback(async () => {
     setIsClosed((o) => !o);
-    // TODO: Make this a hook or something, this looks dumb
-
-    // TODO: do we need localStorage and cookies too???
-    // TODO: clean this mess up
     const { updateTutorialData } = await getTutorialDataHandlers();
 
     /*
