@@ -1,46 +1,14 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { createIsomorphicFn } from "@tanstack/react-start";
 import z from "zod";
 import { HomeIntro } from "@/components/HomeIntro";
 import { highlightParamSchema } from "@/components/tutorial";
-import {
-  TUTORIAL_DATA_LOCAL_STORAGE_KEY,
-  type TutorialData,
-  TutorialWindow,
-  tutorialDataSchema,
-} from "@/components/tutorial/TutorialWindow";
-import { getTutorialDataFromCookie } from "@/server/functions/getTutorialDataFromCookie";
+import { TutorialWindow } from "@/components/tutorial/TutorialWindow";
+import { getTutorialDataHandlers } from "@/utils/getTutorialDataHandlers";
 
 const mockUser = {
   id: "1",
   name: "John Doe",
 };
-
-const getTutorialWindowData = createIsomorphicFn()
-  .server(async (): Promise<TutorialData> => {
-    // Fetch any data needed for the tutorial window on the server
-    return await getTutorialDataFromCookie();
-  })
-  .client((): TutorialData => {
-    // TODO: might be unnecessary
-    const savedStep = window.localStorage.getItem(
-      TUTORIAL_DATA_LOCAL_STORAGE_KEY,
-    );
-
-    try {
-      const tutorialData = tutorialDataSchema.parse(
-        JSON.parse(savedStep || "{}"),
-      );
-      return tutorialData;
-    } catch (e) {
-      console.error("Error parsing tutorial data from localStorage:", e);
-      return {
-        isClosed: false,
-        tutorialStep: null,
-        scrollPositions: {},
-      };
-    }
-  });
 
 export const Route = createFileRoute("/_tutorial")({
   validateSearch: z
@@ -51,14 +19,12 @@ export const Route = createFileRoute("/_tutorial")({
     })
     .extend(highlightParamSchema.shape),
   beforeLoad: async () => {
-    // TODO: get tempdb
-
     return {
       user: mockUser,
     };
   },
   loader: async () => {
-    const tutorialData = await getTutorialWindowData();
+    const { tutorialData } = await getTutorialDataHandlers();
     return {
       tutorialData,
     };
