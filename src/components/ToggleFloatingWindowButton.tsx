@@ -49,6 +49,7 @@ export function FloatingWindowButton({
         }}
       >
         <motion.div
+          initial={false}
           animate={{
             rotate: rotationDegrees,
           }}
