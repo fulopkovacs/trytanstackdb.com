@@ -1,6 +1,6 @@
 import { DatabaseZapIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export function FloatingWindowButton({
   isClosed,
@@ -13,14 +13,20 @@ export function FloatingWindowButton({
 }) {
   const referenceContainerRef = useRef<HTMLDivElement>(null);
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  });
+
   const containerWidth = useMemo(() => {
-    if (isClosed && referenceContainerRef.current) {
+    if (mounted && isClosed && referenceContainerRef.current) {
       return referenceContainerRef.current.offsetWidth;
     } else {
       // default width
       return 56;
     }
-  }, [isClosed]);
+  }, [isClosed, mounted]);
 
   const rotationDegrees = useMemo(() => {
     return isClosed ? 0 : 360;
@@ -36,7 +42,7 @@ export function FloatingWindowButton({
           // width: isClosed ? "auto" : "56px",
           width: `${containerWidth.toString()}px`,
         }}
-        initial={false}
+        initial
         transition={{
           duration: 0.2,
           ease: "easeInOut",
