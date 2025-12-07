@@ -9,9 +9,9 @@ import {
   getTutorialDataHandlers,
   type TutorialData,
 } from "@/utils/getTutorialDataHandlers";
+import { FloatingWindowButton } from "../ToggleFloatingWindowButton";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { FloatingWindowButton } from "../ToggleFloatingWindowButton";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
