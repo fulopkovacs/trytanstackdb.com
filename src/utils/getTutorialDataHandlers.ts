@@ -20,25 +20,18 @@ export const TUTORIAL_COOKIE_NAME = "tutorialCookie";
 function parseTutorialDataString(
   tutorialData: string | null | undefined,
 ): TutorialData {
+  let jsonObj = {};
   if (tutorialData) {
-    let jsonObj = {};
-
     try {
       jsonObj = JSON.parse(tutorialData);
     } catch (e) {
       console.error("Error parsing tutorial data from cookie:", e);
       jsonObj = {};
     }
-
-    const data = tutorialDataSchema.parse(jsonObj);
-    return data;
   }
 
-  return {
-    isClosed: false,
-    tutorialStep: null,
-    scrollPositions: {},
-  };
+  const data = tutorialDataSchema.parse(jsonObj);
+  return data;
 }
 
 export const tutorialDataSchema = z
