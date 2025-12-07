@@ -447,8 +447,7 @@ export function TutorialWindow({
 
     // TODO: do we need localStorage and cookies too???
     // TODO: clean this mess up
-    const { updateTutorialData, tutorialData } =
-      await getTutorialDataHandlers();
+    const { updateTutorialData } = await getTutorialDataHandlers();
 
     /*
       We need to invalidate the route so that any components using
@@ -458,7 +457,6 @@ export function TutorialWindow({
     router.invalidate({
       filter: (route) => route.id === "/_tutorial",
     });
-    console.log(tutorialData.windowSize);
 
     updateTutorialData({
       isClosed: !isClosed,
