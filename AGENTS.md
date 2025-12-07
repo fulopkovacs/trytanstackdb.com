@@ -44,6 +44,7 @@ Here's the tech stack:
 - framework: TanStack Start (`@tanstack/start`) with `react`
 - router: TanStack Router (`@tanstack/router`)
 - ui: `shadcn/ui`
+- css: `tailwindcss`
 
 # Tests
 
