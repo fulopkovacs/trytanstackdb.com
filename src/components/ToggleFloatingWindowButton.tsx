@@ -86,11 +86,11 @@ export function ToggleFloatingWindowButton({
       */}
       <div
         ref={referenceContainerRef}
-        className="relative min-w-14 h-0 text-black inline-flex items-center justify-center gap-2 pointer-none"
+        className="absolute top-0 left-0 min-w-14 text-black inline-flex items-center justify-center gap-2 pointer-none whitespace-nowrap"
         aria-hidden="true"
       >
         <div className="w-6" aria-hidden="true" />
-        <div className="mx-4 h-0 overflow-hidden" aria-hidden="true">
+        <div className="mx-4 overflow-hidden" aria-hidden="true">
           {activeStep}
         </div>
       </div>
