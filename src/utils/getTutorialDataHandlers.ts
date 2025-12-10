@@ -38,6 +38,8 @@ function parseTutorialDataString(
   return data;
 }
 
+const initialWindowSize = { width: 850, height: 500 };
+
 const tutorialDataSchema = z
   .object({
     isClosed: z.boolean().default(false),
@@ -47,7 +49,7 @@ const tutorialDataSchema = z
         width: z.number().default(0),
         height: z.number().default(0),
       })
-      .default({ width: 0, height: 0 }),
+      .default(initialWindowSize),
     scrollPositions: z
       .object(
         steps.reduce(
@@ -64,7 +66,7 @@ const tutorialDataSchema = z
     isClosed: false,
     tutorialStep: steps[0].title,
     scrollPositions: {},
-    windowSize: { width: 0, height: 0 },
+    windowSize: initialWindowSize,
   });
 
 export const getTutorialDataHandlers = createIsomorphicFn()
