@@ -2,7 +2,7 @@ import { DatabaseZapIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-export function FloatingWindowButton({
+export function ToggleFloatingWindowButton({
   isClosed,
   activeStep,
   toggleWindow,

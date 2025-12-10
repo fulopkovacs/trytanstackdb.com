@@ -9,7 +9,7 @@ import {
   getTutorialDataHandlers,
   type TutorialData,
 } from "@/utils/getTutorialDataHandlers";
-import { FloatingWindowButton } from "../ToggleFloatingWindowButton";
+import { ToggleFloatingWindowButton } from "../ToggleFloatingWindowButton";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -502,7 +502,7 @@ export function TutorialWindow({
             </motion.div>
           )}
         </AnimatePresence>
-        <FloatingWindowButton
+        <ToggleFloatingWindowButton
           isClosed={isClosed}
           activeStep={activeStep}
           toggleWindow={toggleWindow}
