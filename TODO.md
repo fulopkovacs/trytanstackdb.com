@@ -8,9 +8,14 @@
 - [ ] (feature) paced mutations
   - maybe editing the todos
 - [ ] Make the root error page responsiveerror that is shown when `navigator`
-- [ ] Floating window
-  - [ ] Fix the open/close animation (chunky)
-  - [ ] Make it resizable
+- [ ] Short animated tutorial to show how to use the guide
+  - show/hide
+  - resize
+  - check the network tab
+    - maybe build a fake network tab to show what's happening?
+- [x] Floating window
+  - [x] Fix the open/close animation (chunky)
+  - [x] Make it resizable
   - [ ] Design overhaul
 - [ ] Maybe mobile view?
 - [x] Add intro video to the README.md
