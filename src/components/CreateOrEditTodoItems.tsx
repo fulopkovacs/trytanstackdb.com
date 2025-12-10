@@ -26,10 +26,10 @@ type CreateTodoItemInput = {
   createdAtTimestampMs: number;
 };
 
-const createTodoItem = createOptimisticAction({
+const createTodoItem = createOptimisticAction<CreateTodoItemInput>({
   id: "create-todo-item",
   autoCommit: true,
-  onMutate: (newItemData: CreateTodoItemInput) => {
+  onMutate: (newItemData) => {
     todoItemsCollection.insert({
       createdAt: new Date(),
       ...newItemData,
@@ -42,7 +42,7 @@ const createTodoItem = createOptimisticAction({
       );
     });
   },
-  mutationFn: async (newItemData: CreateTodoItemInput) => {
+  mutationFn: async (newItemData) => {
     await insertTodoItem({
       data: newItemData,
     });
