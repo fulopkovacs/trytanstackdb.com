@@ -13,7 +13,7 @@ async function getTodoItems() {
   return todoItems;
 }
 
-async function updateTodoItem({
+export async function updateTodoItem({
   data,
 }: {
   data: Partial<TodoItemRecord> & { id: string };
