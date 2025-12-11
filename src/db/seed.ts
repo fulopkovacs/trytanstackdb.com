@@ -222,14 +222,14 @@ function getMockData() {
       id: "aQLI4Nzvmls31l4aep9LqnU", // these are 2 chars longer than nanoid default
       name: "Project Alpha",
       description: "First project description",
-      createdAt: new Date(now.getTime() - 2000),
+      createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
       todoItemsBaseArr: todoItemsList,
     },
     {
       id: "bMv-_1QjNWdfdoZrRp_XmAM",
       name: "Project Beta",
       description: "Second project description",
-      createdAt: new Date(now.getTime() - 1000),
+      createdAt: new Date(now.getTime() - 24 * 60 * 60 * 1000), // 1 day ago
       todoItemsBaseArr: anotherTodoItemsList,
     },
     {
