@@ -347,3 +347,35 @@ export async function seed() {
     throw error;
   }
 }
+
+export async function resetAndSeed() {
+  try {
+    // Find all tables in the database
+    const tablesResult = await db.execute<{ tablename: string }>(
+      `SELECT tablename FROM pg_tables WHERE schemaname = 'public'`,
+    );
+
+    console.log(`Found ${tablesResult.rows.length} tables to clear.`);
+
+    // Delete all records from each table (except drizzle_migrations)
+    for (const { tablename } of tablesResult.rows) {
+      if (tablename === "drizzle_migrations") {
+        console.log(`Skipping table: ${tablename}`);
+        continue;
+      }
+      await db.execute(`DELETE FROM "${tablename}"`);
+      console.log(`Cleared table: ${tablename}`);
+    }
+
+    console.log("All tables have been cleared.");
+
+    // Run the seed function
+    const result = await seed();
+    console.log("Database has been reseeded successfully.");
+
+    return result;
+  } catch (error) {
+    console.error("Error during reset and seed:", error);
+    throw error;
+  }
+}
