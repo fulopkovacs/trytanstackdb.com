@@ -13,6 +13,9 @@
   - resize
   - check the network tab
     - maybe build a fake network tab to show what's happening?
+- [x] There's a bug with todos: if you reorder them too fast with a large
+      network delay, some of them will become unmovable or jump to the end of
+      the column you move them to etc
 - [x] Floating window
   - [x] Fix the open/close animation (chunky)
   - [x] Make it resizable
