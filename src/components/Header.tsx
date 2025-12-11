@@ -3,6 +3,7 @@ import { BugIcon, DatabaseZap, GithubIcon } from "lucide-react";
 import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
 import { NetworkLatencyConfigurator } from "./NetworkLatencyConfigurator";
+import { ResetTheDbDialog } from "./ResetTheDbDialog";
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
 
@@ -40,6 +41,9 @@ export function Header() {
         <div className="ml-auto">
           <ConfigureDB />
         </div>
+      </ClientOnly>
+      <ClientOnly fallback={null}>
+        <ResetTheDbDialog />
       </ClientOnly>
       <ClientOnly fallback={null}>
         <NetworkLatencyConfigurator />
