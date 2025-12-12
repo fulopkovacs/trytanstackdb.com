@@ -130,8 +130,13 @@ code {
 }
 
 @keyframes progress-fill {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
 }
 
 .progress-animated {
@@ -146,5 +151,46 @@ code {
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Custom scrollbar styles for Chrome/Safari */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.7 0.01 286);
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.6 0.01 286);
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  /* Dark theme scrollbar styles */
+  .dark ::-webkit-scrollbar-thumb {
+    background: oklch(0.4 0.01 286);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.5 0.01 286);
+  }
+
+  /* Firefox scrollbar styles */
+  * {
+    scrollbar-color: oklch(0.7 0.01 286) transparent;
+  }
+
+  .dark * {
+    scrollbar-color: oklch(0.4 0.01 286) transparent;
   }
 }
