@@ -155,7 +155,7 @@ code {
 
   /* Custom scrollbar styles for Chrome/Safari */
   ::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
     height: 12px;
   }
 
@@ -166,13 +166,14 @@ code {
   ::-webkit-scrollbar-thumb {
     background: oklch(0.7 0.01 286);
     border-radius: 6px;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     background-clip: content-box;
+    min-height: 40px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: oklch(0.6 0.01 286);
-    border: 2px solid transparent;
+    border: 3px solid transparent;
     background-clip: content-box;
   }
 
