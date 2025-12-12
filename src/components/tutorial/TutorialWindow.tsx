@@ -464,7 +464,7 @@ export function TutorialWindow({
     <div className="w-0 h-0">
       <div
         className={
-          "absolute bottom-0 left-0 p-2 z-51 overflow-hidden max-w-full"
+          "absolute bottom-0 left-0 p-2 z-50 overflow-hidden max-w-full"
         }
       >
         <AnimatePresence initial={false}>
