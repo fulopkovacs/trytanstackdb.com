@@ -21,7 +21,7 @@ export const projectsCollection = createCollection(
     onUpdate: async ({ transaction }) => {
       const { original, changes } = transaction.mutations[0];
       try {
-        await updateProject({ original, changes });
+        await updateProject({ projectId: original.id, changes });
       } catch (error) {
         if (
           error instanceof Error &&
@@ -58,12 +58,12 @@ async function getProjects() {
   return data;
 }
 
-async function updateProject({
+export async function updateProject({
   changes,
-  original,
+  projectId,
 }: {
   changes: Partial<ProjectRecord>;
-  original: ProjectRecord;
+  projectId: string;
 }) {
   /*
     NOTE: we're intentionally not using server functions to make
@@ -76,7 +76,7 @@ async function updateProject({
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      id: original.id,
+      id: projectId,
       ...changes,
     } satisfies ProjectUpdateData),
   });

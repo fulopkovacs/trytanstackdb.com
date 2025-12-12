@@ -12,13 +12,13 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { createOptimisticAction, eq, useLiveQuery } from "@tanstack/react-db";
 import { PlusIcon } from "lucide-react";
 import { forwardRef, useMemo, useState } from "react";
 import { VList } from "virtua";
 import { boardCollection } from "@/collections/boards";
-import { projectsCollection } from "@/collections/projects";
-import { todoItemsCollection } from "@/collections/todoItems";
+import { projectsCollection, updateProject } from "@/collections/projects";
+import { todoItemsCollection, updateTodoItem } from "@/collections/todoItems";
 import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { moveTask } from "@/utils/moveTask";
@@ -322,21 +322,51 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     setActiveId(event.active.id);
   };
 
-  // TODO: this should be an optimisticAction
-  // that updates both todoItems and projects collections.
-  // That would give us proper rollbacks on errors.
-  function updatePositionsInProject(
-    updatedPositions: Record<string, string[]>,
-  ) {
-    const oldPositions = project.itemPositionsInTheProject;
+  const updateTodoItemOrder = createOptimisticAction<{
+    projectId: string;
+    updatedPositions: Record<string, string[]>;
+    updatedItemData?: { id: string; boardId: string };
+  }>({
+    onMutate: ({ updatedPositions, updatedItemData, projectId }) => {
+      if (updatedItemData) {
+        todoItemsCollection.update(updatedItemData.id, (item) => {
+          item.boardId = updatedItemData.boardId;
+          return item;
+        });
+      }
 
-    projectsCollection.update(project.id, (item) => {
-      item.itemPositionsInTheProject = {
-        ...oldPositions,
-        ...updatedPositions,
-      };
-    });
-  }
+      projectsCollection.update(projectId, (project) => {
+        const oldPositions = project.itemPositionsInTheProject;
+
+        projectsCollection.update(project.id, (item) => {
+          item.itemPositionsInTheProject = {
+            ...oldPositions,
+            ...updatedPositions,
+          };
+        });
+      });
+    },
+    mutationFn: async ({ projectId, updatedPositions, updatedItemData }) => {
+      if (updatedItemData) {
+        await updateTodoItem({
+          data: {
+            id: updatedItemData.id,
+            boardId: updatedItemData.boardId,
+          },
+        });
+      }
+
+      await updateProject({
+        projectId,
+        changes: {
+          itemPositionsInTheProject: updatedPositions,
+        },
+      });
+
+      await todoItemsCollection.utils.refetch();
+      await projectsCollection.utils.refetch();
+    },
+  });
 
   const handleDragEnd = (event: DragEndEvent) => {
     // TODO: Fix this mess lol, I didn't have time T-T
@@ -355,17 +385,20 @@ export function TodoBoards({ projectId }: { projectId: string }) {
       const newBoardId = over.id;
       const oldBoardId = activeTodoItem.boardId;
 
-      todoItemsCollection.update(active.id, (item) => {
-        item.boardId = newBoardId as string;
-      });
-
       // Update the ordered indices in the state
       const oldColumnIds = state[activeTodoItem.boardId] || [];
       const newColumnIds = state[newBoardId] || [];
 
-      updatePositionsInProject({
-        [oldBoardId]: oldColumnIds.filter((id) => id !== active.id),
-        [newBoardId]: [...newColumnIds, active.id as string],
+      updateTodoItemOrder({
+        projectId,
+        updatedItemData: {
+          id: active.id as string,
+          boardId: newBoardId as string,
+        },
+        updatedPositions: {
+          [oldBoardId]: oldColumnIds.filter((id) => id !== active.id),
+          [newBoardId]: [...newColumnIds, active.id as string],
+        },
       });
     } else {
       const overTodoItem = todoItemsCollection.toArray.find(
@@ -382,8 +415,11 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         const newColumnTasks = moveTask(orderedColumnIds, oldIndex, newIndex);
         // console.log({ oldIndex, newIndex });
 
-        updatePositionsInProject({
-          [activeTodoItem.boardId]: newColumnTasks,
+        updateTodoItemOrder({
+          projectId,
+          updatedPositions: {
+            [activeTodoItem.boardId]: newColumnTasks,
+          },
         });
       } else if (overTodoItem) {
         // Move to another column and insert at the correct position
@@ -395,15 +431,18 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         const oldBoardId = activeTodoItem.boardId;
         const newBoardId = overTodoItem.boardId;
 
-        todoItemsCollection.update(active.id, (item) => {
-          item.boardId = newBoardId as string;
-        });
-
         newColumnIds.splice(newIndex, 0, activeTodoItem.id);
 
-        updatePositionsInProject({
-          [oldBoardId]: oldColumnIds.filter((id) => id !== active.id),
-          [newBoardId]: newColumnIds,
+        updateTodoItemOrder({
+          projectId,
+          updatedPositions: {
+            [oldBoardId]: oldColumnIds.filter((id) => id !== active.id),
+            [newBoardId]: newColumnIds,
+          },
+          updatedItemData: {
+            id: active.id as string,
+            boardId: newBoardId,
+          },
         });
       } else {
         console.error("overTodoId not found");
