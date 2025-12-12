@@ -12,19 +12,14 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  debounceStrategy,
-  eq,
-  useLiveQuery,
-  usePacedMutations,
-} from "@tanstack/react-db";
+import { createOptimisticAction, eq, useLiveQuery } from "@tanstack/react-db";
 import { PlusIcon } from "lucide-react";
 import { forwardRef, useMemo, useState } from "react";
 import { VList } from "virtua";
 import { boardCollection } from "@/collections/boards";
 import { projectsCollection, updateProject } from "@/collections/projects";
 import { todoItemsCollection, updateTodoItem } from "@/collections/todoItems";
-import type { BoardRecord, ProjectRecord, TodoItemRecord } from "@/db/schema";
+import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { moveTask } from "@/utils/moveTask";
 import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
@@ -327,23 +322,11 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     setActiveId(event.active.id);
   };
 
-  /**
-    This paced mutation will batch multiple updates to the
-    todo item order within a project, reducing the number of
-    network requests.
-
-    It uses an optimistic update to immediately reflect the changes
-    in the UI, while the actual updates are sent to the server
-    in a debounced manner.
-  */
-  const updateTodoItemOrder = usePacedMutations<
-    {
-      projectId: string;
-      updatedPositions: Record<string, string[]>;
-      updatedItemData?: { id: string; boardId: string };
-    },
-    (TodoItemRecord & { id: string }) | ProjectRecord
-  >({
+  const updateTodoItemOrder = createOptimisticAction<{
+    projectId: string;
+    updatedPositions: Record<string, string[]>;
+    updatedItemData?: { id: string; boardId: string };
+  }>({
     onMutate: ({ updatedPositions, updatedItemData, projectId }) => {
       if (updatedItemData) {
         todoItemsCollection.update(updatedItemData.id, (item) => {
@@ -363,51 +346,26 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         });
       });
     },
-    mutationFn: async ({ transaction }) => {
-      for (const mutation of transaction.mutations) {
-        // Apply the updates made to the todoItems
-        const { modified: updatedItemData } = mutation;
-        if (
-          mutation.collection.id === todoItemsCollection.id &&
-          "boardId" in updatedItemData
-        ) {
-          await updateTodoItem({
-            data: {
-              id: updatedItemData.id,
-              boardId: updatedItemData.boardId,
-            },
-          });
-        }
-      }
-
-      /*
-        NOTE: We can't used the mutation of the `projectsCollection` from
-        the transaction, because it merges all the changes made to the collection
-        during the transaction into one. However, any updates made to `itemPositionsInTheProject`
-        overwrite the previous ones, so we only get the last update.
-
-        So instead, we read the data from the cache. If a sync is in progress,
-        we get outdated data, but that's unlikely (we could use `.toArrayWhenReady()`
-        to wait for the sync to finish).
-      */
-      const projectsCollectionData = projectsCollection.get(projectId);
-
-      if (projectsCollectionData) {
-        updateProject({
-          projectId: projectId,
-          changes: {
-            itemPositionsInTheProject:
-              projectsCollectionData.itemPositionsInTheProject,
+    mutationFn: async ({ projectId, updatedPositions, updatedItemData }) => {
+      if (updatedItemData) {
+        await updateTodoItem({
+          data: {
+            id: updatedItemData.id,
+            boardId: updatedItemData.boardId,
           },
         });
       }
 
+      await updateProject({
+        projectId,
+        changes: {
+          itemPositionsInTheProject: updatedPositions,
+        },
+      });
+
       await todoItemsCollection.utils.refetch();
       await projectsCollection.utils.refetch();
     },
-    strategy: debounceStrategy({
-      wait: 3_000,
-    }),
   });
 
   const handleDragEnd = (event: DragEndEvent) => {
