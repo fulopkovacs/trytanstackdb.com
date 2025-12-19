@@ -1,3 +1,4 @@
+import todoItemsBatchRoutes from "./api.batch.todo-items";
 import boardRoutes from "./api.boards";
 import projectRoutes from "./api.projects";
 import todoRoutes from "./api.todo-items";
@@ -7,6 +8,7 @@ export const API = {
   "/api/projects": projectRoutes,
   "/api/boards": boardRoutes,
   "/api/todo-items": todoRoutes,
+  "/api/batch/todo-items": todoItemsBatchRoutes,
 } satisfies APIType;
 
 // type APIRoutePath = keyof typeof API;
