@@ -11,7 +11,6 @@ CREATE TABLE "projects" (
 	"name" text NOT NULL,
 	"description" text NOT NULL,
 	"created_at" date NOT NULL,
-	"item_positions_in_the_project" json DEFAULT '{}'::json NOT NULL,
 	CONSTRAINT "projects_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
