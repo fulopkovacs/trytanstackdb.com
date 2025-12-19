@@ -35,6 +35,7 @@ export const projectsTable = pgTable("projects", {
   name: text().notNull().unique(),
   description: text().notNull(),
   createdAt,
+  // Remove this
   itemPositionsInTheProject: json("item_positions_in_the_project")
     .$type<Record<string, string[]>>()
     .notNull()
@@ -64,6 +65,7 @@ export const todoItemsTable = pgTable("todo_items", {
     .references(() => boardsTable.id, { onDelete: "cascade" })
     .notNull(),
   priority: integer().default(0),
+  position: text().notNull(),
 });
 
 export type TodoItemRecord = typeof todoItemsTable.$inferSelect;

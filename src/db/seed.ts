@@ -1,5 +1,6 @@
 // Generate a seed script
 
+import { generateKeyBetween } from "fractional-indexing";
 import { nanoid } from "nanoid";
 import { db } from ".";
 import {
@@ -24,6 +25,25 @@ type ProjectBase = Omit<ProjectRecord, "itemPositionsInTheProject"> & {
   todoItemsBaseArr: TodoItemBase[];
 };
 
+// TODO: differentiate between projects and boards
+function* createNextFractionalIndexGenerator(): Generator<string | null> {
+  let prev: null | string = null;
+
+  while (true) {
+    prev = generateKeyBetween(prev, null);
+    yield prev;
+  }
+}
+
+const boardGenerators: Record<string, Generator<string | null>> = {};
+
+function getNextPosition(boardId: string): string {
+  if (!boardGenerators[boardId]) {
+    boardGenerators[boardId] = createNextFractionalIndexGenerator();
+  }
+  return boardGenerators[boardId].next().value as string;
+}
+
 const todoItemsList: TodoItemBase[] = [
   // Todo board
   {
@@ -31,12 +51,14 @@ const todoItemsList: TodoItemBase[] = [
     description: "Milk, eggs, bread",
     boardName: "Todo",
     priority: 3,
+    position: getNextPosition("board-1-todo"),
   },
   {
     title: "Read a book",
     description: "Finish reading 'Atomic Habits'",
     boardName: "Todo",
     priority: 0,
+    position: getNextPosition("board-1-todo"),
   },
   // In Progress board
   {
@@ -44,18 +66,21 @@ const todoItemsList: TodoItemBase[] = [
     description: "Draft for tech blog",
     boardName: "In Progress",
     priority: 2,
+    position: getNextPosition("board-1-in-progress"),
   },
   {
     title: "Workout",
     description: "30 min cardio",
     boardName: "In Progress",
     priority: 0,
+    position: getNextPosition("board-1-in-progress"),
   },
   {
     title: "Update resume",
     description: "Add recent projects",
     boardName: "In Progress",
     priority: 0,
+    position: getNextPosition("board-1-in-progress"),
   },
   // Done board
   {
@@ -63,21 +88,25 @@ const todoItemsList: TodoItemBase[] = [
     description: "Weekly check-in",
     boardName: "Done",
     priority: 0,
+    position: getNextPosition("board-1-done"),
   },
   {
     title: "Clean desk",
     description: "Organize workspace",
     boardName: "Done",
     priority: 0,
+    position: getNextPosition("board-1-done"),
   },
 ];
 
+const fractionalIndexGenerator2 = createNextFractionalIndexGenerator();
 const anotherTodoItemsList: TodoItemBase[] = [
   {
     title: "Plan vacation",
     description: "Research destinations and flights",
     boardName: "Todo",
     priority: 2,
+    position: getNextPosition("board-2-todo"),
   },
   // In Progress board
   {
@@ -85,6 +114,7 @@ const anotherTodoItemsList: TodoItemBase[] = [
     description: "Call clinic for available slots",
     boardName: "In Progress",
     priority: 1,
+    position: getNextPosition("board-2-in-progress"),
   },
   // Done board
   {
@@ -92,30 +122,35 @@ const anotherTodoItemsList: TodoItemBase[] = [
     description: "Complete online course modules",
     boardName: "Done",
     priority: 3,
+    position: getNextPosition("board-2-done"),
   },
   {
     title: "Organize photos",
     description: "Sort and backup recent pictures",
     boardName: "Done",
     priority: 2,
+    position: getNextPosition("board-2-done"),
   },
   {
     title: "Prepare presentation",
     description: "Create slides for team meeting",
     boardName: "Done",
     priority: 1,
+    position: getNextPosition("board-2-done"),
   },
   {
     title: "Renew library card",
     description: "Completed renewal online",
     boardName: "Done",
     priority: 0,
+    position: getNextPosition("board-2-done"),
   },
   {
     title: "Fix leaky faucet",
     description: "Replaced washer and tested",
     boardName: "Done",
     priority: 0,
+    position: getNextPosition("board-2-done"),
   },
 ];
 
@@ -125,11 +160,13 @@ const largeTodoItemsList: TodoItemBase[] = Array.from({
   const boardName = (["Todo", "In Progress", "Done"] satisfies BoardName[])[
     Math.floor(Math.random() * 10) % 3
   ];
+
   return {
     title: `Task ${index + 1}`,
     description: `Description for task ${index + 1}`,
     boardName,
     priority: 0,
+    position: getNextPosition(`large-project-board-${boardName}`),
   };
 });
 

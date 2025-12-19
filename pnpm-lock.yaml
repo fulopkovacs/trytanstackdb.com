@@ -107,6 +107,9 @@ importers:
       drizzle-orm:
         specifier: ^0.44.7
         version: 0.44.7(@electric-sql/pglite@0.3.14)(@types/better-sqlite3@7.6.13)(better-sqlite3@9.6.0)(gel@2.1.1)(kysely@0.28.8)
+      fractional-indexing:
+        specifier: ^3.2.0
+        version: 3.2.0
       lucide-react:
         specifier: ^0.544.0
         version: 0.544.0(react@19.2.0)

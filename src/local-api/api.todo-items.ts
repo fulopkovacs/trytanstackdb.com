@@ -15,6 +15,7 @@ const todoItemCreateData = z.object({
   title: z.string(),
   description: z.string().optional().nullable(),
   projectId: z.string(),
+  position: z.string(),
 });
 
 export type TodoItemCreateDataType = z.infer<typeof todoItemCreateData>;
@@ -25,6 +26,7 @@ const todoItemUpdateData = z.object({
   priority: z.number().nullable().optional(),
   title: z.string().optional(),
   description: z.string().nullable().optional(),
+  position: z.string().optional(),
 });
 
 export default {
@@ -156,7 +158,7 @@ export default {
     }
 
     if (
-      Object.keys(updatedData).length === 1 // there keys other than id
+      Object.keys(updatedData).length === 1 // there aren't keys other than id
     ) {
       return new Response(`No columns to update`, { status: 400 });
     }

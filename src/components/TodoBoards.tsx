@@ -13,15 +13,15 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { eq, useLiveQuery } from "@tanstack/react-db";
+import { generateKeyBetween } from "fractional-indexing";
 import { PlusIcon } from "lucide-react";
-import { forwardRef, useMemo, useState } from "react";
+import { forwardRef, useEffect, useMemo, useState } from "react";
 import { VList } from "virtua";
 import { boardCollection } from "@/collections/boards";
 import { projectsCollection } from "@/collections/projects";
 import { todoItemsCollection } from "@/collections/todoItems";
 import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { moveTask } from "@/utils/moveTask";
 import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 import { PriorityRatingPopup } from "./PriorityRating";
 import { Button } from "./ui/button";
@@ -38,6 +38,28 @@ const COLUMN_COLORS = {
   "In Progress": "#1976D2",
   Done: "#43A047",
 };
+
+function findPrevItem<
+  T extends { boardId: string; todoItemId: string },
+  U extends T,
+>({
+  todoItems,
+  target,
+}: {
+  /**
+    The todo items must be sorted by position ascending
+  */
+  todoItems: U[];
+  target: T;
+}) {
+  const targetIndex = todoItems.findIndex(
+    (t) => t.todoItemId === target.todoItemId,
+  );
+
+  const prev = todoItems[targetIndex - 1];
+
+  return prev?.boardId === target.boardId ? prev : null;
+}
 
 function handlePriorityPointerDown(e: React.PointerEvent) {
   e.stopPropagation();
@@ -138,40 +160,35 @@ function Board({
   const { data: todoItems } = useLiveQuery((q) =>
     q
       .from({ todoItem: todoItemsCollection })
-      .where(({ todoItem }) => eq(todoItem.boardId, board.id)),
+      .where(({ todoItem }) => eq(todoItem.boardId, board.id))
+      .orderBy(({ todoItem }) => todoItem.position, {
+        direction: "asc",
+        /*
+          We use fractional indexes, so we need lexical sorting to get the correct order.
+
+          Ascending order of ["Zz",  "a0"] is:
+          - lexical string sort: ["Zz",  "a0"]
+          - default result (uses "locale"): ["a0", "Zz"]
+        */
+        stringSort: "lexical",
+      }),
   );
 
   const { active, over } = useDndContext();
 
-  const { orderedTodoItems, dropIndex } = useMemo(() => {
+  const dropIndex = useMemo(() => {
     const orderMap = new Map<string, number>();
     orderedIds.forEach((id, idx) => {
       orderMap.set(id, idx);
     });
 
-    const orderedTodoItems = todoItems.sort((a, b) => {
-      // If id not found, put it at the end
-      const practicallyInfinite = 10_0000; // realistically we won't have this many items in this array
-
-      // const idxA1 = orderMap.get(a.id);
-      // if (idxA1 === undefined) throw new Error("idxA1 is undefined");
-      // const idxB1 = orderMap.get(b.id);
-      // if (idxB1 === undefined) throw new Error("idxB1 is undefined");
-
-      const idxA = orderMap.get(a.id) ?? practicallyInfinite;
-      const idxB = orderMap.get(b.id) ?? practicallyInfinite;
-      return idxA - idxB;
-    });
-
     // Calculate drop index for indicator
     let dropIndex = -1;
     if (active && over && active.id !== over.id) {
-      const overTaskIndex = orderedTodoItems.findIndex(
-        (item) => item.id === over.id,
-      );
+      const overTaskIndex = todoItems.findIndex((item) => item.id === over.id);
       if (overTaskIndex !== -1) {
         // Show indicator before the over item
-        const activeTaskIndex = orderedTodoItems.findIndex(
+        const activeTaskIndex = todoItems.findIndex(
           (item) => item.id === active.id,
         );
         // Only hide the indicator if the active item is in this column and would be in the same position
@@ -180,20 +197,20 @@ function Board({
         }
       } else if (over.id === board.id) {
         // Dropping on this column (empty or at the end)
-        const activeTaskIndex = orderedTodoItems.findIndex(
+        const activeTaskIndex = todoItems.findIndex(
           (item) => item.id === active.id,
         );
         // Only hide the indicator if the active item is in this column and would be at the end
         if (
           activeTaskIndex === -1 ||
-          activeTaskIndex !== orderedTodoItems.length - 1
+          activeTaskIndex !== todoItems.length - 1
         ) {
-          dropIndex = orderedTodoItems.length;
+          dropIndex = todoItems.length;
         }
       }
     }
 
-    return { orderedTodoItems, dropIndex };
+    return dropIndex;
   }, [todoItems, orderedIds, active, over, board.id]);
 
   const { setNodeRef } = useDroppable({ id: board.id });
@@ -237,10 +254,10 @@ function Board({
       >
         <SortableContext
           strategy={verticalListSortingStrategy}
-          items={orderedTodoItems.map((task) => task.id)}
+          items={todoItems.map((task) => task.id)}
         >
           <VList>
-            {orderedTodoItems.map((todoItem, index) => {
+            {todoItems.map((todoItem, index) => {
               const showDropIndicator = active && dropIndex === index;
               return (
                 <div key={`${todoItem.id}-wrapper`}>
@@ -251,7 +268,7 @@ function Board({
                 </div>
               );
             })}
-            {active && dropIndex === orderedTodoItems.length && (
+            {active && dropIndex === todoItems.length && (
               <div className="h-0.5 bg-blue-500 mx-2 my-1 rounded-full" />
             )}
           </VList>
@@ -306,6 +323,61 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     [projectId],
   );
 
+  // TODO: finish this
+  // const { data: todoItemsPerBoard } = useLiveQuery(
+  //   (q) =>
+  //     q
+  //       .from({
+  //         todoItem: todoItemsCollection,
+  //       })
+  //       .groupBy(({ todoItem }) => todoItem.boardId),
+  //
+  //   [projectId],
+  // );
+
+  const { data: maxTodoItemsBoard } = useLiveQuery(
+    (q) =>
+      q
+        .from({
+          todoItem: todoItemsCollection,
+        })
+        .innerJoin({ board: boardCollection }, ({ todoItem, board }) =>
+          eq(todoItem.boardId, board.id),
+        )
+        .innerJoin({ project: projectsCollection }, ({ board, project }) =>
+          eq(board.projectId, project.id),
+        )
+        .where(({ project }) => eq(project.id, projectId))
+        .select(({ todoItem, board }) => ({
+          boardId: todoItem.boardId,
+          boardName: board.name,
+          todoTitle: todoItem.title,
+          projectId: projectId,
+          position: todoItem.position,
+          todoItemId: todoItem.id,
+        }))
+        .orderBy(({ todoItem }) => [todoItem.boardId, todoItem.position], {
+          direction: "asc",
+          /*
+            We use fractional indexes, so we need lexical sorting to get the correct order.
+
+            Ascending order of ["Zz",  "a0"] is:
+            - lexical string sort: ["Zz",  "a0"]
+            - default result (uses "locale"): ["a0", "Zz"]
+          */
+          stringSort: "lexical",
+        }),
+    [projectId],
+  );
+
+  useEffect(() => {
+    console.log({
+      todoItemsOnBoard: maxTodoItemsBoard.map(
+        ({ projectId: _, boardId: __, todoItemId: ___, ...t }) => t,
+      ),
+    });
+  }, [maxTodoItemsBoard]);
+
   // const [state, dispatch] = useReducer(reducer, boardsWithOrderedIndices);
   //
   // const {
@@ -322,23 +394,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     setActiveId(event.active.id);
   };
 
-  // TODO: this should be an optimisticAction
-  // that updates both todoItems and projects collections.
-  // That would give us proper rollbacks on errors.
-  function updatePositionsInProject(
-    updatedPositions: Record<string, string[]>,
-  ) {
-    const oldPositions = project.itemPositionsInTheProject;
-
-    projectsCollection.update(project.id, (item) => {
-      item.itemPositionsInTheProject = {
-        ...oldPositions,
-        ...updatedPositions,
-      };
-    });
-  }
-
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     // TODO: Fix this mess lol, I didn't have time T-T
     // BUG: when you drag a task to the first position of another
     // not-empty column, you don't see the placeholder
@@ -346,26 +402,23 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     setActiveId(null);
 
     if (!over) return;
-    const state = project.itemPositionsInTheProject;
 
     // Find which column the dragged task is in
 
     if (boards.some((board) => board.id === over.id)) {
       // This is either an empty column or the last place of a column
       const newBoardId = over.id;
-      const oldBoardId = activeTodoItem.boardId;
+      const lastPositionInNewColumn = maxTodoItemsBoard.findLast(
+        (t) => t.boardId === newBoardId,
+      )?.position;
+
+      const newPosition = lastPositionInNewColumn
+        ? generateKeyBetween(lastPositionInNewColumn, null)
+        : generateKeyBetween(null, null);
 
       todoItemsCollection.update(active.id, (item) => {
         item.boardId = newBoardId as string;
-      });
-
-      // Update the ordered indices in the state
-      const oldColumnIds = state[activeTodoItem.boardId] || [];
-      const newColumnIds = state[newBoardId] || [];
-
-      updatePositionsInProject({
-        [oldBoardId]: oldColumnIds.filter((id) => id !== active.id),
-        [newBoardId]: [...newColumnIds, active.id as string],
+        item.position = newPosition;
       });
     } else {
       const overTodoItem = todoItemsCollection.toArray.find(
@@ -374,36 +427,45 @@ export function TodoBoards({ projectId }: { projectId: string }) {
 
       if (overTodoItem?.boardId === activeTodoItem.boardId) {
         // Reorder within the same column
-        const orderedColumnIds = state[activeTodoItem.boardId] || [];
-        const oldIndex = orderedColumnIds.indexOf(active.id as string);
-        const newIndex = orderedColumnIds.indexOf(over.id as string);
-        // Reorder the tasks in the column
-        // All indices below the new position got decreased by 1
-        const newColumnTasks = moveTask(orderedColumnIds, oldIndex, newIndex);
-        // console.log({ oldIndex, newIndex });
 
-        updatePositionsInProject({
-          [activeTodoItem.boardId]: newColumnTasks,
+        const prev = findPrevItem({
+          todoItems: maxTodoItemsBoard,
+          target: {
+            boardId: overTodoItem.boardId,
+            todoItemId: overTodoItem.id as string,
+          },
+        });
+
+        // Generate position between the item before 'over' and 'over' itself
+        const newPosition = generateKeyBetween(
+          prev?.position ?? null,
+          overTodoItem.position,
+        );
+
+        todoItemsCollection.update(active.id, (item) => {
+          item.position = newPosition;
         });
       } else if (overTodoItem) {
         // Move to another column and insert at the correct position
-        const oldColumnIds = state[activeTodoItem.boardId] || [];
-        const newColumnIds = state[overTodoItem.boardId] || [];
-
-        const newIndex = newColumnIds.indexOf(over.id as string);
-
-        const oldBoardId = activeTodoItem.boardId;
         const newBoardId = overTodoItem.boardId;
+
+        const prev = findPrevItem({
+          todoItems: maxTodoItemsBoard,
+          target: {
+            boardId: overTodoItem.boardId,
+            todoItemId: overTodoItem.id as string,
+          },
+        });
+
+        // Generate position between the item before 'over' and 'over' itself
+        const newPosition = generateKeyBetween(
+          prev?.position ?? null,
+          overTodoItem.position,
+        );
 
         todoItemsCollection.update(active.id, (item) => {
           item.boardId = newBoardId as string;
-        });
-
-        newColumnIds.splice(newIndex, 0, activeTodoItem.id);
-
-        updatePositionsInProject({
-          [oldBoardId]: oldColumnIds.filter((id) => id !== active.id),
-          [newBoardId]: newColumnIds,
+          item.position = newPosition;
         });
       } else {
         console.error("overTodoId not found");
