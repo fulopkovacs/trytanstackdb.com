@@ -15,7 +15,7 @@ import {
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { generateKeyBetween } from "fractional-indexing";
 import { PlusIcon } from "lucide-react";
-import { forwardRef, useEffect, useMemo, useState } from "react";
+import { forwardRef, useMemo, useState } from "react";
 import { VList } from "virtua";
 import { boardCollection } from "@/collections/boards";
 import { projectsCollection } from "@/collections/projects";
@@ -289,11 +289,7 @@ function LoadingTodoBoards() {
 }
 
 export function TodoBoards({ projectId }: { projectId: string }) {
-  // const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-
-  // const [inProgresIdsOrdered, setInProgressIdsOrdered] =
-  //   useState<string[]>(initialOrder);
 
   const { data: boards, isLoading: isLoadingBoards } = useLiveQuery(
     (q) =>
@@ -322,18 +318,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         .where(({ project }) => eq(project.id, projectId)),
     [projectId],
   );
-
-  // TODO: finish this
-  // const { data: todoItemsPerBoard } = useLiveQuery(
-  //   (q) =>
-  //     q
-  //       .from({
-  //         todoItem: todoItemsCollection,
-  //       })
-  //       .groupBy(({ todoItem }) => todoItem.boardId),
-  //
-  //   [projectId],
-  // );
 
   const { data: maxTodoItemsBoard } = useLiveQuery(
     (q) =>
@@ -370,34 +354,11 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     [projectId],
   );
 
-  useEffect(() => {
-    console.log({
-      todoItemsOnBoard: maxTodoItemsBoard.map(
-        ({ projectId: _, boardId: __, todoItemId: ___, ...t }) => t,
-      ),
-    });
-  }, [maxTodoItemsBoard]);
-
-  // const [state, dispatch] = useReducer(reducer, boardsWithOrderedIndices);
-  //
-  // const {
-  //   data: [overTodoItem],
-  // } = useLiveQuery(
-  //   (q) =>
-  //     q
-  //       .from({ todoItem: todoItemsCollection })
-  //       .where(({ todoItem }) => eq(todoItem.id, overId)),
-  //   [overId],
-  // );
-
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    // TODO: Fix this mess lol, I didn't have time T-T
-    // BUG: when you drag a task to the first position of another
-    // not-empty column, you don't see the placeholder
     const { active, over } = event;
     setActiveId(null);
 
