@@ -1,10 +1,4 @@
-import {
-  date,
-  integer,
-  pgTable,
-  text,
-  unique,
-} from "drizzle-orm/pg-core";
+import { date, integer, pgTable, text, unique } from "drizzle-orm/pg-core";
 
 /**
   Stores the creation timestamp in milliseconds since epoch.
