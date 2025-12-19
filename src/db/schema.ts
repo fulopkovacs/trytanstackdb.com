@@ -1,4 +1,11 @@
-import { date, integer, pgTable, text, unique } from "drizzle-orm/pg-core";
+import {
+  date,
+  index,
+  integer,
+  pgTable,
+  text,
+  unique,
+} from "drizzle-orm/pg-core";
 
 /**
   Stores the creation timestamp in milliseconds since epoch.
@@ -44,17 +51,23 @@ export const boardsTable = pgTable("boards", {
 
 export type BoardRecord = typeof boardsTable.$inferSelect;
 
-export const todoItemsTable = pgTable("todo_items", {
-  id: text().primaryKey(), // nanoid
-  title: text().notNull(),
-  description: text(),
-  createdAt,
-  boardId: text("board_id")
-    .references(() => boardsTable.id, { onDelete: "cascade" })
-    .notNull(),
-  priority: integer().default(0),
-  position: text().notNull(),
-});
+export const todoItemsTable = pgTable(
+  "todo_items",
+  {
+    id: text().primaryKey(), // nanoid
+    title: text().notNull(),
+    description: text(),
+    createdAt,
+    boardId: text("board_id")
+      .references(() => boardsTable.id, { onDelete: "cascade" })
+      .notNull(),
+    priority: integer().default(0),
+    position: text().notNull(),
+  },
+  (table) => [
+    index("todo_items_board_id_position_idx").on(table.boardId, table.position),
+  ],
+);
 
 export type TodoItemRecord = typeof todoItemsTable.$inferSelect;
 

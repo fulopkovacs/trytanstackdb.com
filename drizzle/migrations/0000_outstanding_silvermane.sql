@@ -39,4 +39,5 @@ CREATE TABLE "users" (
 );
 --> statement-breakpoint
 ALTER TABLE "boards" ADD CONSTRAINT "boards_project_id_projects_id_fk" FOREIGN KEY ("project_id") REFERENCES "public"."projects"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "todo_items" ADD CONSTRAINT "todo_items_board_id_boards_id_fk" FOREIGN KEY ("board_id") REFERENCES "public"."boards"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "todo_items" ADD CONSTRAINT "todo_items_board_id_boards_id_fk" FOREIGN KEY ("board_id") REFERENCES "public"."boards"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "todo_items_board_id_position_idx" ON "todo_items" USING btree ("board_id","position");

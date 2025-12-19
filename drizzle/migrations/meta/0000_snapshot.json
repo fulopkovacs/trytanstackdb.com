@@ -1,5 +1,5 @@
 {
-  "id": "37b57fcb-1b86-4870-91d7-5221d69d49d9",
+  "id": "58ddc186-dd38-49a3-81e4-b0e9c8528908",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -185,7 +185,29 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "todo_items_board_id_position_idx": {
+          "name": "todo_items_board_id_position_idx",
+          "columns": [
+            {
+              "expression": "board_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "position",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "todo_items_board_id_boards_id_fk": {
           "name": "todo_items_board_id_boards_id_fk",
