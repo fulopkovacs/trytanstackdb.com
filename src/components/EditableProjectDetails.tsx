@@ -95,7 +95,7 @@ function LoadingEditableProjects() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        <Skeleton className="size-9 scroll-m-40 text-2xl font-extrabold tracking-tight w-20" />
+        <Skeleton className="size-9 scroll-m-40 text-2xl font-extrabold w-20" />
       </div>
       <Skeleton className="h-(--text-xl) w-80" />
     </div>
@@ -146,7 +146,7 @@ export function EditableProjectDetails({ projectId }: { projectId: string }) {
     <HighlightWrapper highlightId="project_projectPage">
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
-          <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight">
+          <h1 className="scroll-m-20 text-2xl font-extrabold">
             {project.name}
           </h1>
           <EditProjectNamePopover name={project.name} id={project.id} />
