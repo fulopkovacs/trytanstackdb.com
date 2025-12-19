@@ -351,7 +351,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     [activeId, projectId],
   );
 
-  const { data: maxTodoItemsBoard } = useLiveQuery(
+  const { data: orderedTodoItems } = useLiveQuery(
     (q) =>
       q
         .from({
@@ -401,7 +401,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     if (boards.some((board) => board.id === over.id)) {
       // This is either an empty column or the last place of a column
       const newBoardId = over.id;
-      const lastPositionInNewColumn = maxTodoItemsBoard.findLast(
+      const lastPositionInNewColumn = orderedTodoItems.findLast(
         (t) => t.boardId === newBoardId,
       )?.position;
 
@@ -423,7 +423,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         // Reorder within the same column
 
         const prev = findPrevItem({
-          todoItems: maxTodoItemsBoard,
+          todoItems: orderedTodoItems,
           target: {
             boardId: overTodoItem.boardId,
             todoItemId: overTodoItem.id as string,
@@ -445,7 +445,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         const newBoardId = overTodoItem.boardId;
 
         const prev = findPrevItem({
-          todoItems: maxTodoItemsBoard,
+          todoItems: orderedTodoItems,
           target: {
             boardId: overTodoItem.boardId,
             todoItemId: overTodoItem.id as string,
