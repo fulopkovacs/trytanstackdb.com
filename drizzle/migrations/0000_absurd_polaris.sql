@@ -27,7 +27,8 @@ CREATE TABLE "todo_items" (
 	"description" text,
 	"created_at" date NOT NULL,
 	"board_id" text NOT NULL,
-	"priority" integer DEFAULT 0
+	"priority" integer DEFAULT 0,
+	"position" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
