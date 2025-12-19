@@ -73,7 +73,7 @@ function ErrorComponent({ error }: { error: unknown }) {
             </>
           ) : null}
           <p className="font-bold">Error message:</p>
-          <pre className="wrap-break-word whitespace-pre-wrap text max-h-40 text-muted-foreground">
+          <pre className="wrap-break-word whitespace-pre-wrap text max-h-40 text-muted-foreground overflow-y-auto">
             {error instanceof Error ? error.message : String(error)}
           </pre>
         </CardContent>
