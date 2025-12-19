@@ -21,11 +21,10 @@ type TodoItemBase = Omit<
   "id" | "boardId" | "tempDbId" | "createdAt"
 > & { boardName: BoardName };
 
-type ProjectBase = Omit<ProjectRecord, "itemPositionsInTheProject"> & {
+type ProjectBase = ProjectRecord & {
   todoItemsBaseArr: TodoItemBase[];
 };
 
-// TODO: differentiate between projects and boards
 function* createNextFractionalIndexGenerator(): Generator<string | null> {
   let prev: null | string = null;
 
@@ -294,30 +293,11 @@ function getMockData() {
       { boards: [] as BoardRecord[], todoItems: [] as TodoItemRecord[] },
     );
 
-  const projectsWithPositions: ProjectRecord[] = mockProjects.map((project) => {
-    const projectBoards = mockBoards.filter(
-      (board) => board.projectId === project.id,
-    );
-    const itemPositionsInTheProject: Record<string, string[]> = {};
-
-    for (const board of projectBoards) {
-      const itemsInBoard = mockTodoItems
-        .filter((item) => item.boardId === board.id)
-        .map((item) => item.id);
-      itemPositionsInTheProject[board.id] = itemsInBoard;
-    }
-
-    return {
-      ...project,
-      itemPositionsInTheProject,
-    };
-  });
-
   return {
     mockUsers,
     mockBoards,
     mockTodoItems,
-    mockProjects: projectsWithPositions,
+    mockProjects,
   };
 }
 
