@@ -1,5 +1,5 @@
 {
-  "id": "8dcd2ece-b661-4b4c-9c22-d766427f26f7",
+  "id": "37b57fcb-1b86-4870-91d7-5221d69d49d9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -88,13 +88,6 @@
           "type": "date",
           "primaryKey": false,
           "notNull": true
-        },
-        "item_positions_in_the_project": {
-          "name": "item_positions_in_the_project",
-          "type": "json",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::json"
         }
       },
       "indexes": {},
