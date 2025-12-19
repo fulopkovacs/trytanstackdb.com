@@ -99,7 +99,6 @@ const todoItemsList: TodoItemBase[] = [
   },
 ];
 
-const fractionalIndexGenerator2 = createNextFractionalIndexGenerator();
 const anotherTodoItemsList: TodoItemBase[] = [
   {
     title: "Plan vacation",

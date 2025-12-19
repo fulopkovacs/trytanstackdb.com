@@ -67,10 +67,7 @@ export const todoItemsCollection = createCollection(
 
       try {
         await insertTodoItem({
-          data: {
-            projectId: "project-id-placeholder", // we won't run it directly
-            ...newTodoItem,
-          },
+          data: newTodoItem,
         });
       } catch (error) {
         // TODO: handle error

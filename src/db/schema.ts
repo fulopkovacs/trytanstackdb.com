@@ -1,7 +1,6 @@
 import {
   date,
   integer,
-  json,
   pgTable,
   text,
   unique,
@@ -35,11 +34,6 @@ export const projectsTable = pgTable("projects", {
   name: text().notNull().unique(),
   description: text().notNull(),
   createdAt,
-  // Remove this
-  itemPositionsInTheProject: json("item_positions_in_the_project")
-    .$type<Record<string, string[]>>()
-    .notNull()
-    .default({}),
 });
 
 export type ProjectRecord = typeof projectsTable.$inferSelect;

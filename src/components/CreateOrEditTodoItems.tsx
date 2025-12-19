@@ -1,9 +1,8 @@
-import { createOptimisticAction } from "@tanstack/db";
+import { generateKeyBetween } from "fractional-indexing";
 import { nanoid } from "nanoid";
 import { useCallback, useState } from "react";
 import z from "zod";
-import { projectsCollection } from "@/collections/projects";
-import { insertTodoItem, todoItemsCollection } from "@/collections/todoItems";
+import { todoItemsCollection } from "@/collections/todoItems";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,46 +16,10 @@ import {
 import type { TodoItemRecord } from "@/db/schema";
 import { useAppForm } from "@/hooks/app.form";
 
-type CreateTodoItemInput = {
-  id: string;
-  boardId: string;
-  title: string;
-  description: string;
-  projectId: string;
-  createdAtTimestampMs: number;
-};
-
-const createTodoItem = createOptimisticAction({
-  id: "create-todo-item",
-  autoCommit: true,
-  onMutate: (newItemData: CreateTodoItemInput) => {
-    todoItemsCollection.insert({
-      createdAt: new Date(),
-      ...newItemData,
-      priority: 0,
-    });
-
-    projectsCollection.update(newItemData.projectId, (project) => {
-      project.itemPositionsInTheProject[newItemData.boardId].unshift(
-        newItemData.id,
-      );
-    });
-  },
-  mutationFn: async (newItemData: CreateTodoItemInput) => {
-    await insertTodoItem({
-      data: newItemData,
-    });
-    await todoItemsCollection.utils.refetch();
-    await projectsCollection.utils.refetch();
-  },
-});
-
 export function CreateOrEditTodoItems({
-  projectId,
   todoItem,
   children,
 }: {
-  projectId: string;
   todoItem: Partial<TodoItemRecord> & Pick<TodoItemRecord, "boardId">;
   children: React.ReactNode;
 }) {
@@ -69,7 +32,7 @@ export function CreateOrEditTodoItems({
       title: todoItem.title || "",
       description: todoItem.description || "",
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       const itemId = todoItem.id || nanoid();
 
       // NOTE: It'd be better to use a manual transaction here to ensure both operations
@@ -77,13 +40,22 @@ export function CreateOrEditTodoItems({
       // transactions yet, so we can't make an endpoint that does both of these operations
 
       if (isNewItem) {
-        createTodoItem({
+        // Find the first position in the board to prepend the new item
+        const itemsInBoard = (await todoItemsCollection.toArrayWhenReady())
+          .filter((item) => item.boardId === todoItem.boardId)
+          .sort((a, b) => (a.position < b.position ? -1 : 1));
+
+        const firstPosition = itemsInBoard[0]?.position;
+        const newPosition = generateKeyBetween(null, firstPosition ?? null);
+
+        todoItemsCollection.insert({
           id: itemId,
           boardId: todoItem.boardId,
-          projectId: projectId,
           title: value.title,
           description: value.description,
-          createdAtTimestampMs: Date.now(),
+          position: newPosition,
+          priority: 0,
+          createdAt: new Date(),
         });
       } else {
         todoItemsCollection.update(itemId, (item) => {

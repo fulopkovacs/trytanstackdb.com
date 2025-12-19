@@ -1,11 +1,7 @@
 import { eq } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
-import {
-  projectsTable,
-  type TodoItemRecord,
-  todoItemsTable,
-} from "@/db/schema";
+import { type TodoItemRecord, todoItemsTable } from "@/db/schema";
 import { type APIRouteHandler, json } from "./helpers";
 
 const todoItemCreateData = z.object({
@@ -14,7 +10,6 @@ const todoItemCreateData = z.object({
   priority: z.number().min(0).max(3).int().optional().nullable(),
   title: z.string(),
   description: z.string().optional().nullable(),
-  projectId: z.string(),
   position: z.string(),
 });
 
@@ -38,7 +33,6 @@ export default {
   POST: async ({ request }) => {
     // Create new todo item
     let newTodoItemData: Omit<z.infer<typeof todoItemCreateData>, "projectId">;
-    let projectId: string;
     // biome-ignore lint/suspicious/noExplicitAny: it can be any here
     let bodyObj: any;
 
@@ -50,9 +44,7 @@ export default {
     }
 
     try {
-      const { projectId: projectIdFromPayload, ...todoItemData } =
-        todoItemCreateData.parse(bodyObj);
-      projectId = projectIdFromPayload;
+      const todoItemData = todoItemCreateData.parse(bodyObj);
       newTodoItemData = todoItemData;
     } catch (e) {
       console.error("Validation error:", e);
@@ -77,52 +69,6 @@ export default {
       createdAt: new Date(),
       priority: 0,
     } satisfies TodoItemRecord);
-
-    try {
-      // Update the order index in the project
-      const [project] = await db
-        .select({
-          id: projectsTable.id,
-          itemPositionsInTheProject: projectsTable.itemPositionsInTheProject,
-        })
-        .from(projectsTable)
-        .where(eq(projectsTable.id, projectId));
-
-      if (!project) {
-        throw new Error(`Project not found: ${projectId}`);
-      }
-
-      project.itemPositionsInTheProject[newTodoItemData.boardId] =
-        project.itemPositionsInTheProject[newTodoItemData.boardId] || [];
-      project.itemPositionsInTheProject[newTodoItemData.boardId].unshift(
-        newTodoItemData.id,
-      );
-
-      await db
-        .update(projectsTable)
-        .set({
-          itemPositionsInTheProject: project.itemPositionsInTheProject,
-        })
-        .where(eq(projectsTable.id, project.id));
-    } catch (e) {
-      // roll back
-      try {
-        await db
-          .delete(todoItemsTable)
-          .where(eq(todoItemsTable.id, newTodoItemData.id));
-      } catch (deleteError) {
-        console.error(
-          "Error rolling back todo item after project update failure:",
-          deleteError,
-        );
-        return new Response("Todo item insert rollback failed", {
-          status: 500,
-        });
-      }
-
-      console.error("Database error:", e);
-      return new Response("Could not insert todo item", { status: 500 });
-    }
 
     return json(
       { created: "ok" },

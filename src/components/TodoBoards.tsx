@@ -95,7 +95,7 @@ const TaskBase = forwardRef<
       </div>
       <div className="text-sm text-muted-foreground">{task.description}</div>
       {projectId ? (
-        <CreateOrEditTodoItems todoItem={task} projectId={projectId}>
+        <CreateOrEditTodoItems todoItem={task}>
           <Button
             onPointerDown={handlePriorityPointerDown}
             onKeyDownCapture={(e) => {
@@ -150,11 +150,9 @@ function DraggableTask({
 
 function Board({
   board,
-  orderedIds,
   projectId,
 }: {
   board: BoardRecord;
-  orderedIds: string[];
   projectId: string;
 }) {
   const { data: todoItems } = useLiveQuery((q) =>
@@ -177,11 +175,6 @@ function Board({
   const { active, over } = useDndContext();
 
   const dropIndex = useMemo(() => {
-    const orderMap = new Map<string, number>();
-    orderedIds.forEach((id, idx) => {
-      orderMap.set(id, idx);
-    });
-
     // Calculate drop index for indicator
     let dropIndex = -1;
     if (active && over && active.id !== over.id) {
@@ -211,7 +204,7 @@ function Board({
     }
 
     return dropIndex;
-  }, [todoItems, orderedIds, active, over, board.id]);
+  }, [todoItems, active, over, board.id]);
 
   const { setNodeRef } = useDroppable({ id: board.id });
 
@@ -234,10 +227,7 @@ function Board({
         <CardDescription className="min-h-10">
           {board.description}
         </CardDescription>
-        <CreateOrEditTodoItems
-          todoItem={{ boardId: board.id }}
-          projectId={board.projectId}
-        >
+        <CreateOrEditTodoItems todoItem={{ boardId: board.id }}>
           <Button variant={"secondary"}>
             <PlusIcon /> Add Task
           </Button>
@@ -307,16 +297,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         .from({ todoItem: todoItemsCollection })
         .where(({ todoItem }) => eq(todoItem.id, activeId)),
     [activeId, projectId],
-  );
-
-  const {
-    data: [project],
-  } = useLiveQuery(
-    (q) =>
-      q
-        .from({ project: projectsCollection })
-        .where(({ project }) => eq(project.id, projectId)),
-    [projectId],
   );
 
   const { data: maxTodoItemsBoard } = useLiveQuery(
@@ -448,12 +428,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         <div className="grid grid-cols-3 gap-4 h-full min-h-0">
           {isLoadingBoards && <LoadingTodoBoards />}
           {sortedBoards.map((board) => (
-            <Board
-              projectId={projectId}
-              board={board}
-              key={board.id}
-              orderedIds={project.itemPositionsInTheProject[board.id] || []}
-            />
+            <Board projectId={projectId} board={board} key={board.id} />
           ))}
         </div>
         <DragOverlay>
