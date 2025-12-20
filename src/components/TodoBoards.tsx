@@ -330,7 +330,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
       // Refetch to ensure consistency with backend
       await todoItemsCollection.utils.refetch();
     },
-    strategy: debounceStrategy({ wait: 1_500 }),
+    strategy: debounceStrategy({ wait: 3000 }),
   });
 
   const { data: boards, isLoading: isLoadingBoards } = useLiveQuery(
