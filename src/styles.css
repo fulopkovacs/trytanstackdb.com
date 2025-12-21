@@ -43,7 +43,7 @@ code {
   --muted:
     oklch(0.9551 0 0);
   --muted-foreground:
-    oklch(0.3211 0 0);
+    oklch(0.553 0.013 58.071);
   --accent:
     oklch(0.9244 0.1203 95.8453);
   --accent-foreground:
@@ -375,7 +375,7 @@ code {
   body {
     @apply bg-background text-foreground;
     letter-spacing:
-    var(--tracking-normal);
+      var(--tracking-normal);
   }
 
   /* Custom scrollbar styles for Chrome/Safari */
