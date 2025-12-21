@@ -19,7 +19,12 @@ import {
   usePacedMutations,
 } from "@tanstack/react-db";
 import { generateKeyBetween } from "fractional-indexing";
-import { PlusIcon } from "lucide-react";
+import {
+  CircleCheckBigIcon,
+  LayoutListIcon,
+  LoaderIcon,
+  PlusIcon,
+} from "lucide-react";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { VList } from "virtua";
 import { boardCollection } from "@/collections/boards";
@@ -33,14 +38,15 @@ import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
 import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 import { PriorityRatingPopup } from "./PriorityRating";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 
-const COLUMN_COLORS = {
-  Todo: "#FFB300",
-  "In Progress": "#1976D2",
-  Done: "#43A047",
-};
+enum BoardName {
+  Todo = "Todo",
+  InProgress = "In Progress",
+  Done = "Done",
+}
 
 function DropIndicator() {
   return <div className="h-0.5 bg-primary mx-2 my-1 rounded-full" />;
@@ -262,27 +268,27 @@ function Board({
 
   const { setNodeRef } = useDroppable({ id: board.id });
 
-  const color =
-    COLUMN_COLORS[board.name as keyof typeof COLUMN_COLORS] || "#999999";
-
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-2">
-          <div
-            data-color={color}
-            style={{ backgroundColor: color }}
-            className={cn("h-2 w-2 rounded-full")}
-          />
-          <h2 className="text-lg font-semibold">
-            {board.name} ({todoItems.length} tasks)
-          </h2>
+          <div>
+            {board.name === BoardName.Done ? (
+              <CircleCheckBigIcon />
+            ) : board.name === BoardName.InProgress ? (
+              <LoaderIcon />
+            ) : (
+              <LayoutListIcon />
+            )}
+          </div>
+          <h2 className="text-lg font-semibold">{board.name}</h2>
+          <Badge variant={"secondary"}>{todoItems.length} tasks</Badge>
         </div>
-        <p className="text-sm text-muted-foreground min-h-10 mb-3">
+        <p className="text-sm text-muted-foreground mb-3">
           {board.description}
         </p>
         <CreateOrEditTodoItems todoItem={{ boardId: board.id }}>
-          <Button variant={"secondary"}>
+          <Button className="w-full" variant={"outline"}>
             <PlusIcon /> Add Task
           </Button>
         </CreateOrEditTodoItems>
