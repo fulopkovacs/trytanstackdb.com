@@ -268,9 +268,7 @@ function Board({
                 </div>
               );
             })}
-            {active && dropIndex === todoItems.length && (
-              <div className="h-0.5 bg-blue-500 mx-2 my-1 rounded-full" />
-            )}
+            {active && dropIndex === todoItems.length && <ShowDropIndicator />}
           </VList>
         </SortableContext>
       </CardContent>
