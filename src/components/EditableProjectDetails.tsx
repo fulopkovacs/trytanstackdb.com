@@ -144,7 +144,7 @@ export function EditableProjectDetails({ projectId }: { projectId: string }) {
     <LoadingEditableProjects />
   ) : project ? (
     <HighlightWrapper highlightId="project_projectPage">
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col mb-6 gap-1">
         <div className="flex items-center gap-2">
           <h1 className="scroll-m-20 text-2xl font-bold">{project.name}</h1>
           <EditProjectNamePopover name={project.name} id={project.id} />
