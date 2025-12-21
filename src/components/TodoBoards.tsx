@@ -47,6 +47,10 @@ const COLUMN_COLORS = {
   Done: "#43A047",
 };
 
+function ShowDropIndicator() {
+  return <div className="h-0.5 bg-primary mx-2 my-1 rounded-full" />;
+}
+
 function findPrevItem<
   T extends { boardId: string; todoItemId: string },
   U extends T,
@@ -259,9 +263,7 @@ function Board({
               const showDropIndicator = active && dropIndex === index;
               return (
                 <div key={`${todoItem.id}-wrapper`}>
-                  {showDropIndicator && (
-                    <div className="h-0.5 bg-blue-500 mx-2 my-1 rounded-full" />
-                  )}
+                  {showDropIndicator && <ShowDropIndicator />}
                   <DraggableTask projectId={projectId} task={todoItem} />
                 </div>
               );
