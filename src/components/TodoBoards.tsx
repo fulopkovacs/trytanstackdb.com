@@ -224,7 +224,7 @@ function Board({
     COLUMN_COLORS[board.name as keyof typeof COLUMN_COLORS] || "#999999";
 
   return (
-    <Card className="bg-sidebar flex flex-col flex-1 min-h-0">
+    <Card className="flex flex-col flex-1 min-h-0">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <div
