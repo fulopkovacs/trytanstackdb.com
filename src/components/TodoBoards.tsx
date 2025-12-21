@@ -33,13 +33,7 @@ import { cn } from "@/lib/utils";
 import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 import { PriorityRatingPopup } from "./PriorityRating";
 import { Button } from "./ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 
 const COLUMN_COLORS = {
   Todo: "#FFB300",
@@ -88,52 +82,50 @@ const TaskBase = forwardRef<
   // Prevent drag when clicking on PriorityRatingPopup
 
   return (
-    <div
-      {...props}
-      ref={ref}
-      className={cn(
-        "select-none p-2 mb-2 bg-background rounded shadow-sm flex flex-col gap-2",
-        className,
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <div>{task.title}</div>
-        <div
-          onPointerDown={handlePriorityPointerDown}
-          style={{ cursor: "pointer" }}
-        >
-          <PriorityRatingPopup priority={task.priority} todoItemId={task.id} />
-        </div>
-      </div>
-      <div className="text-sm text-muted-foreground">{task.description}</div>
-      {projectId ? (
-        <CreateOrEditTodoItems todoItem={task}>
-          <Button
+    <Card {...props} ref={ref} className={cn("select-none mb-2", className)}>
+      <CardContent className="p-3 flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div className="font-medium">{task.title}</div>
+          <div
             onPointerDown={handlePriorityPointerDown}
-            onKeyDownCapture={(e) => {
-              console.log(e.key);
-              e.stopPropagation();
-              e.preventDefault();
-            }}
             style={{ cursor: "pointer" }}
+          >
+            <PriorityRatingPopup
+              priority={task.priority}
+              todoItemId={task.id}
+            />
+          </div>
+        </div>
+        <div className="text-sm text-muted-foreground">{task.description}</div>
+        {projectId ? (
+          <CreateOrEditTodoItems todoItem={task}>
+            <Button
+              onPointerDown={handlePriorityPointerDown}
+              onKeyDownCapture={(e) => {
+                console.log(e.key);
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              style={{ cursor: "pointer" }}
+              variant="ghost"
+              size="sm"
+              className="self-end text-muted-foreground hover:text-foreground"
+            >
+              Edit
+            </Button>
+          </CreateOrEditTodoItems>
+        ) : (
+          <Button
+            disabled
             variant="ghost"
             size="sm"
-            className="self-end text-muted-foreground hover:text-foreground"
+            className="self-end text-muted-foreground"
           >
             Edit
           </Button>
-        </CreateOrEditTodoItems>
-      ) : (
-        <Button
-          disabled
-          variant="ghost"
-          size="sm"
-          className="self-end text-muted-foreground"
-        >
-          Edit
-        </Button>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 });
 
@@ -224,28 +216,28 @@ function Board({
     COLUMN_COLORS[board.name as keyof typeof COLUMN_COLORS] || "#999999";
 
   return (
-    <Card className="flex flex-col flex-1 min-h-0">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-2">
           <div
             data-color={color}
             style={{ backgroundColor: color }}
             className={cn("h-2 w-2 rounded-full")}
           />
-          <div>
+          <h2 className="text-lg font-semibold">
             {board.name} ({todoItems.length} tasks)
-          </div>
-        </CardTitle>
-        <CardDescription className="min-h-10">
+          </h2>
+        </div>
+        <p className="text-sm text-muted-foreground min-h-10 mb-3">
           {board.description}
-        </CardDescription>
+        </p>
         <CreateOrEditTodoItems todoItem={{ boardId: board.id }}>
           <Button variant={"secondary"}>
             <PlusIcon /> Add Task
           </Button>
         </CreateOrEditTodoItems>
-      </CardHeader>
-      <CardContent
+      </div>
+      <div
         ref={setNodeRef}
         className="overflow-y-auto flex-1"
         style={{
@@ -271,17 +263,17 @@ function Board({
             {active && dropIndex === todoItems.length && <DropIndicator />}
           </VList>
         </SortableContext>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
 function LoadingTodoBoards() {
   return (
     <>
-      <Card className="bg-sidebar flex flex-col flex-1 min-h-0" />
-      <Card className="bg-sidebar flex flex-col flex-1 min-h-0" />
-      <Card className="bg-sidebar flex flex-col flex-1 min-h-0" />
+      <div className="bg-sidebar/50 flex flex-col flex-1 min-h-0 rounded" />
+      <div className="bg-sidebar/50 flex flex-col flex-1 min-h-0 rounded" />
+      <div className="bg-sidebar/50 flex flex-col flex-1 min-h-0 rounded" />
     </>
   );
 }
