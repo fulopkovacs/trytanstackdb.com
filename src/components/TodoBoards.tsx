@@ -20,7 +20,7 @@ import {
 } from "@tanstack/react-db";
 import { generateKeyBetween } from "fractional-indexing";
 import { PlusIcon } from "lucide-react";
-import { forwardRef, useMemo, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { VList } from "virtua";
 import { boardCollection } from "@/collections/boards";
 import { projectsCollection } from "@/collections/projects";
@@ -29,6 +29,7 @@ import {
   todoItemsCollection,
 } from "@/collections/todoItems";
 import type { BoardRecord, TodoItemRecord } from "@/db/schema";
+import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
 import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 import { PriorityRatingPopup } from "./PriorityRating";
@@ -43,6 +44,26 @@ const COLUMN_COLORS = {
 
 function DropIndicator() {
   return <div className="h-0.5 bg-primary mx-2 my-1 rounded-full" />;
+}
+
+function ScrollShadow({
+  position,
+  visible,
+}: {
+  position: "top" | "bottom";
+  visible: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "absolute left-0 right-0 h-10 pointer-events-none z-10 transition-opacity duration-300 ease-in-out",
+        position === "top"
+          ? "top-0 bg-linear-to-b from-background to-transparent"
+          : "bottom-0 bg-linear-to-t from-background to-transparent",
+        visible ? "opacity-100" : "opacity-0",
+      )}
+    />
+  );
 }
 
 function findPrevItem<
@@ -177,6 +198,35 @@ function Board({
   );
 
   const { active, over } = useDndContext();
+  const { scrollRef, canScrollUp, canScrollDown } = useScrollShadow();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Find and attach to VList's scroll container
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const findScrollElement = () => {
+      // VList creates a scrollable div - find it by looking for overflow style
+      const scrollableEl = containerRef.current?.querySelector(
+        'div[style*="overflow"]',
+      ) as HTMLDivElement;
+      if (scrollableEl && scrollableEl !== scrollRef.current) {
+        scrollRef.current = scrollableEl;
+      }
+    };
+
+    // Try immediately
+    findScrollElement();
+
+    // Also observe for changes in case VList renders after this effect
+    const observer = new MutationObserver(findScrollElement);
+    observer.observe(containerRef.current, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => observer.disconnect();
+  }, [scrollRef]);
 
   const dropIndex = useMemo(() => {
     // Calculate drop index for indicator
@@ -237,32 +287,36 @@ function Board({
           </Button>
         </CreateOrEditTodoItems>
       </div>
-      <div
-        ref={setNodeRef}
-        className="overflow-y-auto flex-1"
-        style={{
-          // TODO: Sometimes the height of the column is jumping
-          // background: isOver ? "#e0f7fa" : undefined,
-          transition: "background 0.2s",
-        }}
-      >
-        <SortableContext
-          strategy={verticalListSortingStrategy}
-          items={todoItems.map((task) => task.id)}
+      <div className="relative flex-1 min-h-0">
+        <ScrollShadow position="top" visible={canScrollUp} />
+
+        <div
+          ref={(node) => {
+            setNodeRef(node);
+            containerRef.current = node;
+          }}
+          className="h-full"
         >
-          <VList>
-            {todoItems.map((todoItem, index) => {
-              const showDropIndicator = active && dropIndex === index;
-              return (
-                <div key={`${todoItem.id}-wrapper`}>
-                  {showDropIndicator && <DropIndicator />}
-                  <DraggableTask projectId={projectId} task={todoItem} />
-                </div>
-              );
-            })}
-            {active && dropIndex === todoItems.length && <DropIndicator />}
-          </VList>
-        </SortableContext>
+          <SortableContext
+            strategy={verticalListSortingStrategy}
+            items={todoItems.map((task) => task.id)}
+          >
+            <VList>
+              {todoItems.map((todoItem, index) => {
+                const showDropIndicator = active && dropIndex === index;
+                return (
+                  <div key={`${todoItem.id}-wrapper`}>
+                    {showDropIndicator && <DropIndicator />}
+                    <DraggableTask projectId={projectId} task={todoItem} />
+                  </div>
+                );
+              })}
+              {active && dropIndex === todoItems.length && <DropIndicator />}
+            </VList>
+          </SortableContext>
+        </div>
+
+        <ScrollShadow position="bottom" visible={canScrollDown} />
       </div>
     </div>
   );
