@@ -47,7 +47,7 @@ const COLUMN_COLORS = {
   Done: "#43A047",
 };
 
-function ShowDropIndicator() {
+function DropIndicator() {
   return <div className="h-0.5 bg-primary mx-2 my-1 rounded-full" />;
 }
 
@@ -263,12 +263,12 @@ function Board({
               const showDropIndicator = active && dropIndex === index;
               return (
                 <div key={`${todoItem.id}-wrapper`}>
-                  {showDropIndicator && <ShowDropIndicator />}
+                  {showDropIndicator && <DropIndicator />}
                   <DraggableTask projectId={projectId} task={todoItem} />
                 </div>
               );
             })}
-            {active && dropIndex === todoItems.length && <ShowDropIndicator />}
+            {active && dropIndex === todoItems.length && <DropIndicator />}
           </VList>
         </SortableContext>
       </CardContent>
