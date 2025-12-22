@@ -43,10 +43,10 @@ export function ConfigureDB() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
             >
-              <Badge className="gap-2" variant={"secondary"}>
+              <Badge className="gap-2 bg-muted" variant="outline">
                 <div
                   className={cn(
-                    "grow-0 h-2 w-2 rounded-full",
+                    "grow-0 h-2 w-2 rounded-full border",
                     isConnected
                       ? "bg-green-300"
                       : "animate-pulse bg-yellow-400",
