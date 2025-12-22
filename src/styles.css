@@ -383,15 +383,6 @@ code {
 .task-card {
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-  50% {
-    transform: rotate(2deg);
-  }
-}
-
-.progress-animated {
-  animation: progress-fill 5s cubic-bezier(0.66, 0, 0.34, 1) forwards;
-  animation-fill-mode: forwards;
-}
 
 .wiggle {
   animation: wiggle 0.3s ease-in-out infinite;
