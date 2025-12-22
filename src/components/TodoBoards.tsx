@@ -21,11 +21,8 @@ import {
 import { generateKeyBetween } from "fractional-indexing";
 import {
   CircleCheckBigIcon,
-  GripHorizontal,
-  GripHorizontalIcon,
   LayoutListIcon,
   LoaderIcon,
-  PencilIcon,
   PlusIcon,
   SquarePenIcon,
 } from "lucide-react";
@@ -162,24 +159,27 @@ function DraggableTask({ task }: { task: TodoItemRecord }) {
     id: task.id,
   });
 
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        className="bg-skeleton rounded-lg mb-2 h-[180px] animate-skeleton-pulse"
+      />
+    );
+  }
+
   return (
     <TaskBase
       task={task}
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={cn("cursor-grab", isDragging && "opacity-50")}
+      className="cursor-grab"
     />
   );
 }
 
-function Board({
-  board,
-  projectId,
-}: {
-  board: BoardRecord;
-  projectId: string;
-}) {
+function Board({ board }: { board: BoardRecord }) {
   const { data: todoItems } = useLiveQuery((q) =>
     q
       .from({ todoItem: todoItemsCollection })
@@ -529,7 +529,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         <div className="grid grid-cols-3 gap-4 h-full min-h-0">
           {isLoadingBoards && <LoadingTodoBoards />}
           {sortedBoards.map((board) => (
-            <Board projectId={projectId} board={board} key={board.id} />
+            <Board board={board} key={board.id} />
           ))}
         </div>
         <DragOverlay>
