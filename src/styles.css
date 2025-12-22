@@ -87,6 +87,7 @@ code {
   --sidebar-ring:
     oklch(0.7853 0.1041 274.7134);
   --skeleton: oklch(87.9% 0 161.6);
+  --success: oklch(87.1% 0.15 154.449);
 
   --tracking-normal:
     -0.025em;
@@ -215,6 +216,7 @@ code {
   --sidebar-ring:
     oklch(0.6801 0.1583 276.9349);
   --skeleton: oklch(87.9% 0 161.6);
+  --success: oklch(87.1% 0.15 154.449);
   --radius:
     1rem;
   --font-sans:
@@ -295,6 +297,7 @@ code {
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-skeleton: var(--skeleton);
+  --color-success: var(--success);
 
   --tracking-tighter:
     calc(var(--tracking-normal) - 0.05em);
