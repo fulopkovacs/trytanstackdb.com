@@ -1,4 +1,4 @@
-import { CircleIcon } from "lucide-react";
+import { SkullIcon } from "lucide-react";
 import { useCallback } from "react";
 import { todoItemsCollection } from "@/collections/todoItems";
 import { Button } from "./ui/button";
@@ -10,16 +10,16 @@ import {
 } from "./ui/dropdown-menu";
 
 const icons = [
-  <CircleIcon key="0" className="text-muted-foreground h-4 w-4" />,
-  <span key="1" className="block text-red-500 font-bold text-sm">
+  <span key="0" className="block text-muted-foreground font-bold text-sm">
     !
   </span>,
-  <span key="2" className="block text-red-500 font-bold text-sm">
+  <span key="1" className="block font-bold text-primary-foreground text-sm">
     !!
   </span>,
-  <span key="3" className="block text-red-500 font-bold text-sm">
+  <span key="2" className="block text-destructive font-bold text-sm">
     !!!
   </span>,
+  <SkullIcon key="3" className="text-destructive h-4 w-4" />,
 ];
 
 export function PriorityRatingPopup({
@@ -49,7 +49,12 @@ export function PriorityRatingPopup({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="empty" size="icon" onPointerDown={handlePointerDown}>
+        <Button
+          variant="empty"
+          size="icon"
+          onPointerDown={handlePointerDown}
+          className="bg-muted hover:bg-muted/80 rounded-full"
+        >
           {icons[priority || 0]}
         </Button>
       </DropdownMenuTrigger>
