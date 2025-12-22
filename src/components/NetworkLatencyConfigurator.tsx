@@ -54,11 +54,11 @@ export function NetworkLatencyConfigurator() {
             <GlobeIcon
               className={cn(
                 selectedLatency === 0
-                  ? "text-green-300"
+                  ? "text-green-500 dark:text-green-300"
                   : selectedLatency === 2000
-                    ? "text-orange-300"
+                    ? "text-orange-400 dark:text-orange-300"
                     : selectedLatency === 5000
-                      ? "text-destructive-foreground"
+                      ? "text-destructive dark:text-destructive"
                       : "text-foreground",
               )}
             />
