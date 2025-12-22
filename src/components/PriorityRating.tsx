@@ -38,19 +38,35 @@ export function PriorityRatingPopup({
     [todoItemId],
   );
 
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="empty" size="icon" onPointerDown={handlePointerDown}>
           {icons[priority || 0]}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-0 flex flex-col items-center">
+      <DropdownMenuContent
+        className="min-w-0 flex flex-col items-center"
+        onPointerDown={handlePointerDown}
+        onClick={handleClick}
+      >
         {icons.map((icon, index) => (
           <DropdownMenuItem
             key={index}
-            onClick={() => handleUpdate(index)}
-            className="w-fit"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleUpdate(index);
+            }}
+            onPointerDown={handlePointerDown}
+            className="w-8 h-8 flex items-center justify-center p-0"
           >
             {icon}
           </DropdownMenuItem>
