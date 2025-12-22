@@ -86,6 +86,7 @@ code {
     oklch(0 0 0);
   --sidebar-ring:
     oklch(0.7853 0.1041 274.7134);
+  --skeleton: oklch(87.9% 0 161.6);
 
   --tracking-normal:
     -0.025em;
@@ -213,6 +214,7 @@ code {
     oklch(1.0000 0 0);
   --sidebar-ring:
     oklch(0.6801 0.1583 276.9349);
+  --skeleton: oklch(87.9% 0 161.6);
   --radius:
     1rem;
   --font-sans:
@@ -292,6 +294,7 @@ code {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-skeleton: var(--skeleton);
 
   --tracking-tighter:
     calc(var(--tracking-normal) - 0.05em);
@@ -362,30 +365,33 @@ code {
   }
 }
 
-@keyframes wiggle {
-  0%, 100% {
-    transform: rotate(-2deg);
-  }
-  50% {
-    transform: rotate(2deg);
-  }
-}
 
 @theme {
+  @keyframes wiggle {
+
+    0%,
+    100% {
+      transform: rotate(-2deg);
+    }
+
+    50% {
+      transform: rotate(2deg);
+    }
+  }
+
+  @keyframes skeleton-pulse {
+    50% {
+      opacity: 0.6;
+    }
+  }
+
   --animate-wiggle: wiggle 0.3s ease-in-out infinite;
+  --animate-skeleton-pulse: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .progress-animated {
   animation: progress-fill 5s cubic-bezier(0.66, 0, 0.34, 1) forwards;
   animation-fill-mode: forwards;
-}
-
-.task-card {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.wiggle {
-  animation: wiggle 0.3s ease-in-out infinite;
 }
 
 @layer base {
