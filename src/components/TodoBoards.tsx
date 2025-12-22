@@ -21,9 +21,13 @@ import {
 import { generateKeyBetween } from "fractional-indexing";
 import {
   CircleCheckBigIcon,
+  GripHorizontal,
+  GripHorizontalIcon,
   LayoutListIcon,
   LoaderIcon,
+  PencilIcon,
   PlusIcon,
+  SquarePenIcon,
 } from "lucide-react";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { VList } from "virtua";
@@ -40,7 +44,13 @@ import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 import { PriorityRatingPopup } from "./PriorityRating";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 
 enum BoardName {
   Todo = "Todo",
@@ -103,28 +113,29 @@ const TaskBase = forwardRef<
   HTMLDivElement,
   {
     task: TodoItemRecord;
-    projectId?: string;
   } & React.HTMLAttributes<HTMLDivElement>
->(({ task, projectId, className, ...props }, ref) => {
+>(({ task, className, ...props }, ref) => {
   // Prevent drag when clicking on PriorityRatingPopup
 
   return (
-    <Card {...props} ref={ref} className={cn("select-none mb-2", className)}>
-      <CardContent className="p-3 flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <div className="font-medium">{task.title}</div>
-          <div
-            onPointerDown={handlePriorityPointerDown}
-            style={{ cursor: "pointer" }}
-          >
-            <PriorityRatingPopup
-              priority={task.priority}
-              todoItemId={task.id}
-            />
-          </div>
-        </div>
-        <div className="text-sm text-muted-foreground">{task.description}</div>
-        {projectId ? (
+    <Card
+      {...props}
+      ref={ref}
+      className={cn("select-none mb-2 relative overflow-hidden", className)}
+    >
+      <div className="absolute top-0 left-0 w-full flex justify-center bg-muted select-none">
+        {/* <GripHorizontalIcon className=" h-4" /> */}
+        <div className="text-muted-foreground">≡</div>
+      </div>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between mt-2">
+          <span className="block grow text-balance">{task.title}</span>
+          <PriorityRatingPopup priority={task.priority} todoItemId={task.id} />
+        </CardTitle>
+        <CardDescription>{task.description}</CardDescription>
+      </CardHeader>
+      <CardFooter className="flex justify-center">
+        {
           <CreateOrEditTodoItems todoItem={task}>
             <Button
               onPointerDown={handlePriorityPointerDown}
@@ -133,43 +144,26 @@ const TaskBase = forwardRef<
                 e.stopPropagation();
                 e.preventDefault();
               }}
-              style={{ cursor: "pointer" }}
               variant="ghost"
               size="sm"
-              className="self-end text-muted-foreground hover:text-foreground"
+              className="cursor-pointer text-muted-foreground hover:text-foreground"
             >
-              Edit
+              <SquarePenIcon className="text-primary" /> Edit
             </Button>
           </CreateOrEditTodoItems>
-        ) : (
-          <Button
-            disabled
-            variant="ghost"
-            size="sm"
-            className="self-end text-muted-foreground"
-          >
-            Edit
-          </Button>
-        )}
-      </CardContent>
+        }
+      </CardFooter>
     </Card>
   );
 });
 
-function DraggableTask({
-  task,
-  projectId,
-}: {
-  task: TodoItemRecord;
-  projectId: string;
-}) {
+function DraggableTask({ task }: { task: TodoItemRecord }) {
   const { attributes, listeners, setNodeRef, isDragging } = useSortable({
     id: task.id,
   });
 
   return (
     <TaskBase
-      projectId={projectId}
       task={task}
       ref={setNodeRef}
       {...attributes}
@@ -313,7 +307,7 @@ function Board({
                 return (
                   <div key={`${todoItem.id}-wrapper`}>
                     {showDropIndicator && <DropIndicator />}
-                    <DraggableTask projectId={projectId} task={todoItem} />
+                    <DraggableTask task={todoItem} />
                   </div>
                 );
               })}
