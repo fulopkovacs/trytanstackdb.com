@@ -533,7 +533,9 @@ export function TodoBoards({ projectId }: { projectId: string }) {
           ))}
         </div>
         <DragOverlay>
-          {activeTodoItem ? <TaskBase task={activeTodoItem} /> : null}
+          {activeTodoItem ? (
+            <TaskBase task={activeTodoItem} className="animate-wiggle" />
+          ) : null}
         </DragOverlay>
       </DndContext>
     </div>
