@@ -39,6 +39,7 @@ import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
 import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 import { PriorityRatingPopup } from "./PriorityRating";
+import { TodoBoardsLoading } from "./TodoBoardsLoading";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -322,16 +323,6 @@ function Board({ board }: { board: BoardRecord }) {
   );
 }
 
-function LoadingTodoBoards() {
-  return (
-    <>
-      <div className="bg-sidebar/50 flex flex-col flex-1 min-h-0 rounded" />
-      <div className="bg-sidebar/50 flex flex-col flex-1 min-h-0 rounded" />
-      <div className="bg-sidebar/50 flex flex-col flex-1 min-h-0 rounded" />
-    </>
-  );
-}
-
 export function TodoBoards({ projectId }: { projectId: string }) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
@@ -526,12 +517,15 @@ export function TodoBoards({ projectId }: { projectId: string }) {
   return (
     <div className="flex-1 min-h-0">
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-3 gap-4 h-full min-h-0">
-          {isLoadingBoards && <LoadingTodoBoards />}
-          {sortedBoards.map((board) => (
-            <Board board={board} key={board.id} />
-          ))}
-        </div>
+        {isLoadingBoards ? (
+          <TodoBoardsLoading />
+        ) : (
+          <div className="grid grid-cols-3 gap-4 h-full min-h-0">
+            {sortedBoards.map((board) => (
+              <Board board={board} key={board.id} />
+            ))}
+          </div>
+        )}
         <DragOverlay>
           {activeTodoItem ? (
             <TaskBase task={activeTodoItem} className="animate-wiggle" />
