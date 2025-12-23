@@ -23,7 +23,7 @@ export function FakeProgressIndicator() {
         Setting up the database...
       </span>
       <div className="w-[60%] max-w-md">
-        <div className="h-2 bg-secondary rounded-full overflow-hidden">
+        <div className="h-2 bg-skeleton  rounded-full overflow-hidden">
           <div
             ref={progressRef}
             className="h-full bg-primary progress-animated"
