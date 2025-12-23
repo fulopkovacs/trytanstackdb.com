@@ -13,7 +13,7 @@ const icons = [
   <span key="0" className="block text-muted-foreground font-bold text-sm">
     !
   </span>,
-  <span key="1" className="block font-bold text-primary-foreground text-sm">
+  <span key="1" className="block font-bold text-current text-sm">
     !!
   </span>,
   <span key="2" className="block text-destructive font-bold text-sm">
