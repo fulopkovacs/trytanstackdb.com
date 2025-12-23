@@ -158,7 +158,9 @@ export function EditableProjectDetails({ projectId }: { projectId: string }) {
       <div className="flex flex-col mb-6 gap-1">
         <div className="flex items-center gap-2">
           {isLoading ? (
-            <Skeleton className="size-9 scroll-m-40 text-2xl font-bold w-20" />
+            <div className="flex items-center h-9">
+              <Skeleton className="h-8 w-40" />
+            </div>
           ) : (
             <>
               <h1 className="scroll-m-20 text-2xl font-bold">{project.name}</h1>
@@ -167,38 +169,11 @@ export function EditableProjectDetails({ projectId }: { projectId: string }) {
           )}
         </div>
         {isLoading ? (
-          <Skeleton className="h-(--text-xl) block w-80 mt-0.5" />
+          <Skeleton className="h-6 block w-80" />
         ) : (
           <p>{project.description}</p>
         )}
       </div>
     </HighlightWrapper>
   );
-
-  return isLoading ? (
-    <LoadingEditableProjects />
-  ) : project ? (
-    <HighlightWrapper highlightId="project_projectPage">
-      <div className="flex flex-col mb-6 gap-1">
-        <div className="flex items-center gap-2">
-          <h1 className="scroll-m-20 text-2xl font-bold">{project.name}</h1>
-          <EditProjectNamePopover name={project.name} id={project.id} />
-        </div>
-        <p>{project.description}</p>
-      </div>
-    </HighlightWrapper>
-  ) : /*
-    The API returned a 404 error when trying to sync the
-    projects collection.
-  */
-  notFoundErrorMessageVisible ? (
-    <ProjectsNotFoundFromAPIErrorMessage />
-  ) : isReady ? (
-    // The collection is ready, but no project was found
-    // with this particular live query
-    <div className="text-muted-foreground">
-      <p>No project was found with this id.</p>
-      <p>Please select a project from the sidebar!</p>
-    </div>
-  ) : null;
 }
