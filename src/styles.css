@@ -152,25 +152,25 @@ code {
 
 .dark {
   --background:
-    oklch(0.1470 0.0040 49.2500);
+    oklch(0.216 0.006 56.043);
   --foreground:
     oklch(1.0000 0 0);
   --card:
-    oklch(0.2160 0.0060 56.0430);
+    oklch(0.268 0.007 34.298);
   --card-foreground:
     oklch(1.0000 0 0);
   --popover:
-    oklch(0.2161 0.0061 56.0434);
+    oklch(0.216 0.006 56.043);
   --popover-foreground:
-    oklch(1.0000 0 0);
+    oklch(0.9789 0.0082 121.6272);
   --primary:
     oklch(0.7500 0.1830 55.9340);
   --primary-foreground:
-    oklch(0.1470 0.0040 49.2500);
+    oklch(0.216 0.006 56.043);
   --secondary:
     oklch(0.7845 0.1325 181.9120);
   --secondary-foreground:
-    oklch(0.1470 0.0040 49.2500);
+    oklch(0.216 0.006 56.043);
   --muted:
     oklch(0.2160 0.0060 56.0430);
   --muted-foreground:
@@ -178,15 +178,14 @@ code {
   --accent:
     oklch(0.8790 0.1690 91.6050);
   --accent-foreground:
-    oklch(0.1470 0.0040 49.2500);
+    oklch(0.216 0.006 56.043);
   --destructive:
-    oklch(0.7106 0.1661 22.2162);
-  --destructive-foreground:
-    oklch(0.1470 0.0040 49.2500);
+    oklch(63.7% 0.2078 25.3);
+  --destructive-foreground: oklch(0.216 0.006 56.043);
   --border:
     oklch(0.3740 0.0100 67.5580);
   --input:
-    oklch(1.0000 0 0);
+    var(--border);
   --ring:
     oklch(0.6801 0.1583 276.9349);
   --chart-1:
@@ -200,22 +199,21 @@ code {
   --chart-5:
     oklch(0.8003 0.1821 151.7110);
   --sidebar:
-    oklch(0.1470 0.0040 49.2500);
+    oklch(0.216 0.006 56.043);
   --sidebar-foreground:
-    oklch(1.0000 0 0);
-  --sidebar-primary:
-    oklch(0.6801 0.1583 276.9349);
+    var(--foreground);
+  --sidebar-primary: oklch(0.6801 0.1583 276.9349);
   --sidebar-primary-foreground:
-    oklch(0.1470 0.0040 49.2500);
+    oklch(0.216 0.006 56.043);
   --sidebar-accent:
-    oklch(0.9240 0.1200 95.7460);
+    var(--border);
   --sidebar-accent-foreground:
-    oklch(0.1470 0.0040 49.2500);
+    var(--sidebar-foreground);
   --sidebar-border:
     oklch(1.0000 0 0);
   --sidebar-ring:
     oklch(0.6801 0.1583 276.9349);
-  --skeleton: oklch(87.9% 0 161.6);
+  --skeleton: oklch(0.3740 0.0100 67.5580);
   --success: oklch(87.1% 0.15 154.449);
   --radius:
     1rem;

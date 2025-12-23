@@ -23,7 +23,6 @@ function EditProjectNamePopover({ name, id }: { name: string; id: string }) {
       name: name,
     },
     onSubmit: ({ value }) => {
-      console.log("New project name:", value.name);
       projectsCollection.update(id, (project) => {
         project.name = value.name;
       });
@@ -171,7 +170,7 @@ export function EditableProjectDetails({ projectId }: { projectId: string }) {
         {isLoading ? (
           <Skeleton className="h-6 block w-80" />
         ) : (
-          <p>{project.description}</p>
+          <p className="text-muted-foreground">{project.description}</p>
         )}
       </div>
     </HighlightWrapper>
