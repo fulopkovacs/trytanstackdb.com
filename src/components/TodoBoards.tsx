@@ -57,7 +57,7 @@ enum BoardName {
 }
 
 function DropIndicator() {
-  return <div className="h-0.5 bg-primary mx-2 -mt-1 mb-1 rounded-full" />;
+  return <div className="h-0.5 bg-primary mx-2 mb-[0.4375rem] rounded-full" />;
 }
 
 function ScrollShadow({
