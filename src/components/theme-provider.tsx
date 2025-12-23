@@ -5,7 +5,7 @@ import { createClientOnlyFn, createIsomorphicFn } from "@tanstack/react-start";
 import { createContext, type ReactNode, use, useEffect, useState } from "react";
 import { z } from "zod";
 
-const defaultTheme = "dark";
+const defaultTheme = "light";
 
 const UserThemeSchema = z.enum(["light", "dark", "system"]).catch(defaultTheme);
 const AppThemeSchema = z.enum(["light", "dark"]).catch(defaultTheme);
