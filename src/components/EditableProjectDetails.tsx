@@ -93,11 +93,11 @@ function ProjectsNotFoundFromAPIErrorMessage() {
 
 function LoadingEditableProjects() {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col mb-6 gap-1">
       <div className="flex items-center gap-2">
-        <Skeleton className="size-9 scroll-m-40 text-2xl font-bold w-20" />
+        <Skeleton className="h-8  scroll-m-40 text-2xl font-bold w-20" />
       </div>
-      <Skeleton className="h-(--text-xl) w-80" />
+      <Skeleton className="h-(--text-2xl) w-80" />
     </div>
   );
 }
@@ -139,6 +139,41 @@ export function EditableProjectDetails({ projectId }: { projectId: string }) {
       }
     }
   }, [project, isReady]);
+
+  return notFoundErrorMessageVisible ? (
+    /*
+      The API returned a 404 error when trying to sync the
+      projects collection.
+    */
+    <ProjectsNotFoundFromAPIErrorMessage />
+  ) : isReady && !project ? (
+    // The collection is ready, but no project was found
+    // with this particular live query
+    <div className="text-muted-foreground">
+      <p>No project was found with this id.</p>
+      <p>Please select a project from the sidebar!</p>
+    </div>
+  ) : (
+    <HighlightWrapper highlightId="project_projectPage">
+      <div className="flex flex-col mb-6 gap-1">
+        <div className="flex items-center gap-2">
+          {isLoading ? (
+            <Skeleton className="size-9 scroll-m-40 text-2xl font-bold w-20" />
+          ) : (
+            <>
+              <h1 className="scroll-m-20 text-2xl font-bold">{project.name}</h1>
+              <EditProjectNamePopover name={project.name} id={project.id} />
+            </>
+          )}
+        </div>
+        {isLoading ? (
+          <Skeleton className="h-(--text-xl) block w-80 mt-0.5" />
+        ) : (
+          <p>{project.description}</p>
+        )}
+      </div>
+    </HighlightWrapper>
+  );
 
   return isLoading ? (
     <LoadingEditableProjects />
