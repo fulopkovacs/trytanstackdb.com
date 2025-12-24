@@ -273,17 +273,19 @@ function Board({ board }: { board: BoardRecord }) {
             strategy={verticalListSortingStrategy}
             items={todoItems.map((task) => task.id)}
           >
-            <Virtualizer>
-              {todoItems.map((todoItem, index) => {
+            <Virtualizer data={todoItems} itemSize={180}>
+              {(todoItem, index) => {
                 const showDropIndicator = active && dropIndex === index;
                 return (
                   <div key={`${todoItem.id}-wrapper`}>
                     {showDropIndicator && <DropIndicator />}
                     <DraggableTask task={todoItem} />
+                    {active &&
+                      dropIndex === todoItems.length &&
+                      index === todoItems.length - 1 && <DropIndicator />}
                   </div>
                 );
-              })}
-              {active && dropIndex === todoItems.length && <DropIndicator />}
+              }}
             </Virtualizer>
           </SortableContext>
         </div>
