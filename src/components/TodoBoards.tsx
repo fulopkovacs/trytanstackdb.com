@@ -26,8 +26,8 @@ import {
   PlusIcon,
   SquarePenIcon,
 } from "lucide-react";
-import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
-import { VList } from "virtua";
+import { forwardRef, useMemo, useState } from "react";
+import { Virtualizer } from "virtua";
 import { boardCollection } from "@/collections/boards";
 import { projectsCollection } from "@/collections/projects";
 import {
@@ -199,34 +199,6 @@ function Board({ board }: { board: BoardRecord }) {
 
   const { active, over } = useDndContext();
   const { scrollRef, canScrollUp, canScrollDown } = useScrollShadow();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Find and attach to VList's scroll container
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const findScrollElement = () => {
-      // VList creates a scrollable div - find it by looking for overflow style
-      const scrollableEl = containerRef.current?.querySelector(
-        'div[style*="overflow"]',
-      ) as HTMLDivElement;
-      if (scrollableEl && scrollableEl !== scrollRef.current) {
-        scrollRef.current = scrollableEl;
-      }
-    };
-
-    // Try immediately
-    findScrollElement();
-
-    // Also observe for changes in case VList renders after this effect
-    const observer = new MutationObserver(findScrollElement);
-    observer.observe(containerRef.current, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => observer.disconnect();
-  }, [scrollRef]);
 
   const dropIndex = useMemo(() => {
     // Calculate drop index for indicator
@@ -293,15 +265,15 @@ function Board({ board }: { board: BoardRecord }) {
         <div
           ref={(node) => {
             setNodeRef(node);
-            containerRef.current = node;
+            scrollRef.current = node;
           }}
-          className="h-full"
+          className="h-full overflow-auto"
         >
           <SortableContext
             strategy={verticalListSortingStrategy}
             items={todoItems.map((task) => task.id)}
           >
-            <VList>
+            <Virtualizer>
               {todoItems.map((todoItem, index) => {
                 const showDropIndicator = active && dropIndex === index;
                 return (
@@ -312,7 +284,7 @@ function Board({ board }: { board: BoardRecord }) {
                 );
               })}
               {active && dropIndex === todoItems.length && <DropIndicator />}
-            </VList>
+            </Virtualizer>
           </SortableContext>
         </div>
 
