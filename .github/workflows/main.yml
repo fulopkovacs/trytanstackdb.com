@@ -51,6 +51,9 @@ jobs:
       - name: Type check
         run: pnpm typecheck
 
+      - name: Knip
+        run: pnpm knip
+
       - name: Test
         run: pnpm test
 
@@ -73,12 +76,12 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            
+
             const botComment = comments.data.find(comment => 
               comment.user.type === 'Bot' && 
               comment.body.includes('🚀 Preview Deployment')
             );
-            
+
             if (botComment) {
               console.log(`Found existing comment: ${botComment.id}`);
               return botComment.id;
@@ -93,11 +96,11 @@ jobs:
             const commentBody = `## 🚀 Preview Deployment
 
             **Status:** ⏳ Loading...
-            
+
             **Commit:** \`${{ github.event.pull_request.head.sha }}\`
-            
+
             _Deployment in progress..._`;
-            
+
             if (commentId && commentId !== 'null') {
               await github.rest.issues.updateComment({
                 comment_id: commentId,
@@ -162,17 +165,17 @@ jobs:
           script: |
             const deploymentUrl = '${{ steps.deploy.outputs.deployment-url }}';
             const commentId = '${{ steps.find-comment.outputs.result }}';
-            
+
             const commentBody = `## 🚀 Preview Deployment
 
             **Status:** ✅ Ready!
-            
+
             **Preview URL:** [Open Preview](${deploymentUrl})
-            
+
             **Commit:** \`${{ github.event.pull_request.head.sha }}\`
-            
+
             _Built and deployed successfully_`;
-            
+
             if (commentId && commentId !== 'null') {
               await github.rest.issues.updateComment({
                 comment_id: commentId,
