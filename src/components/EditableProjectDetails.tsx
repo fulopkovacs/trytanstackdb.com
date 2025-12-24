@@ -90,17 +90,6 @@ function ProjectsNotFoundFromAPIErrorMessage() {
   );
 }
 
-function LoadingEditableProjects() {
-  return (
-    <div className="flex flex-col mb-6 gap-1">
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-8  scroll-m-40 text-2xl font-bold w-20" />
-      </div>
-      <Skeleton className="h-(--text-2xl) w-80" />
-    </div>
-  );
-}
-
 export function EditableProjectDetails({ projectId }: { projectId: string }) {
   const {
     data: [project],
