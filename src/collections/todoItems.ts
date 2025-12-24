@@ -55,11 +55,7 @@ export async function batchUpdateTodoItem({
   await res.json();
 }
 
-async function insertTodoItem({
-  data,
-}: {
-  data: TodoItemCreateDataType;
-}) {
+async function insertTodoItem({ data }: { data: TodoItemCreateDataType }) {
   const res = await fetch("/api/todo-items", {
     method: "POST",
     headers: {
