@@ -164,11 +164,17 @@ function DraggableTask({ task }: { task: TodoItemRecord }) {
   });
 
   // Measure height after the element is rendered
-  useEffect(() => {
-    if (taskRef.current) {
-      setMeasuredHeight(taskRef.current.offsetHeight);
-    }
-  });
+  useEffect(
+    () => {
+      if (taskRef.current) {
+        setMeasuredHeight(taskRef.current.offsetHeight);
+      }
+    },
+    /*
+      No dependency array: remeasures on every render
+      to capture dynamic content changes (edits, etc.)
+    */
+  );
 
   if (isDragging) {
     return (
