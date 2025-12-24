@@ -273,6 +273,17 @@ function Board({ board }: { board: BoardRecord }) {
             strategy={verticalListSortingStrategy}
             items={todoItems.map((task) => task.id)}
           >
+            {
+              /*
+                Empty columns do not have any todo items in them, so we can't
+                render the drop indicator when we iterate through the todo items.
+
+                In that case, we need to render the drop indicator here.
+              */
+              active && dropIndex === 0 && todoItems.length === 0 && (
+                <DropIndicator />
+              )
+            }
             <Virtualizer data={todoItems} itemSize={180}>
               {(todoItem, index) => {
                 const showDropIndicator = active && dropIndex === index;
