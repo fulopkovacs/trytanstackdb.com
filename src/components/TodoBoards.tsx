@@ -26,7 +26,7 @@ import {
   PlusIcon,
   SquarePenIcon,
 } from "lucide-react";
-import { forwardRef, useMemo, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { Virtualizer } from "virtua";
 import { boardCollection } from "@/collections/boards";
 import { projectsCollection } from "@/collections/projects";
@@ -55,6 +55,8 @@ enum BoardName {
   InProgress = "In Progress",
   Done = "Done",
 }
+
+const TASK_ITEM_HEIGHT = 180;
 
 function DropIndicator() {
   return <div className="h-0.5 bg-primary mx-2 mb-[0.4375rem] rounded-full" />;
@@ -155,15 +157,25 @@ const TaskBase = forwardRef<
 });
 
 function DraggableTask({ task }: { task: TodoItemRecord }) {
+  const taskRef = useRef<HTMLDivElement>(null);
+  const [measuredHeight, setMeasuredHeight] = useState<number | null>(null);
   const { attributes, listeners, setNodeRef, isDragging } = useSortable({
     id: task.id,
+  });
+
+  // Measure height after the element is rendered
+  useEffect(() => {
+    if (taskRef.current) {
+      setMeasuredHeight(taskRef.current.offsetHeight);
+    }
   });
 
   if (isDragging) {
     return (
       <div
         ref={setNodeRef}
-        className="bg-skeleton rounded-lg mb-2 h-[180px] animate-skeleton-pulse"
+        style={{ height: measuredHeight ?? TASK_ITEM_HEIGHT }}
+        className="bg-skeleton rounded-lg mb-2 animate-skeleton-pulse"
       />
     );
   }
@@ -171,7 +183,10 @@ function DraggableTask({ task }: { task: TodoItemRecord }) {
   return (
     <TaskBase
       task={task}
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        taskRef.current = node;
+      }}
       {...attributes}
       {...listeners}
       className="cursor-grab"
@@ -284,7 +299,7 @@ function Board({ board }: { board: BoardRecord }) {
                 <DropIndicator />
               )
             }
-            <Virtualizer data={todoItems} itemSize={180}>
+            <Virtualizer data={todoItems}>
               {(todoItem, index) => {
                 const showDropIndicator = active && dropIndex === index;
                 return (
