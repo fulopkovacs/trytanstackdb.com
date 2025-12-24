@@ -10,6 +10,7 @@ import { SidebarTrigger } from "./ui/sidebar";
 export function Header() {
   return (
     <header className="flex gap-2 items-center justify-between px-4 py-2 border-b bg-background sticky top-0">
+      <SidebarTrigger className="md:hidden" />
       <div className="flex items-center gap-1 text-sm font-medium">
         <a
           href="https://fulop.dev"
@@ -26,7 +27,7 @@ export function Header() {
             fuko's
           </span>
         </a>
-        guide to <SidebarTrigger className="md:hidden" />
+        guide to
         <a
           target="_blank"
           href="https://tanstack.com/db/latest/docs/overview"
