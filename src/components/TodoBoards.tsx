@@ -138,7 +138,6 @@ const TaskBase = forwardRef<
             <Button
               onPointerDown={handlePriorityPointerDown}
               onKeyDownCapture={(e) => {
-                console.log(e.key);
                 e.stopPropagation();
                 e.preventDefault();
               }}
