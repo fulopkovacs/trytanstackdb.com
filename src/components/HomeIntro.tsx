@@ -15,15 +15,15 @@ import {
 
 export function HomeIntro({
   activeStep,
-  show_home_intro,
+  intro,
 }: {
   activeStep: string | null;
-  show_home_intro: "true" | "false" | undefined;
+  intro: "true" | "false" | undefined;
 }) {
   const [open, setOpen] = useState(
     activeStep === null ||
       // used for debugging
-      show_home_intro === "true",
+      intro === "true",
   );
 
   const navigate = useNavigate();
