@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_tutorial")({
     .object({
       temp_db_missing: z.string().optional(),
       step: z.string().optional(),
-      show_home_intro: z.enum(["true", "false"]).optional().catch("false"),
+      intro: z.enum(["true", "false"]).optional().default("true").catch("true"),
     })
     .extend(highlightParamSchema.shape),
   beforeLoad: async () => {
@@ -34,14 +34,14 @@ export const Route = createFileRoute("/_tutorial")({
 
 function RouteComponent() {
   const { tutorialData } = Route.useLoaderData();
-  const { show_home_intro } = Route.useSearch();
+  const { intro } = Route.useSearch();
 
   return (
     <>
       <Outlet />
       <HomeIntro
         activeStep={tutorialData.tutorialStep}
-        show_home_intro={show_home_intro}
+        show_home_intro={intro}
       />
       <TutorialWindow tutorialData={tutorialData} />
     </>
