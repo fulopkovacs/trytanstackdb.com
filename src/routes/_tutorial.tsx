@@ -39,10 +39,7 @@ function RouteComponent() {
   return (
     <>
       <Outlet />
-      <HomeIntro
-        activeStep={tutorialData.tutorialStep}
-        show_home_intro={intro}
-      />
+      <HomeIntro activeStep={tutorialData.tutorialStep} intro={intro} />
       <TutorialWindow tutorialData={tutorialData} />
     </>
   );
