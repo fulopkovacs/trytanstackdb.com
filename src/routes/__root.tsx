@@ -28,7 +28,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       ...seo({
         title: "trytanstackdb | The interactive guide",
-        description: `An interactive guide for getting started with TanStack DB.`,
+        description: `Learn how to build ⚡BLAZING FAST⚡ front-ends with TanStack DB in 6-7 minutes`,
         image: `https://trytanstackdb.com/og-image.png`,
         keywords: "tanstack,tanstack db,reactjs,tutorial",
       }),
