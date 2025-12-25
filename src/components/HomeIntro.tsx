@@ -30,7 +30,13 @@ export function HomeIntro({
 
   const startTutorial = useCallback(() => {
     setOpen(false);
-    navigate({ to: ".", search: ({ show_home_intro, ...o }) => o });
+    navigate({
+      to: ".",
+      search: (o) => ({
+        ...o,
+        intro: "false",
+      }),
+    });
   }, [navigate]);
 
   return (
