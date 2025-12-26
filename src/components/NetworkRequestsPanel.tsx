@@ -159,7 +159,7 @@ export function NetworkRequestsPanel() {
   return (
     <div className="flex flex-col h-full max-h-full overflow-hidden bg-background border-l">
       {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b bg-muted/30">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-medium">Network Requests</h2>
           <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
@@ -169,11 +169,10 @@ export function NetworkRequestsPanel() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7"
           onClick={clearRequests}
           disabled={requests.length === 0}
         >
-          <Trash2Icon className="h-3.5 w-3.5" />
+          <Trash2Icon />
           <span className="sr-only">Clear requests</span>
         </Button>
       </div>
