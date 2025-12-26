@@ -11,6 +11,7 @@ import { ScriptOnce } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/sonner";
 import { seo } from "@/utils/seo";
+import { TriangleAlertIcon } from "lucide-react";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -66,8 +67,8 @@ function ErrorComponent({ error }: { error: unknown }) {
     <div className="fixed inset-0 w-screen h-screen flex justify-center items-center p-6 bg-background">
       <Card className="max-w-2xl w-full">
         <CardHeader>
-          <h2 className="text-2xl font-bold text-destructive-foreground text-center">
-            An error occurred
+          <h2 className="text-2xl font-bold text-destructive text-center justify-center flex items-center gap-2">
+            <TriangleAlertIcon /> An error occurred
           </h2>
         </CardHeader>
 
