@@ -3,6 +3,7 @@ import { BugIcon, GithubIcon } from "lucide-react";
 import { ConfigureDB } from "./ConfigureDB";
 import { ModeToggle } from "./mode-toggle";
 import { NetworkLatencyConfigurator } from "./NetworkLatencyConfigurator";
+import { NetworkPanelToggle } from "./NetworkPanelToggle";
 import { ResetTheDbDialog } from "./ResetTheDbDialog";
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
@@ -80,6 +81,9 @@ export function Header() {
       <div className="flex items-center gap-4">
         <ModeToggle />
       </div>
+      <ClientOnly fallback={null}>
+        <NetworkPanelToggle />
+      </ClientOnly>
     </header>
   );
 }

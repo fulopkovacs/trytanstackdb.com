@@ -74,35 +74,52 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
         });
 
         async function processRequestInMainThread(body: any) {
-          try {
-            const requestData = requestSchema.parse(body);
-            const handler = (API as APIType)[requestData.pathname][
-              requestData.method
-            ];
-            if (handler) {
-              /*
-                TODO: Currently, this request will not show up in the
-                Network tab of DevTools until the delay is over.
-                We should find a way to make it appear in a PENDING state.
-              */
-              // Simulate a delay for demonstration purposes
+          const requestData = requestSchema.parse(body);
+          const handler = (API as APIType)[requestData.pathname][
+            requestData.method
+          ];
+          if (handler) {
+            /*
+              TODO: Currently, this request will not show up in the
+              Network tab of DevTools until the delay is over.
+              We should find a way to make it appear in a PENDING state.
+            */
+            // Simulate a delay for demonstration purposes
 
-              const delay = networkLatencyInMsSchema.parse(
-                localStorage.getItem(NETWORK_LATENCY_LOCALSTORAGE_KEY),
-              );
+            const delay = networkLatencyInMsSchema.parse(
+              localStorage.getItem(NETWORK_LATENCY_LOCALSTORAGE_KEY),
+            );
 
-              await new Promise((resolve) => setTimeout(resolve, delay));
+            await new Promise((resolve) => setTimeout(resolve, delay));
 
-              return await deconstructResponseFromHandler(
-                await handler(constructRequestForHandler(requestData)),
-              );
-            } else {
-              throw new Error("No handler found for this request");
-            }
-          } catch (e) {
-            // TODO: Handle validation errors
-            throw e;
-            // return { error: "Invalid request data" };
+            // Track timing for network panel
+            const startTime = performance.now();
+
+            const response = await deconstructResponseFromHandler(
+              await handler(constructRequestForHandler(requestData)),
+            );
+
+            const duration = performance.now() - startTime;
+
+            // Emit event for network panel logging
+            window.dispatchEvent(
+              new CustomEvent("network-request-logged", {
+                detail: {
+                  id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                  timestamp: Date.now(),
+                  method: requestData.method,
+                  pathname: requestData.pathname,
+                  requestBody: requestData.requestBody,
+                  responseBody: response.body,
+                  status: response.status,
+                  duration: duration + delay, // Include the artificial delay
+                },
+              }),
+            );
+
+            return response;
+          } else {
+            throw new Error("No handler found for this request");
           }
         }
         // @ts-expect-error
