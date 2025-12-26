@@ -1,7 +1,7 @@
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 
-export const dbName = import.meta.env.DEV
+const dbName = import.meta.env.DEV
   ? "idb://DEV-trytanstackdb"
   : "idb://trytanstackdb";
 
