@@ -157,9 +157,9 @@ export function NetworkRequestsPanel() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background border-l">
+    <div className="flex flex-col h-full max-h-full overflow-hidden bg-background border-l">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+      <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-b bg-muted/30">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-medium">Network Requests</h2>
           <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
@@ -179,7 +179,7 @@ export function NetworkRequestsPanel() {
       </div>
 
       {/* Request list */}
-      <ScrollArea className="flex-1" ref={scrollRef}>
+      <ScrollArea className="flex-1 min-h-0" ref={scrollRef}>
         {requests.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-4 text-center">
             <p className="text-sm text-muted-foreground">No requests yet</p>

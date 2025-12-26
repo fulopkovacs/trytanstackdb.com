@@ -39,7 +39,12 @@ function MainLayout() {
       {isOpen && (
         <>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={25} minSize={15} maxSize={50}>
+          <ResizablePanel
+            defaultSize={25}
+            minSize={15}
+            maxSize={50}
+            className="h-screen max-h-screen"
+          >
             <NetworkRequestsPanel />
           </ResizablePanel>
         </>
