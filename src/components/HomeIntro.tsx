@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRightIcon, DatabaseZap } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useState, type ReactNode } from "react";
+import { type ReactNode, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import {
