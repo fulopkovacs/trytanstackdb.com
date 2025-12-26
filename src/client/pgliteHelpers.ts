@@ -79,21 +79,29 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
             requestData.method
           ];
           if (handler) {
-            /*
-              TODO: Currently, this request will not show up in the
-              Network tab of DevTools until the delay is over.
-              We should find a way to make it appear in a PENDING state.
-            */
-            // Simulate a delay for demonstration purposes
+            // Generate unique request ID for tracking
+            const requestId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+            const startTime = performance.now();
 
+            // Emit "started" event immediately so UI shows pending state
+            window.dispatchEvent(
+              new CustomEvent("network-request-started", {
+                detail: {
+                  id: requestId,
+                  timestamp: Date.now(),
+                  method: requestData.method,
+                  pathname: requestData.pathname,
+                  requestBody: requestData.requestBody,
+                },
+              }),
+            );
+
+            // Simulate a delay for demonstration purposes
             const delay = networkLatencyInMsSchema.parse(
               localStorage.getItem(NETWORK_LATENCY_LOCALSTORAGE_KEY),
             );
 
             await new Promise((resolve) => setTimeout(resolve, delay));
-
-            // Track timing for network panel
-            const startTime = performance.now();
 
             const response = await deconstructResponseFromHandler(
               await handler(constructRequestForHandler(requestData)),
@@ -101,18 +109,14 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
 
             const duration = performance.now() - startTime;
 
-            // Emit event for network panel logging
+            // Emit "completed" event with response data
             window.dispatchEvent(
-              new CustomEvent("network-request-logged", {
+              new CustomEvent("network-request-completed", {
                 detail: {
-                  id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                  timestamp: Date.now(),
-                  method: requestData.method,
-                  pathname: requestData.pathname,
-                  requestBody: requestData.requestBody,
+                  id: requestId,
                   responseBody: response.body,
                   status: response.status,
-                  duration: duration + delay, // Include the artificial delay
+                  duration,
                 },
               }),
             );

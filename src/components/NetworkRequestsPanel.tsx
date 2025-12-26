@@ -1,4 +1,9 @@
-import { ChevronDownIcon, ChevronRightIcon, Trash2Icon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  LoaderIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import type { NetworkRequest } from "./NetworkRequestsProvider";
 import { useNetworkPanel } from "./NetworkRequestsProvider";
@@ -11,7 +16,10 @@ import {
 } from "./ui/collapsible";
 import { ScrollArea } from "./ui/scroll-area";
 
-function formatDuration(ms: number): string {
+function formatDuration(ms: number | null): string {
+  if (ms === null) {
+    return "...";
+  }
   if (ms < 1000) {
     return `${Math.round(ms)}ms`;
   }
@@ -33,7 +41,10 @@ function getMethodColor(method: NetworkRequest["method"]): string {
   }
 }
 
-function getStatusColor(status: number): string {
+function getStatusColor(status: number | "pending"): string {
+  if (status === "pending") {
+    return "text-orange-400";
+  }
   if (status >= 200 && status < 300) {
     return "text-green-400";
   }
@@ -71,6 +82,7 @@ function JsonViewer({ data, label }: { data: unknown; label: string }) {
 
 function RequestItem({ request }: { request: NetworkRequest }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isPending = request.status === "pending";
 
   return (
     <div className="border-b border-border last:border-b-0">
@@ -89,11 +101,15 @@ function RequestItem({ request }: { request: NetworkRequest }) {
           <span className="flex-1 font-mono text-xs truncate">
             {request.pathname}
           </span>
-          <span
-            className={`text-xs font-mono ${getStatusColor(request.status)}`}
-          >
-            {request.status}
-          </span>
+          {isPending ? (
+            <LoaderIcon className="h-3 w-3 text-orange-400 animate-spin" />
+          ) : (
+            <span
+              className={`text-xs font-mono ${getStatusColor(request.status)}`}
+            >
+              {request.status}
+            </span>
+          )}
           <span className="text-xs text-muted-foreground font-mono">
             {formatDuration(request.duration)}
           </span>
@@ -110,7 +126,9 @@ function RequestItem({ request }: { request: NetworkRequest }) {
             {new Date(request.timestamp).toLocaleTimeString()}
           </div>
           <JsonViewer data={request.requestBody} label="Request Body" />
-          <JsonViewer data={request.responseBody} label="Response Body" />
+          {!isPending && (
+            <JsonViewer data={request.responseBody} label="Response Body" />
+          )}
         </div>
       )}
     </div>

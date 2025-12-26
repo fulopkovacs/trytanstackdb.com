@@ -16,8 +16,8 @@ export interface NetworkRequest {
   pathname: string;
   requestBody?: unknown;
   responseBody?: unknown;
-  status: number;
-  duration: number; // ms
+  status: number | "pending";
+  duration: number | null; // null when pending
 }
 
 interface NetworkPanelContextValue {
@@ -25,6 +25,12 @@ interface NetworkPanelContextValue {
   setIsOpen: (open: boolean) => void;
   requests: NetworkRequest[];
   addRequest: (request: NetworkRequest) => void;
+  updateRequest: (
+    id: string,
+    updates: Partial<
+      Pick<NetworkRequest, "responseBody" | "status" | "duration">
+    >,
+  ) => void;
   clearRequests: () => void;
 }
 
@@ -37,14 +43,30 @@ const NetworkPanelContext = createContext<NetworkPanelContextValue | null>(
   null,
 );
 
-// Custom event type for network request logging
-export interface NetworkRequestLoggedEvent extends CustomEvent {
-  detail: NetworkRequest;
+// Custom event types for network request logging
+export interface NetworkRequestStartedEvent extends CustomEvent {
+  detail: {
+    id: string;
+    timestamp: number;
+    method: NetworkRequest["method"];
+    pathname: string;
+    requestBody?: unknown;
+  };
+}
+
+export interface NetworkRequestCompletedEvent extends CustomEvent {
+  detail: {
+    id: string;
+    responseBody?: unknown;
+    status: number;
+    duration: number;
+  };
 }
 
 declare global {
   interface WindowEventMap {
-    "network-request-logged": NetworkRequestLoggedEvent;
+    "network-request-started": NetworkRequestStartedEvent;
+    "network-request-completed": NetworkRequestCompletedEvent;
   }
 }
 
@@ -76,6 +98,21 @@ export function NetworkRequestsProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Update an existing request (e.g., when it completes)
+  const updateRequest = useCallback(
+    (
+      id: string,
+      updates: Partial<
+        Pick<NetworkRequest, "responseBody" | "status" | "duration">
+      >,
+    ) => {
+      setRequests((prev) =>
+        prev.map((req) => (req.id === id ? { ...req, ...updates } : req)),
+      );
+    },
+    [],
+  );
+
   // Clear all requests
   const clearRequests = useCallback(() => {
     setRequests([]);
@@ -83,18 +120,46 @@ export function NetworkRequestsProvider({ children }: { children: ReactNode }) {
 
   // Listen for network request events from pgliteHelpers
   const addRequestRef = useRef(addRequest);
+  const updateRequestRef = useRef(updateRequest);
   addRequestRef.current = addRequest;
+  updateRequestRef.current = updateRequest;
 
   useEffect(() => {
-    const handleNetworkRequest = (event: NetworkRequestLoggedEvent) => {
-      addRequestRef.current(event.detail);
+    const handleRequestStarted = (event: NetworkRequestStartedEvent) => {
+      const { id, timestamp, method, pathname, requestBody } = event.detail;
+      addRequestRef.current({
+        id,
+        timestamp,
+        method,
+        pathname,
+        requestBody,
+        status: "pending",
+        duration: null,
+      });
     };
 
-    window.addEventListener("network-request-logged", handleNetworkRequest);
+    const handleRequestCompleted = (event: NetworkRequestCompletedEvent) => {
+      const { id, responseBody, status, duration } = event.detail;
+      updateRequestRef.current(id, {
+        responseBody,
+        status,
+        duration,
+      });
+    };
+
+    window.addEventListener("network-request-started", handleRequestStarted);
+    window.addEventListener(
+      "network-request-completed",
+      handleRequestCompleted,
+    );
     return () => {
       window.removeEventListener(
-        "network-request-logged",
-        handleNetworkRequest,
+        "network-request-started",
+        handleRequestStarted,
+      );
+      window.removeEventListener(
+        "network-request-completed",
+        handleRequestCompleted,
       );
     };
   }, []);
@@ -106,6 +171,7 @@ export function NetworkRequestsProvider({ children }: { children: ReactNode }) {
         setIsOpen,
         requests,
         addRequest,
+        updateRequest,
         clearRequests,
       }}
     >
