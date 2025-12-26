@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import {
+  ClientOnly,
   createRootRouteWithContext,
   HeadContent,
   Scripts,
@@ -8,9 +9,12 @@ import { ThemeProvider } from "@/components/theme-provider";
 import appCss from "../styles.css?url";
 import "prismjs/themes/prism-tomorrow.css"; // or any other Prism theme
 import { ScriptOnce } from "@tanstack/react-router";
-import { TriangleAlertIcon } from "lucide-react";
+import { RotateCwIcon, TriangleAlertIcon } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/sonner";
+import { client, idbName } from "@/db";
 import { seo } from "@/utils/seo";
 
 interface MyRouterContext {
@@ -58,10 +62,59 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   errorComponent: ErrorComponent,
 });
 
+function RemoveDB() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const removeDB = useCallback(async () => {
+    if (typeof window !== "undefined" && "indexedDB" in window) {
+      try {
+        console.log({ idbName });
+        await client.close();
+        const request = window.indexedDB.deleteDatabase(idbName);
+        request.onsuccess = () => {
+          window.location.reload();
+        };
+        request.onerror = () => {
+          const errorMessage = "Failed to delete database";
+          console.error(errorMessage);
+          setErrorMessage(errorMessage);
+        };
+        request.onblocked = () => {
+          const errorMessage =
+            "Database deletion blocked - close other tabs using this site";
+          setErrorMessage(errorMessage);
+          console.warn(errorMessage);
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+        console.error("Error deleting database:", errorMessage);
+        setErrorMessage(errorMessage);
+      }
+    }
+  }, []);
+
+  return (
+    <ClientOnly>
+      <Button
+        className="w-fit mx-auto"
+        variant="destructive"
+        onClick={removeDB}
+      >
+        <RotateCwIcon /> Reset the db
+      </Button>
+      <p className="text-destructive font-bold text-center">{errorMessage}</p>
+    </ClientOnly>
+  );
+}
+
 function ErrorComponent({ error }: { error: unknown }) {
   const isServiceWorkerError =
     error instanceof Error &&
     error.message.includes("navigator.serviceWorker.addEventListener");
+
+  const isDbQueryError =
+    error instanceof Error && error.message.startsWith("Failed query: ");
 
   return (
     <div className="fixed inset-0 w-screen h-screen flex justify-center items-center p-6 bg-background">
@@ -84,6 +137,14 @@ function ErrorComponent({ error }: { error: unknown }) {
                 Workers. Please try using a different browser or updating your
                 current one.
               </p>
+            </>
+          ) : isDbQueryError ? (
+            <>
+              <p>
+                There was an issue executing a database query. Please ensure
+                that the backend server is running and accessible.
+              </p>
+              <RemoveDB />
             </>
           ) : null}
           <p className="font-bold">Error message:</p>
