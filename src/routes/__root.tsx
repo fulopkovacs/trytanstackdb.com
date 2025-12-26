@@ -8,10 +8,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 import appCss from "../styles.css?url";
 import "prismjs/themes/prism-tomorrow.css"; // or any other Prism theme
 import { ScriptOnce } from "@tanstack/react-router";
+import { TriangleAlertIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/sonner";
 import { seo } from "@/utils/seo";
-import { TriangleAlertIcon } from "lucide-react";
 
 interface MyRouterContext {
   queryClient: QueryClient;
