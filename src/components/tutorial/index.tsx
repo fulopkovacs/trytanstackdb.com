@@ -15,7 +15,7 @@ export const highlightParamSchema = z.object({
       "project_projectPage",
       "board",
       "editProject",
-      "networkLatencyCofigurator",
+      "apiLatencyConfigurator",
     ])
     .optional(),
 });
