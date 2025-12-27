@@ -101,21 +101,35 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
 
             await new Promise((resolve) => setTimeout(resolve, delay));
 
-            const response = await deconstructResponseFromHandler(
-              await handler(constructRequestForHandler(requestData)),
-            );
+            try {
+              const response = await deconstructResponseFromHandler(
+                await handler(constructRequestForHandler(requestData)),
+              );
 
-            const duration = performance.now() - startTime;
+              const duration = performance.now() - startTime;
 
-            apiRequestsCollection.update(requestId, (draft) => {
-              draft.responseBody = response.body;
-              draft.status = response.status;
-              draft.duration = duration;
+              apiRequestsCollection.update(requestId, (draft) => {
+                draft.responseBody = response.body;
+                draft.status = response.status;
+                draft.duration = duration;
 
-              return draft;
-            });
+                return draft;
+              });
 
-            return response;
+              return response;
+            } catch (error) {
+              const duration = performance.now() - startTime;
+              apiRequestsCollection.update(requestId, (draft) => {
+                draft.status = 500;
+                draft.duration = duration;
+                draft.responseBody = {
+                  error:
+                    error instanceof Error ? error.message : "Unknown error",
+                };
+                return draft;
+              });
+              throw error;
+            }
           } else {
             throw new Error("No handler found for this request");
           }
