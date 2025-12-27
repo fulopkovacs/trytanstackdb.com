@@ -79,7 +79,7 @@ function JsonViewer({ data, label }: { data: unknown; label: string }) {
         {label}
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <pre className="mt-1 p-2 bg-muted/50 rounded text-xs overflow-x-auto max-h-40 overflow-y-auto">
+        <pre className="mt-1 whitespace-pre-wrap p-2 bg-muted/50 rounded text-xs overflow-x-auto max-h-40 overflow-y-auto">
           {JSON.stringify(data, null, 2)}
         </pre>
       </CollapsibleContent>
