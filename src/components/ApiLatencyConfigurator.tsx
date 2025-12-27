@@ -44,7 +44,7 @@ export function ApiLatencyConfigurator() {
     const savedLatency = localStorage.getItem(API_LATENCY_LOCALSTORAGE_KEY);
     const latency = apiLatencyInMsSchema.parse(savedLatency);
 
-    setSelectedLatency(latency as ApiLatency);
+    setSelectedLatency(latency);
   }, []);
 
   return (
