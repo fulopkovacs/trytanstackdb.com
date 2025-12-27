@@ -1,8 +1,8 @@
 import { GlobeIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
-  NETWORK_LATENCY_LOCALSTORAGE_KEY,
-  networkLatencyInMsSchema,
+  API_LATENCY_LOCALSTORAGE_KEY,
+  apiLatencyInMsSchema,
 } from "@/client/pgliteHelpers";
 import { cn } from "@/lib/utils";
 import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
@@ -10,44 +10,41 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
 
-type NetworkLatency = 0 | 1000 | 2000 | 5000;
+type ApiLatency = 0 | 1000 | 2000 | 5000;
 
-type NetworkLatencyOption = {
+type ApiLatencyOption = {
   label: string;
-  value: NetworkLatency;
+  value: ApiLatency;
   color: string;
 };
 
-const networkLatencyOptions: NetworkLatencyOption[] = [
+const apiLatencyOptions: ApiLatencyOption[] = [
   { label: "No latency", value: 0, color: "green" },
   { label: "1s", value: 1_000, color: "lime" },
   { label: "2s", value: 2_000, color: "orange" },
   { label: "5s", value: 5_000, color: "red" },
 ];
 
-export function NetworkLatencyConfigurator() {
+export function ApiLatencyConfigurator() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLatency, setSelectedLatency] = useState<NetworkLatency>(1_000);
+  const [selectedLatency, setSelectedLatency] = useState<ApiLatency>(1_000);
 
-  function handleSelectLatency(option: NetworkLatencyOption) {
-    localStorage.setItem(
-      NETWORK_LATENCY_LOCALSTORAGE_KEY,
-      option.value.toString(),
-    );
+  function handleSelectLatency(option: ApiLatencyOption) {
+    localStorage.setItem(API_LATENCY_LOCALSTORAGE_KEY, option.value.toString());
     setSelectedLatency(option.value);
     setIsOpen(false);
   }
 
   useEffect(() => {
     // get the saved latency from localStorage
-    const savedLatency = localStorage.getItem(NETWORK_LATENCY_LOCALSTORAGE_KEY);
-    const latency = networkLatencyInMsSchema.parse(savedLatency);
+    const savedLatency = localStorage.getItem(API_LATENCY_LOCALSTORAGE_KEY);
+    const latency = apiLatencyInMsSchema.parse(savedLatency);
 
-    setSelectedLatency(latency as NetworkLatency);
+    setSelectedLatency(latency as ApiLatency);
   }, []);
 
   return (
-    <HighlightWrapper highlightId="networkLatencyCofigurator">
+    <HighlightWrapper highlightId="apiLatencyConfigurator">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="icon">
@@ -66,7 +63,7 @@ export function NetworkLatencyConfigurator() {
         </PopoverTrigger>
         <PopoverContent className="w-fit max-w-80 flex flex-col gap-2">
           <p className="text-sm text-foreground font-bold">
-            Select the network latency you want to emulate.
+            Select the API latency you want to emulate.
           </p>
           <p className="text-xs text-muted-foreground">
             Note that requests won't show up in the Network tab of the DevTools
@@ -77,7 +74,7 @@ export function NetworkLatencyConfigurator() {
             worker and this implementation comes with this limitation.
           </p>
           <Separator orientation="horizontal" />
-          {networkLatencyOptions.map((option) => (
+          {apiLatencyOptions.map((option) => (
             <div key={option.value} className="">
               <Button
                 key={option.value}

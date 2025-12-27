@@ -5,8 +5,8 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import type { NetworkRequest } from "./NetworkRequestsProvider";
-import { useNetworkPanel } from "./NetworkRequestsProvider";
+import type { ApiRequest } from "./ApiRequestsProvider";
+import { useApiPanel } from "./ApiRequestsProvider";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -26,7 +26,7 @@ function formatDuration(ms: number | null): string {
   return `${(ms / 1000).toFixed(2)}s`;
 }
 
-function getMethodColor(method: NetworkRequest["method"]): string {
+function getMethodColor(method: ApiRequest["method"]): string {
   switch (method) {
     case "GET":
       return "bg-blue-500/20 text-blue-400 border-blue-500/30";
@@ -80,7 +80,7 @@ function JsonViewer({ data, label }: { data: unknown; label: string }) {
   );
 }
 
-function RequestItem({ request }: { request: NetworkRequest }) {
+function RequestItem({ request }: { request: ApiRequest }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isPending = request.status === "pending";
 
@@ -135,8 +135,8 @@ function RequestItem({ request }: { request: NetworkRequest }) {
   );
 }
 
-export function NetworkRequestsPanel() {
-  const { requests, clearRequests } = useNetworkPanel();
+export function ApiRequestsPanel() {
+  const { requests, clearRequests } = useApiPanel();
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevRequestsLengthRef = useRef(requests.length);
 
@@ -161,7 +161,7 @@ export function NetworkRequestsPanel() {
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b bg-muted/30">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-medium">Network Requests</h2>
+          <h2 className="text-sm font-medium">API Requests</h2>
           <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
             {requests.length}
           </Badge>

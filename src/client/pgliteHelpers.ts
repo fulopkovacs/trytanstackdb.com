@@ -13,9 +13,8 @@ import {
   requestSchema,
 } from "@/local-api/helpers";
 
-export const NETWORK_LATENCY_LOCALSTORAGE_KEY =
-  "__TRYTANSTACKDB_API_DELAY_MS__";
-export const networkLatencyInMsSchema = z
+export const API_LATENCY_LOCALSTORAGE_KEY = "__TRYTANSTACKDB_API_DELAY_MS__";
+export const apiLatencyInMsSchema = z
   .string()
   .transform((t) => parseInt(t, 10))
   .default(1_000)
@@ -85,7 +84,7 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
 
             // Emit "started" event immediately so UI shows pending state
             window.dispatchEvent(
-              new CustomEvent("network-request-started", {
+              new CustomEvent("api-request-started", {
                 detail: {
                   id: requestId,
                   timestamp: Date.now(),
@@ -97,8 +96,8 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
             );
 
             // Simulate a delay for demonstration purposes
-            const delay = networkLatencyInMsSchema.parse(
-              localStorage.getItem(NETWORK_LATENCY_LOCALSTORAGE_KEY),
+            const delay = apiLatencyInMsSchema.parse(
+              localStorage.getItem(API_LATENCY_LOCALSTORAGE_KEY),
             );
 
             await new Promise((resolve) => setTimeout(resolve, delay));
@@ -111,7 +110,7 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
 
             // Emit "completed" event with response data
             window.dispatchEvent(
-              new CustomEvent("network-request-completed", {
+              new CustomEvent("api-request-completed", {
                 detail: {
                   id: requestId,
                   responseBody: response.body,

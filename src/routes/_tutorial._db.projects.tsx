@@ -1,11 +1,11 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
-import { NetworkRequestsPanel } from "@/components/NetworkRequestsPanel";
+import { ApiRequestsPanel } from "@/components/ApiRequestsPanel";
 import {
-  NetworkRequestsProvider,
-  useNetworkPanel,
-} from "@/components/NetworkRequestsProvider";
+  ApiRequestsProvider,
+  useApiPanel,
+} from "@/components/ApiRequestsProvider";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_tutorial/_db/projects")({
 });
 
 function MainLayout() {
-  const { isOpen } = useNetworkPanel();
+  const { isOpen } = useApiPanel();
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden max-h-screen h-screen">
@@ -42,7 +42,7 @@ function MainLayout() {
           <>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={25} minSize={15} maxSize={50}>
-              <NetworkRequestsPanel />
+              <ApiRequestsPanel />
             </ResizablePanel>
           </>
         )}
@@ -56,9 +56,9 @@ function RouteComponent() {
 
   return (
     <SidebarProvider className="w-auto" defaultOpen>
-      <NetworkRequestsProvider>
+      <ApiRequestsProvider>
         <MainLayout />
-      </NetworkRequestsProvider>
+      </ApiRequestsProvider>
     </SidebarProvider>
   );
 }
