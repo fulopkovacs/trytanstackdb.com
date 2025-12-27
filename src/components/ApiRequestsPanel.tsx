@@ -18,6 +18,7 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { ScrollArea } from "./ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 async function clearRequests() {
   const ids = (await apiRequestsCollection.toArrayWhenReady()).map(
@@ -34,34 +35,6 @@ function formatDuration(ms: number | null): string {
     return `${Math.round(ms)}ms`;
   }
   return `${(ms / 1000).toFixed(2)}s`;
-}
-
-function getMethodColor(method: ApiRequest["method"]): string {
-  switch (method) {
-    case "GET":
-      return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-    case "POST":
-      return "bg-green-500/20 text-green-400 border-green-500/30";
-    case "PATCH":
-      return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-    case "DELETE":
-      return "bg-red-500/20 text-red-400 border-red-500/30";
-    default:
-      return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-  }
-}
-
-function getStatusColor(status: number | "pending"): string {
-  if (status === "pending") {
-    return "text-orange-400";
-  }
-  if (status >= 200 && status < 300) {
-    return "text-green-400";
-  }
-  if (status >= 400) {
-    return "text-red-400";
-  }
-  return "text-yellow-400";
 }
 
 function JsonViewer({ data, label }: { data: unknown; label: string }) {
@@ -104,7 +77,18 @@ function RequestItem({ request }: { request: ApiRequest }) {
         <div className="flex items-center gap-2">
           <Badge
             variant="outline"
-            className={`font-mono text-[10px] px-1.5 py-0 ${getMethodColor(request.method)}`}
+            className={cn(
+              `font-mono text-[10px] px-1.5 py-0`,
+              request.method === "GET"
+                ? "bg-blue-100 text-blue-700  border-blue-700/30  dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30"
+                : request.method === "POST"
+                  ? "bg-green-200 text-green-700 border-green-400 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30"
+                  : request.method === "PATCH"
+                    ? "bg-yellow-200  text-yellow-700 border-yellow-700/30 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30"
+                    : request.method === "DELETE"
+                      ? "bg-red-100 text-red-500 border-red-400 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30"
+                      : "bg-gray-200 text-gray-600 border-gray-400 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/30",
+            )}
           >
             {request.method}
           </Badge>
@@ -115,7 +99,16 @@ function RequestItem({ request }: { request: ApiRequest }) {
             <LoaderIcon className="h-3 w-3 text-orange-400 animate-spin" />
           ) : (
             <span
-              className={`text-xs font-mono ${getStatusColor(request.status)}`}
+              className={cn(
+                "text-xs font-mono",
+                request.status === "pending"
+                  ? "text-orange-400 dark:text-orange-300"
+                  : request.status >= 200 && request.status < 300
+                    ? "text-green-500 dark:text-green-300"
+                    : request.status >= 400
+                      ? "text-destructive"
+                      : "text-yellow-500 dark:text-yellow-400",
+              )}
             >
               {request.status}
             </span>
