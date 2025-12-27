@@ -1,16 +1,19 @@
-import { useLiveQuery } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
   LoaderIcon,
   Trash2Icon,
 } from "lucide-react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import {
   type ApiRequest,
   apiRequestsCollection,
 } from "@/collections/apiRequests";
+import { userPreferencesCollection } from "@/collections/UserPreferences";
 import { cn } from "@/lib/utils";
+import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -19,6 +22,9 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { ScrollArea } from "./ui/scroll-area";
+
+const API_PANEL_WIDTH = "24rem";
+const PANEL_ANIMATION_DURATION = 0.15;
 
 async function clearRequests() {
   const ids = (await apiRequestsCollection.toArrayWhenReady()).map(
@@ -149,44 +155,76 @@ export function ApiRequestsPanel() {
     [],
   );
 
-  return (
-    <div className="flex flex-col h-full max-h-full overflow-hidden bg-background">
-      {/* Header */}
-      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b bg-muted/30">
-        <div className="flex items-center gap-2">
-          <h2 className="text-sm font-medium">API Requests</h2>
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-            {requests.length}
-          </Badge>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={clearRequests}
-          disabled={requests.length === 0}
-        >
-          <Trash2Icon />
-          <span className="sr-only">Clear requests</span>
-        </Button>
-      </div>
+  const { data: userPreferences } = useLiveQuery((q) =>
+    q
+      .from({
+        userPreferences: userPreferencesCollection,
+      })
+      .where(({ userPreferences }) =>
+        eq(userPreferences.id, USER_PLACEHOLDER.id),
+      )
+      .findOne(),
+  );
 
-      {/* Request list */}
-      <ScrollArea className="flex-1 min-h-0">
-        {requests.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-            <p className="text-sm text-muted-foreground">No requests yet</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              API requests will appear here
-            </p>
+  const isApiPanelOpen = userPreferences?.networkPanel === "open";
+
+  return (
+    <motion.div
+      initial={false}
+      animate={{
+        width: isApiPanelOpen ? API_PANEL_WIDTH : 0,
+      }}
+      className="shrink-0 h-full overflow-hidden border-l border-border"
+      transition={{
+        duration: PANEL_ANIMATION_DURATION,
+        delay: isApiPanelOpen ? 0 : PANEL_ANIMATION_DURATION,
+      }}
+    >
+      <motion.div
+        className="flex flex-col h-full max-h-full overflow-hidden bg-background"
+        animate={{ opacity: isApiPanelOpen ? 1 : 0 }}
+        transition={{
+          duration: PANEL_ANIMATION_DURATION,
+          delay: isApiPanelOpen ? PANEL_ANIMATION_DURATION : 0,
+        }}
+      >
+        {/* Header */}
+        <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-medium">API Requests</h2>
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+              {requests.length}
+            </Badge>
           </div>
-        ) : (
-          <div>
-            {requests.map((request) => (
-              <RequestItem key={request.id} request={request} />
-            ))}
-          </div>
-        )}
-      </ScrollArea>
-    </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={clearRequests}
+            disabled={requests.length === 0}
+          >
+            <Trash2Icon />
+            <span className="sr-only">Clear requests</span>
+          </Button>
+        </div>
+
+        {/* Request list */}
+        <ScrollArea className="flex-1 min-h-0">
+          {requests.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+              <p className="text-sm text-muted-foreground">No requests yet</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                API requests will appear here
+              </p>
+            </div>
+          ) : (
+            <div>
+              {requests.map((request) => (
+                <RequestItem key={request.id} request={request} />
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -201,7 +201,7 @@ function ServiceWorkerLoader() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="overflow-hidden">
       <head>
         <HeadContent />
       </head>
