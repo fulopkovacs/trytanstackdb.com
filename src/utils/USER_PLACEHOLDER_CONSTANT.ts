@@ -1,4 +1,4 @@
-import type { UserRecord } from "./db/schema";
+import type { UserRecord } from "@/db/schema";
 
 /**
   @note placeholder for the user data

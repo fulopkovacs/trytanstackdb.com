@@ -10,7 +10,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { USER_PLACEHOLDER } from "@/USER_PLACEHOLDER_CONSTANT";
+import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
 
 export const Route = createFileRoute("/_tutorial/_db/projects")({
   component: RouteComponent,

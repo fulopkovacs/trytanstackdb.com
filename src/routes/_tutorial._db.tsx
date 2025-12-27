@@ -6,7 +6,7 @@ import {
 } from "@/client/pgliteHelpers";
 import { userPreferencesCollection } from "@/collections/UserPreferences";
 import { FakeProgressIndicator } from "@/components/FakeProgressIndicator";
-import { USER_PLACEHOLDER } from "@/USER_PLACEHOLDER_CONSTANT";
+import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
 
 export const Route = createFileRoute("/_tutorial/_db")({
   // the database is local to the browser, so no SSR
