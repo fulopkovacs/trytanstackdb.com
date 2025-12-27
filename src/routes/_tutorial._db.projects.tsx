@@ -33,7 +33,10 @@ function MainLayout() {
       <ResizablePanel defaultSize={isOpen ? 75 : 100} minSize={50}>
         <main className="flex flex-1 flex-col overflow-hidden max-h-screen h-screen">
           <Header />
-          <Outlet />
+          <div className="grow flex relative">
+            <AppSidebar />
+            <Outlet />
+          </div>
         </main>
       </ResizablePanel>
       {isOpen && (
@@ -58,7 +61,6 @@ function RouteComponent() {
 
   return (
     <SidebarProvider className="w-auto" defaultOpen>
-      <AppSidebar />
       <NetworkRequestsProvider>
         <MainLayout />
       </NetworkRequestsProvider>
