@@ -10,6 +10,7 @@ import {
   type ApiRequest,
   apiRequestsCollection,
 } from "@/collections/apiRequests";
+import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -18,7 +19,6 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { ScrollArea } from "./ui/scroll-area";
-import { cn } from "@/lib/utils";
 
 async function clearRequests() {
   const ids = (await apiRequestsCollection.toArrayWhenReady()).map(
