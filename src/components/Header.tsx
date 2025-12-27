@@ -1,9 +1,9 @@
 import { ClientOnly } from "@tanstack/react-router";
 import { BugIcon, GithubIcon } from "lucide-react";
-import { ConfigureDB } from "./ConfigureDB";
-import { ModeToggle } from "./mode-toggle";
 import { ApiLatencyConfigurator } from "./ApiLatencyConfigurator";
 import { ApiPanelToggle } from "./ApiPanelToggle";
+import { ConfigureDB } from "./ConfigureDB";
+import { ModeToggle } from "./mode-toggle";
 import { ResetTheDbDialog } from "./ResetTheDbDialog";
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";

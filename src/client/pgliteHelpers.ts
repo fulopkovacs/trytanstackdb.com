@@ -2,6 +2,7 @@
 
 import { createIsomorphicFn } from "@tanstack/react-start";
 import z from "zod";
+import { apiRequestsCollection } from "@/collections/apiRequests";
 import { client } from "@/db";
 import { migrate } from "@/db/migrate";
 import { seed } from "@/db/seed";
@@ -83,17 +84,15 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
             const startTime = performance.now();
 
             // Emit "started" event immediately so UI shows pending state
-            window.dispatchEvent(
-              new CustomEvent("api-request-started", {
-                detail: {
-                  id: requestId,
-                  timestamp: Date.now(),
-                  method: requestData.method,
-                  pathname: requestData.pathname,
-                  requestBody: requestData.requestBody,
-                },
-              }),
-            );
+            apiRequestsCollection.insert({
+              id: requestId,
+              timestamp: Date.now(),
+              method: requestData.method,
+              pathname: requestData.pathname,
+              requestBody: requestData.requestBody,
+              status: "pending",
+              duration: null,
+            });
 
             // Simulate a delay for demonstration purposes
             const delay = apiLatencyInMsSchema.parse(
@@ -108,17 +107,13 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
 
             const duration = performance.now() - startTime;
 
-            // Emit "completed" event with response data
-            window.dispatchEvent(
-              new CustomEvent("api-request-completed", {
-                detail: {
-                  id: requestId,
-                  responseBody: response.body,
-                  status: response.status,
-                  duration,
-                },
-              }),
-            );
+            apiRequestsCollection.update(requestId, (draft) => {
+              draft.responseBody = response.body;
+              draft.status = response.status;
+              draft.duration = duration;
+
+              return draft;
+            });
 
             return response;
           } else {

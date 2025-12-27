@@ -1,3 +1,4 @@
+import { useLiveQuery } from "@tanstack/react-db";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -5,8 +6,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import type { ApiRequest } from "./ApiRequestsProvider";
-import { useApiPanel } from "./ApiRequestsProvider";
+import { ApiRequest, apiRequestsCollection } from "@/collections/apiRequests";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -15,6 +15,13 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { ScrollArea } from "./ui/scroll-area";
+
+async function clearRequests() {
+  const ids = (await apiRequestsCollection.toArrayWhenReady()).map(
+    ({ id }) => id,
+  );
+  apiRequestsCollection.delete(ids);
+}
 
 function formatDuration(ms: number | null): string {
   if (ms === null) {
@@ -136,7 +143,16 @@ function RequestItem({ request }: { request: ApiRequest }) {
 }
 
 export function ApiRequestsPanel() {
-  const { requests, clearRequests } = useApiPanel();
+  const { data: requests } = useLiveQuery(
+    (q) =>
+      q
+        .from({
+          apiRequest: apiRequestsCollection,
+        })
+        .orderBy(({ apiRequest }) => apiRequest.timestamp, "desc"),
+    [],
+  );
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevRequestsLengthRef = useRef(requests.length);
 
