@@ -51,6 +51,11 @@ We use `vitest` for the tests.
 
 All tests are in `__test__/`.
 
-## Validating your code
+# Validating your code
 
 NEVER run the dev server (e.g.: `pnpm dev`)!
+
+# Coding style
+
+- Prefer functions over arrow functions for React components and everything else
+- Prefer `type`-s over `interface`-s
