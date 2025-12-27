@@ -5,7 +5,7 @@ import {
   LoaderIcon,
   Trash2Icon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   type ApiRequest,
   apiRequestsCollection,
@@ -156,25 +156,6 @@ export function ApiRequestsPanel() {
     [],
   );
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const prevRequestsLengthRef = useRef(requests.length);
-
-  // Auto-scroll to bottom when new requests are added
-  if (prevRequestsLengthRef.current !== requests.length) {
-    prevRequestsLengthRef.current = requests.length;
-    // Schedule scroll after render
-    setTimeout(() => {
-      if (scrollRef.current) {
-        const scrollContainer = scrollRef.current.querySelector(
-          '[data-slot="scroll-area-viewport"]',
-        );
-        if (scrollContainer) {
-          scrollContainer.scrollTop = scrollContainer.scrollHeight;
-        }
-      }
-    }, 0);
-  }
-
   return (
     <div className="flex flex-col h-full max-h-full overflow-hidden bg-background">
       {/* Header */}
@@ -197,7 +178,7 @@ export function ApiRequestsPanel() {
       </div>
 
       {/* Request list */}
-      <ScrollArea className="flex-1 min-h-0" ref={scrollRef}>
+      <ScrollArea className="flex-1 min-h-0">
         {requests.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-4 text-center">
             <p className="text-sm text-muted-foreground">No requests yet</p>
