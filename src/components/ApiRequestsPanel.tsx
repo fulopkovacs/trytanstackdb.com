@@ -6,7 +6,10 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import { ApiRequest, apiRequestsCollection } from "@/collections/apiRequests";
+import {
+  type ApiRequest,
+  apiRequestsCollection,
+} from "@/collections/apiRequests";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
