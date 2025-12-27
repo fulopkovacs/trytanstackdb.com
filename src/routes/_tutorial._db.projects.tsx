@@ -41,7 +41,12 @@ function MainLayout() {
         {isOpen && (
           <>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={25} minSize={15} maxSize={50}>
+            <ResizablePanel
+              defaultSize={25}
+              minSize={15}
+              maxSize={50}
+              className="max-w-sm"
+            >
               <ApiRequestsPanel />
             </ResizablePanel>
           </>
