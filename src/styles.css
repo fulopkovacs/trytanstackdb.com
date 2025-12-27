@@ -7,9 +7,9 @@
 
 body {
   @apply m-0;
-  font-family:
-    'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  /* font-family: */
+  /*   'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', */
+  /*   'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -92,15 +92,6 @@ code {
   --tracking-normal:
     -0.025em;
 
-  --font-sans:
-    DM Sans, ui-sans-serif, sans-serif, system-ui;
-
-  --font-serif:
-    DM Sans, sans-serif;
-
-  --font-mono:
-    Space Mono, monospace;
-
   --shadow-color:
     #1a1a1a;
 
@@ -148,6 +139,13 @@ code {
 
   --shadow-2xl:
     0px 0px 0px 0px hsl(0 0% 10.1961% / 0.13);
+
+  --font-sans:
+    Space Grotesk, ui-sans-serif, sans-serif, system-ui;
+  --font-mono:
+    Iosevka Term Slab Web, monospace;
+  /* --font-serif: */
+  /*   DM Sans, sans-serif; */
 }
 
 .dark {
@@ -217,12 +215,6 @@ code {
   --success: oklch(87.1% 0.15 154.449);
   --radius:
     1rem;
-  --font-sans:
-    DM Sans, ui-sans-serif, sans-serif, system-ui;
-  --font-serif:
-    DM Sans, sans-serif;
-  --font-mono:
-    Space Mono, monospace;
   --shadow-color:
     #1a1a1a;
   --shadow-opacity:
@@ -308,12 +300,6 @@ code {
     calc(var(--tracking-normal) + 0.05em);
   --tracking-widest:
     calc(var(--tracking-normal) + 0.1em);
-  --font-sans:
-    DM Sans, ui-sans-serif, sans-serif, system-ui;
-  --font-mono:
-    Space Mono, monospace;
-  --font-serif:
-    DM Sans, sans-serif;
   --radius:
     1rem;
   --shadow-2xl:

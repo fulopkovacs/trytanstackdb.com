@@ -54,6 +54,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         rel: "stylesheet",
+        href: "https://iosevka-webfonts.github.io/unhinted-iosevka-term-slab/iosevka-term-slab-unhinted.css",
+      },
+      {
+        rel: "stylesheet",
         href: appCss,
       },
     ],
