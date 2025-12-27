@@ -1,33 +1,17 @@
 import { GlobeIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { z } from "zod";
-import { API_LATENCY_LOCALSTORAGE_KEY } from "@/client/pgliteHelpers";
 import { cn } from "@/lib/utils";
+import {
+  API_LATENCY_LOCALSTORAGE_KEY,
+  type ApiLatency,
+  type ApiLatencyOption,
+  apiLatencyInMsSchema,
+  apiLatencyOptions,
+} from "@/utils/apiLatency";
 import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
-
-export const apiLatencyInMsSchema = z
-  .enum(["0", "1000", "2000", "5000"])
-  .transform((t) => parseInt(t, 10))
-  .default(1_000)
-  .catch(1_000);
-
-type ApiLatency = z.infer<typeof apiLatencyInMsSchema>;
-
-type ApiLatencyOption = {
-  label: string;
-  value: ApiLatency;
-  color: string;
-};
-
-const apiLatencyOptions: ApiLatencyOption[] = [
-  { label: "No latency", value: 0, color: "green" },
-  { label: "1s", value: 1_000, color: "lime" },
-  { label: "2s", value: 2_000, color: "orange" },
-  { label: "5s", value: 5_000, color: "red" },
-];
 
 export function ApiLatencyConfigurator() {
   const [isOpen, setIsOpen] = useState(false);

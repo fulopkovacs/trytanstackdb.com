@@ -1,7 +1,7 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { ActivityIcon } from "lucide-react";
 import { userPreferencesCollection } from "@/collections/UserPreferences";
-import { USER_PLACEHOLDER } from "@/USER_PLACEHOLDER_CONSTANT";
+import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 

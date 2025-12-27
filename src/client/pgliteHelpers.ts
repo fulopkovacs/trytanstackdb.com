@@ -2,7 +2,6 @@
 
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { apiRequestsCollection } from "@/collections/apiRequests";
-import { apiLatencyInMsSchema } from "@/components/ApiLatencyConfigurator";
 import { client } from "@/db";
 import { migrate } from "@/db/migrate";
 import { seed } from "@/db/seed";
@@ -13,8 +12,10 @@ import {
   deconstructResponseFromHandler,
   requestSchema,
 } from "@/local-api/helpers";
-
-export const API_LATENCY_LOCALSTORAGE_KEY = "__TRYTANSTACKDB_API_DELAY_MS__";
+import {
+  API_LATENCY_LOCALSTORAGE_KEY,
+  apiLatencyInMsSchema,
+} from "@/utils/apiLatency";
 
 export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
   async () => {
