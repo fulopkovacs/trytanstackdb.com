@@ -32,8 +32,7 @@ For database-related tasks:
 
 ## Use pnpm
 
-Never use npm, yarn, or any other package manager in this project. All package
-operations should be performed with pnpm.
+Never use npm, yarn, or any other package manager in this project. All package operations should be performed with pnpm.
 
 ## Tech Stack
 
@@ -51,3 +50,7 @@ Here's the tech stack:
 We use `vitest` for the tests.
 
 All tests are in `__test__/`.
+
+## Validating your code
+
+NEVER run the dev server (e.g.: `pnpm dev`)!
