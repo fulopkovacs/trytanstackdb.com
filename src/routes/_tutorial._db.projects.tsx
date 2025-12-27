@@ -29,30 +29,25 @@ function MainLayout() {
   const { isOpen } = useNetworkPanel();
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="flex-1">
-      <ResizablePanel defaultSize={isOpen ? 75 : 100} minSize={50}>
-        <main className="flex flex-1 flex-col overflow-hidden max-h-screen h-screen">
-          <Header />
-          <div className="grow flex relative">
+    <main className="flex flex-1 flex-col overflow-hidden max-h-screen h-screen">
+      <Header />
+      <ResizablePanelGroup direction="horizontal" className="flex-1 min-h-0">
+        <ResizablePanel defaultSize={isOpen ? 75 : 100} minSize={50}>
+          <div className="h-full flex relative">
             <AppSidebar />
             <Outlet />
           </div>
-        </main>
-      </ResizablePanel>
-      {isOpen && (
-        <>
-          <ResizableHandle withHandle />
-          <ResizablePanel
-            defaultSize={25}
-            minSize={15}
-            maxSize={50}
-            className="h-screen max-h-screen"
-          >
-            <NetworkRequestsPanel />
-          </ResizablePanel>
-        </>
-      )}
-    </ResizablePanelGroup>
+        </ResizablePanel>
+        {isOpen && (
+          <>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={25} minSize={15} maxSize={50}>
+              <NetworkRequestsPanel />
+            </ResizablePanel>
+          </>
+        )}
+      </ResizablePanelGroup>
+    </main>
   );
 }
 
