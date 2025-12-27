@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3542",
+    "dev": "vite dev --port 3542 --strictPort false",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",
