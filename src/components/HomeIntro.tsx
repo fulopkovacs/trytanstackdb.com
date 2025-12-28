@@ -128,7 +128,7 @@ export function HomeIntro({
                 front-ends.
               </motion.p>
               <WavyLine />
-              <motion.ul className="flex flex-wrap gap-4">
+              <ul className="flex flex-wrap gap-4">
                 <FeatureItem emoji={"🚀"} title="User actions feel instant">
                   Updates show immediately while sync happens in the background.
                 </FeatureItem>
@@ -144,7 +144,7 @@ export function HomeIntro({
                 >
                   No new libs needed.
                 </FeatureItem>
-              </motion.ul>
+              </ul>
               <p className="max-w-sm text-center">
                 Sounds amazing, right? Learn the basics with this interactive
                 tutorial in 6-7 minutes!
