@@ -93,7 +93,10 @@ export function HomeIntro({
           initial="hidden"
           animate="show"
           variants={container}
-          exit="hidden"
+          exit={{
+            opacity: 0,
+            transition: { duration: 0.2 },
+          }}
           className={cn(
             "fixed top-0 left-0 right-0 p-6 bottom-0 bg-black/80 z-52 flex items-center justify-center backdrop-blur-xs",
           )}
