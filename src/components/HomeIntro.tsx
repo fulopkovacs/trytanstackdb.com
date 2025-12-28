@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRightIcon, DatabaseZap } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, stagger, Variants } from "motion/react";
 import { type ReactNode, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -13,6 +13,26 @@ import {
   CardTitle,
 } from "./ui/card";
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      when: "beforeChildren",
+      delayChildren: stagger(0.2),
+    },
+  },
+} satisfies Variants;
+
+const item = {
+  hidden: { opacity: 0, translateY: 20 },
+  show: {
+    opacity: 1,
+    translateY: 0,
+    transition: { duration: 0.4 },
+  },
+} satisfies Variants;
+
 function FeatureItem({
   children,
   title,
@@ -23,7 +43,7 @@ function FeatureItem({
   emoji: string;
 }) {
   return (
-    <li className="text-muted-foreground h-50 w-50">
+    <motion.li className="text-muted-foreground h-50 w-50" variants={item}>
       <Card className="gap-3 h-full">
         <CardHeader className="font-bold text-pretty">
           {emoji} {title}
@@ -32,7 +52,7 @@ function FeatureItem({
           <CardDescription>{children}</CardDescription>
         </CardContent>
       </Card>
-    </li>
+    </motion.li>
   );
 }
 
@@ -67,11 +87,13 @@ export function HomeIntro({
   }, [navigate]);
 
   return (
-    <AnimatePresence initial={false}>
+    <AnimatePresence initial={true}>
       {open && (
         <motion.div
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial="hidden"
+          animate="show"
+          variants={container}
+          exit="hidden"
           className={cn(
             "fixed top-0 left-0 right-0 p-6 bottom-0 bg-black/80 z-52 flex items-center justify-center backdrop-blur-xs",
           )}
@@ -86,7 +108,11 @@ export function HomeIntro({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 flex justify-center flex-col items-center">
-              <p className="text-xl font-bold max-w-md text-pretty text-center">
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-xl font-bold max-w-md text-pretty text-center"
+              >
                 <a
                   className="text-primary hover:underline hover:cursor-pointer"
                   target="_blank"
@@ -97,9 +123,9 @@ export function HomeIntro({
                 </a>{" "}
                 is a library that makes it really easy to build ⚡blazing fast⚡
                 front-ends.
-              </p>
+              </motion.p>
               <WavyLine />
-              <ul className="flex flex-wrap gap-4">
+              <motion.ul className="flex flex-wrap gap-4">
                 <FeatureItem emoji={"🚀"} title="User actions feel instant">
                   Updates show immediately while sync happens in the background.
                 </FeatureItem>
@@ -115,7 +141,7 @@ export function HomeIntro({
                 >
                   No new libs needed.
                 </FeatureItem>
-              </ul>
+              </motion.ul>
               <p className="max-w-sm text-center">
                 Sounds amazing, right? Learn the basics with this interactive
                 tutorial in 6-7 minutes!
