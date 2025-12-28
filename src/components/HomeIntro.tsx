@@ -7,19 +7,31 @@ import { Button } from "./ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "./ui/card";
 
-function Bold({ children }: { children: ReactNode }) {
-  return <span className="font-bold text-foreground">{children}</span>;
-}
-
-function FeatureItem({ children }: { children: ReactNode }) {
+function FeatureItem({
+  children,
+  title,
+  emoji,
+}: {
+  title: string;
+  children: ReactNode;
+  emoji: string;
+}) {
   return (
-    <li className="text-muted-foreground">
-      <span className="text-primary">★</span> {children}
+    <li className="text-muted-foreground h-full">
+      <Card className="gap-3 h-full">
+        <CardHeader className="font-bold text-pretty">
+          {emoji} {title}
+        </CardHeader>
+        <CardContent>
+          <CardDescription>{children}</CardDescription>
+        </CardContent>
+      </Card>
     </li>
   );
 }
@@ -64,7 +76,7 @@ export function HomeIntro({
             "fixed top-0 left-0 right-0 p-6 bottom-0 bg-black/80 z-52 flex items-center justify-center backdrop-blur-xs",
           )}
         >
-          <Card className="w-lg p-6 gap-10 max-h-full overflow-y-auto">
+          <Card className="w-xl p-6 gap-10 max-h-full overflow-y-auto bg-background">
             <CardHeader>
               <CardTitle className="flex justify-center">
                 <div className="text-sm flex gap-2 items-center px-4 py-1 rounded-full">
@@ -75,7 +87,7 @@ export function HomeIntro({
             </CardHeader>
             <CardContent className="space-y-6">
               <WavyLine />
-              <p className="text-xl font-bold">
+              <p className="text-xl font-bold max-w-md text-pretty text-center">
                 <a
                   className="text-primary hover:underline hover:cursor-pointer"
                   target="_blank"
@@ -88,18 +100,21 @@ export function HomeIntro({
                 front-ends.
               </p>
               <WavyLine />
-              <ul className="pl-4">
-                <FeatureItem>
-                  <Bold>user actions feel instant</Bold> – updates show
-                  immediately while sync happens in the background
+              <ul className="grid grid-cols-2 gap-3">
+                <FeatureItem emoji={"🚀"} title="User actions feel instant">
+                  Updates show immediately while sync happens in the background.
                 </FeatureItem>
-                <FeatureItem>
-                  <Bold>fetch data once, use everywhere</Bold> – Tanstack DB
-                  keeps it up to date
+                <FeatureItem
+                  emoji={"🔄"}
+                  title="Fetch data once, use everywhere"
+                >
+                  Tanstack DB keeps it up to date!
                 </FeatureItem>
-                <FeatureItem>
-                  <Bold>use any database and language on the backend</Bold> – no
-                  new libs needed
+                <FeatureItem
+                  emoji={"🤝"}
+                  title="Use any database and language on the backend"
+                >
+                  No new libs needed.
                 </FeatureItem>
               </ul>
               <p>
