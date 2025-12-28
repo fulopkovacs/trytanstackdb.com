@@ -23,7 +23,7 @@ function FeatureItem({
   emoji: string;
 }) {
   return (
-    <li className="text-muted-foreground h-full">
+    <li className="text-muted-foreground h-50 w-50">
       <Card className="gap-3 h-full">
         <CardHeader className="font-bold text-pretty">
           {emoji} {title}
@@ -76,7 +76,7 @@ export function HomeIntro({
             "fixed top-0 left-0 right-0 p-6 bottom-0 bg-black/80 z-52 flex items-center justify-center backdrop-blur-xs",
           )}
         >
-          <Card className="w-xl p-6 gap-10 max-h-full overflow-y-auto bg-background">
+          <Card className="w-3xl p-6 gap-10 max-h-full overflow-y-auto bg-background">
             <CardHeader>
               <CardTitle className="flex justify-center">
                 <div className="text-sm flex gap-2 items-center px-4 py-1 rounded-full">
@@ -85,8 +85,7 @@ export function HomeIntro({
                 </div>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <WavyLine />
+            <CardContent className="space-y-6 flex justify-center flex-col items-center">
               <p className="text-xl font-bold max-w-md text-pretty text-center">
                 <a
                   className="text-primary hover:underline hover:cursor-pointer"
@@ -100,7 +99,7 @@ export function HomeIntro({
                 front-ends.
               </p>
               <WavyLine />
-              <ul className="grid grid-cols-2 gap-3">
+              <ul className="flex flex-wrap gap-4">
                 <FeatureItem emoji={"🚀"} title="User actions feel instant">
                   Updates show immediately while sync happens in the background.
                 </FeatureItem>
@@ -117,7 +116,7 @@ export function HomeIntro({
                   No new libs needed.
                 </FeatureItem>
               </ul>
-              <p>
+              <p className="max-w-sm text-center">
                 Sounds amazing, right? Learn the basics with this interactive
                 tutorial in 6-7 minutes!
               </p>
