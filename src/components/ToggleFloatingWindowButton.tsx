@@ -35,7 +35,7 @@ export function ToggleFloatingWindowButton({
   return (
     <>
       <motion.button
-        className="relative min-w-14 h-14 text-black inline-flex items-center justify-center gap-2 cursor-pointer bg-orange-500 py-4 px-0 rounded-full hover:bg-orange-600"
+        className="relative min-w-14 h-14 text-black inline-flex items-center justify-center gap-2 cursor-pointer bg-primary py-4 px-0 rounded-full hover:brightness-90 transition-all"
         type="button"
         onClick={() => toggleWindow()}
         animate={{
