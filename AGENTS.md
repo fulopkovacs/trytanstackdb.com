@@ -53,7 +53,10 @@ All tests are in `__test__/`.
 
 # Validating your code
 
-NEVER run the dev server (e.g.: `pnpm dev`)!
+- NEVER run the dev server (e.g.: `pnpm dev`)!
+- always make sure that there are no formatting/linting issues in your code
+  - this command will find and fix these issues if possible: `pnpm check --fix`
+- NEVER deploy anything (e.g. with `pnpm preview.deploy`, or `pnpm run deploy`)
 
 # Coding style
 
