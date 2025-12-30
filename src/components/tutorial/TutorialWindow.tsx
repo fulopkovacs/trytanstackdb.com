@@ -1,21 +1,22 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
+import { Tabs, TabsContent } from "@radix-ui/react-tabs";
 import { useNavigate, useRouter, useSearch } from "@tanstack/react-router";
-import { DatabaseZapIcon, ExternalLinkIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { deepDiveArticles, steps, tutorialArticles } from "@/data/tutorial";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { steps } from "@/data/tutorial";
 import { cn } from "@/lib/utils";
 import {
   getTutorialDataHandlers,
   type TutorialData,
 } from "@/utils/getTutorialDataHandlers";
 import { ToggleFloatingWindowButton } from "../ToggleFloatingWindowButton";
-import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { TutorialTableOfContents } from "./TutorialTableOfContents";
+import { DatabaseZapIcon, XIcon } from "lucide-react";
+import { Button } from "../ui/button";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
-    <div className="text-sm bg-linear-to-r from-orange-500 to-orange-700 border-b border-b-black px-2 py-1 flex items-center">
+    <div className="text-sm bg-linear-to-r bg-primary text-primary-foreground border-b border-border dark:border-b-primary px-2 py-1 flex items-center">
       <div className="flex items-center gap-1 font-bold grow">
         <DatabaseZapIcon className="h-4 w-4" /> TanStack DB Tutorial
       </div>
@@ -32,15 +33,15 @@ function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
 }
 
 function FloatingWindow({
-  toggleWindow,
   tutorialData,
   activeStep,
   setActiveStep,
+  toggleWindow,
 }: {
-  toggleWindow: () => void;
   tutorialData: TutorialData;
   activeStep: string | null;
   setActiveStep: (step: string) => void;
+  toggleWindow: () => void;
 }) {
   const navigate = useNavigate();
 
@@ -293,7 +294,7 @@ function FloatingWindow({
     <div
       ref={containerRef}
       className={cn(
-        "bg-white text-black mb-2 shadow-lg rounded-lg shadow-orange-500/10 border border-orange-500 dark:border-orange-500/10 overflow-hidden relative",
+        "mb-2 drop-shadow-md dark:drop-shadow-lg bg-card  rounded-lg border border-border dark:border-primary/50 relative",
         !isResizing && "transition-all",
         isResizing && "select-none",
       )}
@@ -328,7 +329,11 @@ function FloatingWindow({
         <div className="absolute top-1/2 left-1/2 w-1 h-1 -translate-x-1/2 -translate-y-1/2 group-hover:bg-orange-500/50 transition-colors rounded-full" />
       </div>
 
-      <div className={cn("opacity-100 translate-y-0 h-full flex flex-col")}>
+      <div
+        className={cn(
+          "opacity-100 translate-y-0 h-full flex flex-col overflow-hidden rounded-lg",
+        )}
+      >
         <FloatingWindowHeader toggleWindow={toggleWindow} />
         <Tabs
           orientation="vertical"
@@ -340,41 +345,10 @@ function FloatingWindow({
           )}
         >
           <ScrollArea type="hover" className="h-full py-2">
-            <TabsList className="w-48 flex-nowrap px-2 h-fit overflow-x-auto flex flex-col gap-2 text-sm text-balance">
-              <a
-                href="https://tanstack.com/db/latest"
-                target="_blank"
-                rel="noreferrer"
-                className="text-black font-bold flex items-center hover:text-orange-500 transition-colors mb-2"
-              >
-                Official docs <ExternalLinkIcon className="h-4" />
-              </a>
-              {[
-                {
-                  sectionTitle: "Tutorial",
-                  articles: tutorialArticles,
-                },
-                {
-                  sectionTitle: "Deep Dive Articles",
-                  articles: deepDiveArticles,
-                },
-              ].map(({ sectionTitle, articles }) => (
-                <Fragment key={sectionTitle}>
-                  <h3 className="font-bold">{sectionTitle}</h3>
-                  <div className="border-l border-neutral-200 ml-3 pl-2 text-neutral-500 flex flex-col gap-1">
-                    {articles.map((step) => (
-                      <TabsTrigger
-                        key={step.title}
-                        className="cursor-pointer flex-1 text-left bg-orange-200/0 px-2 py-1 rounded-md hover:bg-orange-200/20 transition-all data-[state=active]:bg-orange-200 data-[state=active]:text-black hover:text-black"
-                        value={step.title}
-                      >
-                        {step.title}
-                      </TabsTrigger>
-                    ))}
-                  </div>
-                </Fragment>
-              ))}
-            </TabsList>
+            <TutorialTableOfContents
+              activeStep={activeStep}
+              onStepChange={handleStepChange}
+            />
           </ScrollArea>
           <div
             ref={scrollRef}
@@ -392,7 +366,7 @@ function FloatingWindow({
                 value={step.title}
                 className="w-full overflow-x-hidden pb-3"
               >
-                <div className="fade-in animate-in prose prose-sm prose-neutral prose-base bg-white text-black dark:prose-neutral dark:bg-white dark:text-black">
+                <div className="fade-in animate-in prose dark:prose-invert prose-md prose-neutral prose-base rounded-lg">
                   {<step.file />}
                   {step.nextStepName && (
                     <div className="mt-4">
@@ -402,7 +376,7 @@ function FloatingWindow({
                           step.nextStepName &&
                           handleStepChange(step.nextStepName)
                         }
-                        className="text-orange-500 underline hover:text-orange-600 transition-colors cursor-pointer"
+                        className="text-primary underline hover:brightness-75 transition-colors cursor-pointer"
                       >
                         Next: {step.nextStepName}
                       </button>
@@ -494,10 +468,10 @@ export function TutorialWindow({
               }}
             >
               <FloatingWindow
-                toggleWindow={toggleWindow}
                 tutorialData={tutorialData}
                 activeStep={activeStep}
                 setActiveStep={setActiveStep}
+                toggleWindow={toggleWindow}
               />
             </motion.div>
           )}
