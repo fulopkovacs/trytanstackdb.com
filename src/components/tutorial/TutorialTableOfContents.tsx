@@ -59,7 +59,7 @@ export function TutorialTableOfContents({
                       <SidebarMenuSubButton
                         isActive={activeStep === step.title}
                         onClick={() => onStepChange(step.title)}
-                        className="cursor-pointer text-muted-foreground hover:text-foreground data-[active=true]:bg-primary data-[active=true]:text-primary-foreground h-fit"
+                        className="cursor-pointer text-muted-foreground hover:text-foreground data-[active=true]:bg-secondary data-[active=true]:text-primary-foreground h-fit"
                       >
                         {step.title}
                       </SidebarMenuSubButton>
