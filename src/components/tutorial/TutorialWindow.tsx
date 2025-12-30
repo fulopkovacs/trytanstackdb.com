@@ -1,5 +1,6 @@
 import { Tabs, TabsContent } from "@radix-ui/react-tabs";
 import { useNavigate, useRouter, useSearch } from "@tanstack/react-router";
+import { DatabaseZapIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { steps } from "@/data/tutorial";
@@ -9,10 +10,9 @@ import {
   type TutorialData,
 } from "@/utils/getTutorialDataHandlers";
 import { ToggleFloatingWindowButton } from "../ToggleFloatingWindowButton";
+import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { TutorialTableOfContents } from "./TutorialTableOfContents";
-import { DatabaseZapIcon, XIcon } from "lucide-react";
-import { Button } from "../ui/button";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (

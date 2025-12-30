@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { GithubIcon, HighlighterIcon, XCircleIcon } from "lucide-react";
+import { GithubIcon, SearchIcon, XCircleIcon } from "lucide-react";
 import { type ReactNode, useMemo } from "react";
 import z from "zod";
+import { Button } from "../ui/button";
 
 /**
   Naming convention:
@@ -73,20 +74,19 @@ export function HighLightComponent({
 
   return (
     <div className="flex items-center gap-2">
-      <div className="px-2 py-1 bg-black w-fit rounded-md cursor-pointer hover:bg-neutral-800 transition-colors">
-        <Link
-          to="."
-          search={(s) => ({
-            ...s,
-            highlight,
-          })}
-          className="flex items-center no-underline text-white"
-        >
-          <HighlighterIcon className="h-4 2-4" />
+      <Link
+        to="."
+        replace={true}
+        search={(s) => ({
+          ...s,
+          highlight,
+        })}
+      >
+        <Button className="">
+          <SearchIcon />
           {children}
-        </Link>
-      </div>
-      <ClearHighlightsButton />
+        </Button>
+      </Link>
     </div>
   );
 }
