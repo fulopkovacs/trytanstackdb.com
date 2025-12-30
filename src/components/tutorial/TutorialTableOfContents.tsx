@@ -10,6 +10,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { deepDiveArticles, tutorialArticles } from "@/data/tutorial";
+import { Button } from "../ui/button";
 
 type TutorialTableOfContentsProps = {
   activeStep: string | null;
@@ -38,7 +39,7 @@ export function TutorialTableOfContents({
           href="https://tanstack.com/db/latest"
           target="_blank"
           rel="noreferrer"
-          className="text-foreground font-bold flex items-center text-sm hover:text-orange-500 transition-colors"
+          className="text-foreground font-bold flex items-center text-sm hover:text-primary transition-colors"
         >
           Official docs <ExternalLinkIcon className="h-4 ml-1" />
         </a>
