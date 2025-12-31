@@ -2,7 +2,13 @@ import { Tabs, TabsContent } from "@radix-ui/react-tabs";
 import { useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { DatabaseZapIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { steps } from "@/data/tutorial";
 import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
@@ -188,15 +194,15 @@ function FloatingWindow({
     ],
   );
 
-  // Restore scroll position on mount
-  useEffect(() => {
-    if (tutorialData.tutorialStep) {
-      const saved = tutorialData.scrollPositions[tutorialData.tutorialStep];
+  // Restore scroll position on step change (useLayoutEffect to avoid flicker)
+  useLayoutEffect(() => {
+    if (activeStep) {
+      const saved = tutorialData.scrollPositions[activeStep];
       if (saved && scrollRef.current) {
         scrollRef.current.scrollTop = saved;
       }
     }
-  }, [tutorialData]);
+  }, [activeStep, tutorialData.scrollPositions]);
 
   // Save scroll position on scroll
   const handleScroll = async () => {
