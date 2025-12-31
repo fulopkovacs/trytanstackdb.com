@@ -193,7 +193,7 @@ function FloatingWindow({
     if (tutorialData.tutorialStep) {
       const saved = tutorialData.scrollPositions[tutorialData.tutorialStep];
       if (saved && scrollRef.current) {
-        scrollRef.current.scrollTop = parseInt(saved.toString(), 10);
+        scrollRef.current.scrollTop = saved;
       }
     }
   }, [tutorialData]);

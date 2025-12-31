@@ -27,6 +27,7 @@ function parseTutorialDataString(
   let jsonObj = {};
   if (tutorialData) {
     try {
+      // TODO: use a zod schema to validate this data
       jsonObj = JSON.parse(tutorialData);
     } catch (e) {
       console.error("Error parsing tutorial data from cookie:", e);
