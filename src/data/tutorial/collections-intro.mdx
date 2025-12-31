@@ -60,7 +60,7 @@ Thankfully, no, and there are two reasons why.
         > Unless the cache needs to be revalidated (because the state has been mutated or went stale).
 
 
-2. Live queries updated incrementally, (they use <a href="https://github.com/electric-sql/d2ts" target="_blank">`d2ts`</a>, a differential dataflow library)
+2. Live queries are updated incrementally, (they use <a href="https://github.com/electric-sql/d2ts" target="_blank">`d2ts`</a>, a differential dataflow library)
     - this results in _sub-millisecond_ execution times (even for complex queries)
     - which means that it's BLAZING FAST!!! ⚡⚡⚡
 
