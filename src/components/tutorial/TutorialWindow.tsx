@@ -358,7 +358,7 @@ function FloatingWindow({
           </ScrollArea>
           <div
             className={cn(
-              "relative w-full h-full ml-4",
+              "relative w-full h-full ml-4 min-w-0 overflow-hidden",
               isResizing && "pointer-events-none",
             )}
           >
