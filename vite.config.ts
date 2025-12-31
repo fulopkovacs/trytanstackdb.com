@@ -1,10 +1,10 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
 import mdx from "@mdx-js/rollup";
+import rehypeShiki from "@shikijs/rehype";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
-import rehypePrism from "rehype-prism-plus";
 import { defineConfig } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
@@ -27,7 +27,31 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
     mdx({
-      rehypePlugins: [rehypePrism],
+      rehypePlugins: [
+        [
+          rehypeShiki,
+          {
+            themes: {
+              light: "material-theme-lighter",
+              dark: "material-theme-darker",
+            },
+            defaultColor: false,
+            transformers: [
+              {
+                name: "add-language-data-attribute",
+                pre(node: { properties: Record<string, string> }) {
+                  const lang = (
+                    this as unknown as { options: { lang?: string } }
+                  ).options.lang;
+                  if (lang) {
+                    node.properties["data-language"] = lang;
+                  }
+                },
+              },
+            ],
+          },
+        ],
+      ],
     }),
   ],
   optimizeDeps: {
