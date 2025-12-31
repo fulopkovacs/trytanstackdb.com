@@ -49,6 +49,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { ScrollShadow } from "./ui/scroll-shadow";
 
 enum BoardName {
   Todo = "Todo",
@@ -60,26 +61,6 @@ const TASK_ITEM_HEIGHT = 180;
 
 function DropIndicator() {
   return <div className="h-0.5 bg-primary mx-2 mb-[0.4375rem] rounded-full" />;
-}
-
-function ScrollShadow({
-  position,
-  visible,
-}: {
-  position: "top" | "bottom";
-  visible: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "absolute left-0 right-0 h-10 pointer-events-none z-10 transition-opacity duration-300 ease-in-out",
-        position === "top"
-          ? "top-0 bg-linear-to-b from-background to-transparent"
-          : "bottom-0 bg-linear-to-t from-background to-transparent",
-        visible ? "opacity-100" : "opacity-0",
-      )}
-    />
-  );
 }
 
 function findPrevItem<

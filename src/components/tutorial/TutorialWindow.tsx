@@ -4,6 +4,7 @@ import { DatabaseZapIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { steps } from "@/data/tutorial";
+import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
 import {
   getTutorialDataHandlers,
@@ -12,6 +13,7 @@ import {
 import { ToggleFloatingWindowButton } from "../ToggleFloatingWindowButton";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { ScrollShadow } from "../ui/scroll-shadow";
 import { TutorialTableOfContents } from "./TutorialTableOfContents";
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
@@ -47,6 +49,10 @@ function FloatingWindow({
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const { canScrollUp, canScrollDown } = useScrollShadow(scrollRef, [
+    activeStep,
+  ]);
 
   const [windowSize, setWindowSize] = useState(tutorialData.windowSize);
 
@@ -351,40 +357,56 @@ function FloatingWindow({
             />
           </ScrollArea>
           <div
-            ref={scrollRef}
-            key={activeStep}
-            onScroll={handleScroll}
             className={cn(
-              "w-full h-full ml-4 overflow-y-auto overflow-x-hidden",
+              "relative w-full h-full ml-4",
               isResizing && "pointer-events-none",
-              isResizing ? "contain-strict" : "contain-none",
             )}
           >
-            {steps.map((step) => (
-              <TabsContent
-                key={step.title}
-                value={step.title}
-                className="w-full overflow-x-hidden pb-3"
-              >
-                <div className="fade-in animate-in prose dark:prose-invert prose-md prose-neutral prose-base rounded-lg">
-                  {<step.file />}
-                  {step.nextStepName && (
-                    <div className="mt-4">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          step.nextStepName &&
-                          handleStepChange(step.nextStepName)
-                        }
-                        className="text-primary underline hover:brightness-75 transition-colors cursor-pointer"
-                      >
-                        Next: {step.nextStepName}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            ))}
+            <ScrollShadow
+              position="top"
+              visible={canScrollUp}
+              fromColor="from-card"
+            />
+            <div
+              ref={scrollRef}
+              key={activeStep}
+              onScroll={handleScroll}
+              className={cn(
+                "h-full overflow-y-auto overflow-x-hidden",
+                isResizing ? "contain-strict" : "contain-none",
+              )}
+            >
+              {steps.map((step) => (
+                <TabsContent
+                  key={step.title}
+                  value={step.title}
+                  className="w-full overflow-x-hidden pb-3"
+                >
+                  <div className="fade-in animate-in prose dark:prose-invert prose-md prose-neutral prose-base rounded-lg">
+                    {<step.file />}
+                    {step.nextStepName && (
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            step.nextStepName &&
+                            handleStepChange(step.nextStepName)
+                          }
+                          className="text-primary underline hover:brightness-75 transition-colors cursor-pointer"
+                        >
+                          Next: {step.nextStepName}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              ))}
+            </div>
+            <ScrollShadow
+              position="bottom"
+              visible={canScrollDown}
+              fromColor="from-card"
+            />
           </div>
         </Tabs>
       </div>
