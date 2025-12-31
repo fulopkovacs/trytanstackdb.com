@@ -15,7 +15,7 @@ TanStack DB provides you with a new option. You can store the projects' data in 
 
 In the `AppSidebar` component, we use this query to get the list of projects:
 
-```ts
+```tsx
   const { data: projects } = useLiveQuery((q) =>
     q.from({
       project: projectsCollection,
@@ -28,7 +28,7 @@ In the `AppSidebar` component, we use this query to get the list of projects:
 
 On the project's page, the `RouteComponent` loads only the data relevant for the currently viewed project:
 
-```ts
+```tsx
   const {
     data: [project],
   } = useLiveQuery(
