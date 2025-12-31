@@ -5,20 +5,19 @@ import {
   ClientOnly,
   createRootRouteWithContext,
   HeadContent,
+  ScriptOnce,
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { ThemeProvider } from "@/components/theme-provider";
-import appCss from "../styles.css?url";
-import "prismjs/themes/prism-tomorrow.css"; // or any other Prism theme
-import { ScriptOnce } from "@tanstack/react-router";
 import { RotateCwIcon, TriangleAlertIcon } from "lucide-react";
 import { useCallback, useState } from "react";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/sonner";
 import { client, idbName } from "@/db";
 import { seo } from "@/utils/seo";
+import appCss from "../styles.css?url";
 
 interface MyRouterContext {
   queryClient: QueryClient;

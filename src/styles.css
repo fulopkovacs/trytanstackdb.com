@@ -12,8 +12,43 @@ body {
 }
 
 code {
-  font-family:
-    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: var(--font-mono);
+  font-size: 1em;
+}
+
+/* Shiki code block styling */
+pre:has(code) {
+  position: relative;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  padding-top: 2rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+}
+
+/* Language badge */
+pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: oklch(0.6 0 0);
+  text-transform: lowercase;
+}
+
+/* Shiki dual theme support - map inline style variables to actual colors */
+html:not(.dark) .shiki,
+html:not(.dark) .shiki span {
+  color: var(--shiki-light) !important;
+  background-color: var(--shiki-light-bg) !important;
+}
+
+html.dark .shiki,
+html.dark .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
 }
 
 :root {
