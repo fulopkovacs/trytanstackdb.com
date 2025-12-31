@@ -119,9 +119,6 @@ function FloatingWindow({
     // Make sure the window size is within limits
     updateWindowSizeLimits();
     if (typeof window !== "undefined") {
-      // getTutorialDataHandlers().then(({ tutorialData }) => {
-      //   setWindowSize(tutorialData.windowSize);
-      // });
       window.addEventListener("resize", updateWindowSizeLimits);
       return () => {
         window.removeEventListener("resize", updateWindowSizeLimits);
