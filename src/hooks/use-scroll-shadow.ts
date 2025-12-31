@@ -10,13 +10,25 @@ export interface UseScrollShadowReturn {
  * Hook that tracks scroll position to determine if scroll shadows should be visible
  * at the top and bottom of a scrollable container.
  *
+ * @param externalRef - Optional external ref to use instead of creating a new one
+ * @param deps - Optional dependency array that triggers shadow recalculation when changed
  * @returns Object containing the scroll ref and boolean flags for shadow visibility
  */
-export function useScrollShadow(): UseScrollShadowReturn {
-  const scrollRef = useRef<HTMLDivElement>(null);
+export function useScrollShadow(
+  externalRef?: React.RefObject<HTMLDivElement | null>,
+  deps: React.DependencyList = [],
+): UseScrollShadowReturn {
+  const internalRef = useRef<HTMLDivElement>(null);
+  const scrollRef = externalRef ?? internalRef;
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
 
+  /**
+    The biome-ignores are necessary because:
+    - Adding scrollRef.current to the dependency array won't work as expected (React doesn't track ref mutations)
+    - We've already solved the "stale ref" problem by adding the deps parameter that consumers can use to trigger recalculation
+  */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scrollRef.current is intentionally not a dependency - refs don't trigger re-renders
   const updateScrollShadows = useCallback(() => {
     const element = scrollRef.current;
     if (!element) return;
@@ -31,6 +43,7 @@ export function useScrollShadow(): UseScrollShadowReturn {
     setCanScrollDown(scrollTop + clientHeight < scrollHeight - 1);
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scrollRef.current is intentionally not a dependency - refs don't trigger re-renders
   useEffect(() => {
     const element = scrollRef.current;
     if (!element) return;
@@ -64,7 +77,8 @@ export function useScrollShadow(): UseScrollShadowReturn {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
     };
-  }, [updateScrollShadows]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateScrollShadows, ...deps]);
 
   return { scrollRef, canScrollUp, canScrollDown };
 }
