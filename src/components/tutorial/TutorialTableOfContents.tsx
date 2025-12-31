@@ -10,8 +10,6 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { deepDiveArticles, tutorialArticles } from "@/data/tutorial";
-import { Button } from "../ui/button";
-
 type TutorialTableOfContentsProps = {
   activeStep: string | null;
   onStepChange: (stepTitle: string) => void;
