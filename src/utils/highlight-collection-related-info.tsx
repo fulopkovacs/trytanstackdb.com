@@ -6,11 +6,9 @@ import { cn } from "@/lib/utils";
 export function HighlightWrapper({
   highlightId,
   children,
-  // asChild,
 }: {
   highlightId: Exclude<HighlightParam, undefined>;
   children: ReactNode;
-  // asChild?: boolean;
 }) {
   const searchParams = useSearch({ strict: false });
   const navigate = useNavigate();
@@ -39,7 +37,6 @@ export function HighlightWrapper({
         isHighlighted
           ? "bg-red-500/15 outline-red-500 dark:outline-destructive dark:bg-destructive/10 duration-300"
           : "bg-red-500/0 outline-red-500/0 dark:outline-destructive/0 dark:bg-destructive/0 duration-1000",
-        // "outline-destructive bg-destructive/10 outline rounded-sm outline-offset-4",
       )}
     >
       {children}
