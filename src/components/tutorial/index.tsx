@@ -82,7 +82,7 @@ export function HighLightComponent({
           highlight,
         })}
       >
-        <Button className="">
+        <Button>
           <SearchIcon />
           {children}
         </Button>
