@@ -4,6 +4,7 @@ import { z } from "zod";
 
 // NOTE: when we'll have different users -> respect the user's id
 const INTRO_COOKIE_NAME = "intro-visibility";
+const INTRO_COOKIE_AGE = 60 * 60 * 24 * 365; // 1 year
 
 const showIntroSchema = z.enum(["hidden", "visible"]).catch("visible");
 
@@ -20,7 +21,7 @@ export const getShowIntro = createIsomorphicFn()
       updateShowIntro: (state: "hidden" | "visible") => {
         setCookie(INTRO_COOKIE_NAME, state, {
           path: "/",
-          maxAge: 60 * 60 * 24 * 365, // 1 year
+          maxAge: INTRO_COOKIE_AGE,
         });
       },
     };
@@ -35,8 +36,7 @@ export const getShowIntro = createIsomorphicFn()
       showIntroState: showIntroSchema.parse(showIntro),
       updateShowIntro: (state: "hidden" | "visible") => {
         document.cookie = `${INTRO_COOKIE_NAME}=${state}; path=/; max-age=${
-          // 1 year
-          60 * 60 * 24 * 365
+          INTRO_COOKIE_AGE
         }`;
       },
     };
