@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { GithubIcon, SearchIcon, XCircleIcon } from "lucide-react";
+import { GithubIcon, SearchIcon } from "lucide-react";
 import { type ReactNode, useMemo } from "react";
 import z from "zod";
 import { Button } from "../ui/button";
