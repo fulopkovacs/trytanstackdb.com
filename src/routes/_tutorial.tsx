@@ -3,6 +3,7 @@ import z from "zod";
 import { HomeIntro } from "@/components/HomeIntro";
 import { highlightParamSchema } from "@/components/tutorial";
 import { TutorialWindow } from "@/components/tutorial/TutorialWindow";
+import { getShowIntro } from "@/utils/getShowIntro";
 import { getTutorialDataHandlers } from "@/utils/getTutorialDataHandlers";
 
 export const Route = createFileRoute("/_tutorial")({
@@ -10,26 +11,29 @@ export const Route = createFileRoute("/_tutorial")({
     .object({
       temp_db_missing: z.string().optional(),
       step: z.string().optional(),
-      intro: z.enum(["true", "false"]).optional().default("true").catch("true"),
     })
     .extend(highlightParamSchema.shape),
   loader: async () => {
     const { tutorialData } = await getTutorialDataHandlers();
+    const { showIntroState } = getShowIntro();
     return {
       tutorialData,
+      showIntroState,
     };
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { tutorialData } = Route.useLoaderData();
-  const { intro } = Route.useSearch();
+  const { tutorialData, showIntroState } = Route.useLoaderData();
 
   return (
     <>
       <Outlet />
-      <HomeIntro activeStep={tutorialData.tutorialStep} intro={intro} />
+      <HomeIntro
+        activeStep={tutorialData.tutorialStep}
+        showIntro={showIntroState === "visible"}
+      />
       <TutorialWindow tutorialData={tutorialData} />
     </>
   );
