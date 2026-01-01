@@ -36,7 +36,8 @@
       },
       "recommended": true,
       "suspicious": {
-        "noArrayIndexKey": "warn"
+        "noArrayIndexKey": "warn",
+        "noDocumentCookie": "off"
       },
       "correctness": {
         "noChildrenProp": "off"

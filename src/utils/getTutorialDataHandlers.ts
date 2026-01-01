@@ -108,7 +108,6 @@ export const getTutorialDataHandlers = createIsomorphicFn()
           updatedDataString,
         );
 
-        // TODO: use the Cookie Storage api
         window.document.cookie = `${TUTORIAL_COOKIE_NAME}=${updatedDataString}; path=/;`;
       },
     };
