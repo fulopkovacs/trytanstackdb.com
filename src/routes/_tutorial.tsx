@@ -5,11 +5,6 @@ import { highlightParamSchema } from "@/components/tutorial";
 import { TutorialWindow } from "@/components/tutorial/TutorialWindow";
 import { getTutorialDataHandlers } from "@/utils/getTutorialDataHandlers";
 
-const mockUser = {
-  id: "1",
-  name: "John Doe",
-};
-
 export const Route = createFileRoute("/_tutorial")({
   validateSearch: z
     .object({
@@ -18,11 +13,6 @@ export const Route = createFileRoute("/_tutorial")({
       intro: z.enum(["true", "false"]).optional().default("true").catch("true"),
     })
     .extend(highlightParamSchema.shape),
-  beforeLoad: async () => {
-    return {
-      user: mockUser,
-    };
-  },
   loader: async () => {
     const { tutorialData } = await getTutorialDataHandlers();
     return {
