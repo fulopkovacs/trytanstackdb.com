@@ -38,8 +38,8 @@ export function HighlightWrapper({
       className={cn(
         "outline outline-offset-4 transition-all ease-in-out rounded-sm",
         isHighlighted
-          ? "outline-destructive bg-destructive/10 duration-300"
-          : "outline-destructive/0 bg-destructive/0 duration-1000",
+          ? "bg-red-500/15 outline-red-500 dark:outline-destructive dark:bg-destructive/10 duration-300"
+          : "bg-red-500/0 outline-red-500/0 dark:outline-destructive/0 dark:bg-destructive/0 duration-1000",
         // "outline-destructive bg-destructive/10 outline rounded-sm outline-offset-4",
       )}
     >
