@@ -34,7 +34,6 @@ export function HighlightWrapper({
 
   return (
     <div
-      aria-hidden="true"
       className={cn(
         "outline outline-offset-4 transition-all ease-in-out rounded-sm",
         isHighlighted
