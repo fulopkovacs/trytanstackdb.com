@@ -91,24 +91,6 @@ export function HighLightComponent({
   );
 }
 
-export function ClearHighlightsButton() {
-  return (
-    <div className="py-1 w-fit rounded-md cursor-pointer ">
-      <Link
-        to="."
-        search={(s) => ({
-          ...s,
-          highlight: undefined,
-        })}
-        className="flex items-center no-underline text-neutral-700 hover:text-black transition-colors"
-      >
-        <XCircleIcon className="h-4 2-4" />
-        Clear Highlights
-      </Link>
-    </div>
-  );
-}
-
 export function LinkToArticle({
   children,
   articleTitle,
