@@ -1,6 +1,6 @@
 import { ArrowRightIcon, DatabaseZap } from "lucide-react";
 import { AnimatePresence, motion, stagger, type Variants } from "motion/react";
-import { type ReactNode, useCallback, useState } from "react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { getShowIntro } from "@/utils/getShowIntro";
 import { Button } from "./ui/button";
@@ -73,7 +73,7 @@ export function HomeIntro({
       showIntro,
   );
 
-  const { updateShowIntro } = getShowIntro();
+  const { updateShowIntro } = useMemo(() => getShowIntro(), []);
 
   const startTutorial = useCallback(() => {
     setOpen(false);
