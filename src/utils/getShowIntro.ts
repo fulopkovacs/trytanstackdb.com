@@ -3,7 +3,7 @@ import { getCookie, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 // NOTE: when we'll have different users -> respect the user's id
-const INTRO_COOKIE_NAME = "intro-visiblity";
+const INTRO_COOKIE_NAME = "intro-visibility";
 
 const showIntroSchema = z.enum(["hidden", "visible"]).catch("visible");
 
