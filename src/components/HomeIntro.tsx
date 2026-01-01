@@ -1,8 +1,8 @@
-import { useNavigate } from "@tanstack/react-router";
 import { ArrowRightIcon, DatabaseZap } from "lucide-react";
 import { AnimatePresence, motion, stagger, type Variants } from "motion/react";
 import { type ReactNode, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
+import { getShowIntro } from "@/utils/getShowIntro";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -62,29 +62,23 @@ function WavyLine() {
 
 export function HomeIntro({
   activeStep,
-  intro,
+  showIntro,
 }: {
   activeStep: string | null;
-  intro: "true" | "false" | undefined;
+  showIntro: boolean;
 }) {
   const [open, setOpen] = useState(
     activeStep === null ||
       // used for debugging
-      intro === "true",
+      showIntro,
   );
 
-  const navigate = useNavigate();
+  const { updateShowIntro } = getShowIntro();
 
   const startTutorial = useCallback(() => {
     setOpen(false);
-    navigate({
-      to: ".",
-      search: (o) => ({
-        ...o,
-        intro: "false",
-      }),
-    });
-  }, [navigate]);
+    updateShowIntro("hidden");
+  }, [updateShowIntro]);
 
   return (
     <AnimatePresence initial={true}>
