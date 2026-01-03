@@ -5,7 +5,7 @@ import {GHLink, HighLightComponent} from "/src/components/tutorial"
 
 ### A quick demo
 
-We have a `projects` table in our database. If you click the button below, you can see all the components that to display data from this table:
+Let's start with a quick demo and it'll all make sense. We have a `projects` table in our database. If you click the button below, you can see all the components that display data from this table:
 
 <HighLightComponent h_id="project">Highlight components</HighLightComponent>
 
@@ -54,13 +54,13 @@ Thankfully, no, and there are two reasons why.
     - To check it, follow these steps:
        1. go to the `Network` tab in your browser's dev tools
        2. reload the page (<a href="">click here</a>)
-       3. see that there is only one `GET` request to the `/api/projects` endpoint, despite having 2 components using data from the `projectCollection`
-       4. if you navigate to any other project page, you shouldn't see more requests made
+       3. see that there is only one `GET` request to the `/api/projects` endpoint, despite having 2 components using data from the `projectsCollection`
+       4. If you navigate to any other project page, you shouldn't see more requests made
 
         > Unless the cache needs to be revalidated (because the state has been mutated or went stale).
 
 
-2. Live queries are updated incrementally, (they use <a href="https://github.com/electric-sql/d2ts" target="_blank">`d2ts`</a>, a differential dataflow library)
+2. Live queries are updated incrementally (they use <a href="https://github.com/electric-sql/d2ts" target="_blank">`d2ts`</a>, a differential dataflow library)
     - this results in _sub-millisecond_ execution times (even for complex queries)
     - which means that it's BLAZING FAST!!! ⚡⚡⚡
 
