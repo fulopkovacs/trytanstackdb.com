@@ -79,7 +79,7 @@ async function handleFetch(event) {
       body: {
         requestBody,
         method: req.method,
-        pathname: url.pathname,
+        href: url.href,
       },
     },
     [msgChannel.port2],
