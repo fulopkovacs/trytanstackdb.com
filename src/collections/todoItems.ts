@@ -165,21 +165,6 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
             );
           },
         );
-
-        queryClient.setQueriesData<TodoItemRecord[]>(
-          { queryKey: todoItemsQueryKey },
-          (oldData) => {
-            console.log(
-              "Updating query cache, oldData:",
-              oldData?.length,
-              "items",
-            );
-            if (!oldData) return oldData;
-            return oldData.map((item) =>
-              item.id === original.id ? { ...item, ...changes } : item,
-            );
-          },
-        );
       } catch (_) {
         toast.error(`Failed to update todo item "${original.title}"`);
 
