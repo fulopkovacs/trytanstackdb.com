@@ -42,8 +42,16 @@ function formatDuration(ms: number | null): string {
   return `${(ms / 1000).toFixed(2)}s`;
 }
 
-function JsonViewer({ data, label }: { data: unknown; label: string }) {
-  const [isOpen, setIsOpen] = useState(false);
+function JsonViewer({
+  data,
+  label,
+  defaultOpen = false,
+}: {
+  data: unknown;
+  label: string;
+  defaultOpen?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   if (data === undefined || data === null) {
     return null;
@@ -61,7 +69,7 @@ function JsonViewer({ data, label }: { data: unknown; label: string }) {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <pre className="mt-1 whitespace-pre-wrap p-2 bg-muted/50 rounded text-xs overflow-x-auto max-h-40 overflow-y-auto">
-          {JSON.stringify(data, null, 2)}
+          {typeof data === "string" ? data : JSON.stringify(data, null, 2)}
         </pre>
       </CollapsibleContent>
     </Collapsible>
@@ -135,6 +143,11 @@ function RequestItem({ request }: { request: ApiRequest }) {
             {new Date(request.timestamp).toLocaleTimeString()}
           </div>
           <JsonViewer data={request.requestBody} label="Request Body" />
+          <JsonViewer
+            data={request.search || null}
+            label="Search"
+            defaultOpen={!!request.search}
+          />
           {!isPending && (
             <JsonViewer data={request.responseBody} label="Response Body" />
           )}
