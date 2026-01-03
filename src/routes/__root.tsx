@@ -71,6 +71,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RemoveDB() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [showReloadButton, setShowReloadButton] = useState(false);
+
   const removeDB = useCallback(async () => {
     if (typeof window !== "undefined" && "indexedDB" in window) {
       try {
@@ -86,8 +88,9 @@ function RemoveDB() {
           setErrorMessage(errorMessage);
         };
         request.onblocked = () => {
+          setShowReloadButton(true);
           const errorMessage =
-            "Database deletion blocked - close other tabs using this site";
+            "Database deletion blocked - close other tabs using this site. If this site is not open in other tabs, try refreshing the page.";
           setErrorMessage(errorMessage);
           console.warn(errorMessage);
         };
@@ -110,6 +113,17 @@ function RemoveDB() {
         <RotateCwIcon /> Reset the db
       </Button>
       <p className="text-destructive font-bold text-center">{errorMessage}</p>
+      {showReloadButton && (
+        <Button
+          className="mx-auto"
+          variant="outline"
+          onClick={() => {
+            window.location.reload();
+          }}
+        >
+          Reload page
+        </Button>
+      )}
     </ClientOnly>
   );
 }
