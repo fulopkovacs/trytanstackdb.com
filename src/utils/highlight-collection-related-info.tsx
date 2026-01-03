@@ -33,7 +33,7 @@ export function HighlightWrapper({
   return (
     <div
       className={cn(
-        "outline outline-offset-4 transition-all ease-in-out rounded-sm",
+        "outline outline-offset-4 transition-all ease-in-out rounded-sm z-50",
         isHighlighted
           ? "bg-red-500/15 outline-red-500 dark:outline-destructive dark:bg-destructive/10 duration-300"
           : "bg-red-500/0 outline-red-500/0 dark:outline-destructive/0 dark:bg-destructive/0 duration-1000",

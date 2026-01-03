@@ -4,6 +4,7 @@ import { userPreferencesCollection } from "@/collections/UserPreferences";
 import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 
 export function ApiPanelToggle() {
   const { data: userPreferences } = useLiveQuery((q) =>
@@ -20,25 +21,27 @@ export function ApiPanelToggle() {
   const isOpen = userPreferences?.networkPanel === "open";
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant={isOpen ? "default" : "outline"}
-          size="icon"
-          onClick={() =>
-            userPreferencesCollection.update(USER_PLACEHOLDER.id, (draft) => {
-              draft.networkPanel =
-                draft.networkPanel === "open" ? "closed" : "open";
-            })
-          }
-          aria-label={isOpen ? "Hide API requests" : "Show API requests"}
-        >
-          <ActivityIcon className="h-4 w-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{isOpen ? "Hide API requests" : "Show API requests"}</p>
-      </TooltipContent>
-    </Tooltip>
+    <HighlightWrapper highlightId="networkPanel_toggle">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant={isOpen ? "default" : "outline"}
+            size="icon"
+            onClick={() =>
+              userPreferencesCollection.update(USER_PLACEHOLDER.id, (draft) => {
+                draft.networkPanel =
+                  draft.networkPanel === "open" ? "closed" : "open";
+              })
+            }
+            aria-label={isOpen ? "Hide API requests" : "Show API requests"}
+          >
+            <ActivityIcon className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{isOpen ? "Hide API requests" : "Show API requests"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </HighlightWrapper>
   );
 }

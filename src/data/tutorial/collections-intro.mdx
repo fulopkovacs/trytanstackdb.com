@@ -1,5 +1,5 @@
 import {Link} from '@tanstack/react-router'
-import {GHLink, HighLightComponent} from "/src/components/tutorial"
+import {GHLink, HighLightComponent, OpenAPIRequestsPanelLink} from "/src/components/tutorial"
 
 ## What are collections?
 
@@ -52,7 +52,7 @@ Thankfully, no, and there are two reasons why.
 
 1. Multiple queries using the same collection will sync the collection with the backend only once, and use the cache the rest of the times.
     - To check it, follow these steps:
-       1. go to the `Network` tab in your browser's dev tools
+       1. open the _"API Requests"_ panel by clicking <OpenAPIRequestsPanelLink>here</OpenAPIRequestsPanelLink>
        2. reload the page (<a href="">click here</a>)
        3. see that there is only one `GET` request to the `/api/projects` endpoint, despite having 2 components using data from the `projectsCollection`
        4. If you navigate to any other project page, you shouldn't see more requests made
