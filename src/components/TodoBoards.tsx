@@ -167,24 +167,15 @@ function DraggableTask({ task }: { task: TodoItemRecord }) {
   );
 }
 
-function Board({ board }: { board: BoardRecord }) {
-  const { data: todoItems } = useLiveQuery((q) =>
-    q
-      .from({ todoItem: todoItemsCollection })
-      .where(({ todoItem }) => eq(todoItem.boardId, board.id))
-      .orderBy(({ todoItem }) => todoItem.position, {
-        direction: "asc",
-        /*
-          We use fractional indexes, so we need lexical sorting to get the correct order.
-
-          Ascending order of ["Zz",  "a0"] is:
-          - lexical string sort: ["Zz",  "a0"]
-          - default result (uses "locale"): ["a0", "Zz"]
-        */
-        stringSort: "lexical",
-      }),
-  );
-
+function Board({
+  board,
+  todoItems,
+  projectId,
+}: {
+  board: BoardRecord;
+  todoItems: TodoItemRecord[];
+  projectId: string;
+}) {
   const { active, over } = useDndContext();
   const { scrollRef, canScrollUp, canScrollDown } = useScrollShadow();
 
@@ -241,7 +232,7 @@ function Board({ board }: { board: BoardRecord }) {
         <p className="text-sm text-muted-foreground mb-3">
           {board.description}
         </p>
-        <CreateOrEditTodoItems todoItem={{ boardId: board.id }}>
+        <CreateOrEditTodoItems todoItem={{ boardId: board.id, projectId }}>
           <Button className="w-full" variant={"outline"}>
             <PlusIcon /> Add Task
           </Button>
@@ -320,6 +311,19 @@ export function TodoBoards({ projectId }: { projectId: string }) {
       q
         .from({ board: boardCollection })
         .where(({ board }) => eq(board.projectId, projectId)),
+    [projectId],
+  );
+
+  // Fetch all todo items for the project in a single query
+  const { data: allTodoItems } = useLiveQuery(
+    (q) =>
+      q
+        .from({ todoItem: todoItemsCollection })
+        .where(({ todoItem }) => eq(todoItem.projectId, projectId))
+        .orderBy(({ todoItem }) => todoItem.position, {
+          direction: "asc",
+          stringSort: "lexical",
+        }),
     [projectId],
   );
 
@@ -446,7 +450,14 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         ) : (
           <div className="grid grid-cols-3 gap-4 h-full min-h-0">
             {sortedBoards.map((board) => (
-              <Board board={board} key={board.id} />
+              <Board
+                board={board}
+                key={board.id}
+                todoItems={allTodoItems.filter(
+                  (item) => item.boardId === board.id,
+                )}
+                projectId={projectId}
+              />
             ))}
           </div>
         )}

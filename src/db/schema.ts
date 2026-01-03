@@ -61,11 +61,15 @@ export const todoItemsTable = pgTable(
     boardId: text("board_id")
       .references(() => boardsTable.id, { onDelete: "cascade" })
       .notNull(),
+    projectId: text("project_id")
+      .references(() => projectsTable.id, { onDelete: "cascade" })
+      .notNull(),
     priority: integer().default(0),
     position: text().notNull(),
   },
   (table) => [
     index("todo_items_board_id_position_idx").on(table.boardId, table.position),
+    index("todo_items_project_id_idx").on(table.projectId),
   ],
 );
 

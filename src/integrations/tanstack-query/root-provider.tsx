@@ -1,9 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+// Singleton queryClient to ensure the same instance is used everywhere
+let queryClientSingleton: QueryClient | null = null;
+
 export function getContext() {
-  const queryClient = new QueryClient();
+  if (!queryClientSingleton) {
+    queryClientSingleton = new QueryClient();
+  }
   return {
-    queryClient,
+    queryClient: queryClientSingleton,
   };
 }
 

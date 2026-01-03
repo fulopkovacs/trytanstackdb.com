@@ -20,7 +20,8 @@ export function CreateOrEditTodoItems({
   todoItem,
   children,
 }: {
-  todoItem: Partial<TodoItemRecord> & Pick<TodoItemRecord, "boardId">;
+  todoItem: Partial<TodoItemRecord> &
+    Pick<TodoItemRecord, "boardId" | "projectId">;
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,6 +52,7 @@ export function CreateOrEditTodoItems({
         todoItemsCollection.insert({
           id: itemId,
           boardId: todoItem.boardId,
+          projectId: todoItem.projectId,
           title: value.title,
           description: value.description,
           position: newPosition,
