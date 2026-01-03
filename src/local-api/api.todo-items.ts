@@ -29,10 +29,8 @@ export default {
   GET: async ({ request }) => {
     const url = new URL(request.url);
 
+    // Currently we only support filtering by projectId
     const projectId = url.searchParams.get("projectId");
-    const boardId = url.searchParams.get("boardId");
-    const boardIdIn = url.searchParams.get("boardId_in");
-    const id = url.searchParams.get("id");
 
     if (projectId) {
       const results = await db
@@ -40,28 +38,10 @@ export default {
         .from(todoItemsTable)
         .where(eq(todoItemsTable.projectId, projectId));
       return json(results);
-    } else if (boardId) {
-      const results = await db
-        .select()
-        .from(todoItemsTable)
-        .where(eq(todoItemsTable.boardId, boardId));
-      return json(results);
-    } else if (boardIdIn) {
-      const boardIds = boardIdIn.split(",");
-      const results = await db
-        .select()
-        .from(todoItemsTable)
-        .where(inArray(todoItemsTable.boardId, boardIds));
-      return json(results);
-    } else if (id) {
-      const results = await db
-        .select()
-        .from(todoItemsTable)
-        .where(eq(todoItemsTable.id, id));
+    } else {
+      const results = await db.select().from(todoItemsTable);
       return json(results);
     }
-
-    return json([]);
   },
   POST: async ({ request }) => {
     // Create new todo item
