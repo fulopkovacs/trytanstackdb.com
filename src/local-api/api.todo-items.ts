@@ -25,10 +25,27 @@ const todoItemUpdateData = z.object({
 });
 
 export default {
-  GET: async () => {
-    const results = await db.select().from(todoItemsTable);
+  GET: async ({ request }) => {
+    const url = new URL(request.url);
 
-    return json(results);
+    const boardId = url.searchParams.get("boardId");
+    const id = url.searchParams.get("id");
+
+    if (boardId) {
+      const results = await db
+        .select()
+        .from(todoItemsTable)
+        .where(eq(todoItemsTable.boardId, boardId));
+      return json(results);
+    } else if (id) {
+      const results = await db
+        .select()
+        .from(todoItemsTable)
+        .where(eq(todoItemsTable.id, id));
+      return json(results);
+    }
+
+    return json([]);
   },
   POST: async ({ request }) => {
     // Create new todo item

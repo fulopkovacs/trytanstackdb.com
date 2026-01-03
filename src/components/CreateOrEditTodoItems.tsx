@@ -41,7 +41,7 @@ export function CreateOrEditTodoItems({
 
       if (isNewItem) {
         // Find the first position in the board to prepend the new item
-        const itemsInBoard = (await todoItemsCollection.toArrayWhenReady())
+        const itemsInBoard = todoItemsCollection.toArray
           .filter((item) => item.boardId === todoItem.boardId)
           .sort((a, b) => (a.position < b.position ? -1 : 1));
 

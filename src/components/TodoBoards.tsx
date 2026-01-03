@@ -329,15 +329,18 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     [projectId],
   );
 
-  const {
-    data: [activeTodoItem],
-  } = useLiveQuery(
-    (q) =>
-      q
+  const { data: activeTodoItemData } = useLiveQuery(
+    (q) => {
+      if (!activeId) return undefined;
+
+      return q
         .from({ todoItem: todoItemsCollection })
-        .where(({ todoItem }) => eq(todoItem.id, activeId)),
-    [activeId, projectId],
+        .where(({ todoItem }) => eq(todoItem.id, activeId));
+    },
+    [activeId],
   );
+
+  const activeTodoItem = activeTodoItemData?.[0];
 
   const { data: orderedTodoItems } = useLiveQuery(
     (q) =>
@@ -407,7 +410,12 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         (item) => item.id === over.id,
       );
 
-      if (overTodoItem?.boardId === activeTodoItem.boardId) {
+      if (!overTodoItem) {
+        console.error("overTodoId not found");
+        return;
+      }
+
+      if (overTodoItem.boardId === activeTodoItem?.boardId) {
         // Reorder within the same column
 
         const prev = findPrevItem({
@@ -428,7 +436,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
           itemId: active.id as string,
           newPosition,
         });
-      } else if (overTodoItem) {
+      } else {
         // Move to another column and insert at the correct position
         const newBoardId = overTodoItem.boardId;
 
@@ -451,8 +459,6 @@ export function TodoBoards({ projectId }: { projectId: string }) {
           boardId: newBoardId as string,
           newPosition,
         });
-      } else {
-        console.error("overTodoId not found");
       }
     }
   };
