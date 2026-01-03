@@ -1,10 +1,10 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { ActivityIcon } from "lucide-react";
 import { userPreferencesCollection } from "@/collections/UserPreferences";
+import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 
 export function ApiPanelToggle() {
   const { data: userPreferences } = useLiveQuery((q) =>
