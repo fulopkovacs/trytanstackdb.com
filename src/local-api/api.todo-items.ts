@@ -115,6 +115,10 @@ export default {
       .where(eq(todoItemsTable.id, updatedData.id))
       .returning();
 
+    if (!updatedTodoItemData) {
+      return new Response(`Todo item not found`, { status: 404 });
+    }
+
     return json(updatedTodoItemData);
   },
 } satisfies APIRouteHandler;
