@@ -10,14 +10,6 @@ import type { TodoItemRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
 import type { TodoItemCreateDataType } from "@/local-api/api.todo-items";
 
-async function getTodoItems() {
-  const res = await fetch("/api/todo-items", { method: "GET" });
-
-  const todoItems: TodoItemRecord[] = await res.json();
-
-  return todoItems;
-}
-
 async function updateTodoItem({
   data,
 }: {
@@ -172,6 +164,33 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
           id: original.id,
           ...changes,
         });
+
+        // Update the TanStack Query cache so switching projects shows correct data
+        const queryClient = TanstackQuery.getContext().queryClient;
+        queryClient.setQueriesData<TodoItemRecord[]>(
+          { queryKey: todoItemsQueryKey },
+          (oldData) => {
+            if (!oldData) return oldData;
+            return oldData.map((item) =>
+              item.id === original.id ? { ...item, ...changes } : item,
+            );
+          },
+        );
+
+        queryClient.setQueriesData<TodoItemRecord[]>(
+          { queryKey: todoItemsQueryKey },
+          (oldData) => {
+            console.log(
+              "Updating query cache, oldData:",
+              oldData?.length,
+              "items",
+            );
+            if (!oldData) return oldData;
+            return oldData.map((item) =>
+              item.id === original.id ? { ...item, ...changes } : item,
+            );
+          },
+        );
       } catch (_) {
         toast.error(`Failed to update todo item "${original.title}"`);
 

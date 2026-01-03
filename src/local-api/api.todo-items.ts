@@ -7,6 +7,7 @@ import { type APIRouteHandler, json } from "./helpers";
 const todoItemCreateData = z.object({
   id: z.string().min(1),
   boardId: z.string(),
+  projectId: z.string(),
   priority: z.number().min(0).max(3).int().optional().nullable(),
   title: z.string(),
   description: z.string().optional().nullable(),
@@ -28,13 +29,18 @@ export default {
   GET: async ({ request }) => {
     const url = new URL(request.url);
 
-    // NOTE: these query params should not be
-    // mutually exclusive
+    const projectId = url.searchParams.get("projectId");
     const boardId = url.searchParams.get("boardId");
     const boardIdIn = url.searchParams.get("boardId_in");
     const id = url.searchParams.get("id");
 
-    if (boardId) {
+    if (projectId) {
+      const results = await db
+        .select()
+        .from(todoItemsTable)
+        .where(eq(todoItemsTable.projectId, projectId));
+      return json(results);
+    } else if (boardId) {
       const results = await db
         .select()
         .from(todoItemsTable)
@@ -59,7 +65,7 @@ export default {
   },
   POST: async ({ request }) => {
     // Create new todo item
-    let newTodoItemData: Omit<z.infer<typeof todoItemCreateData>, "projectId">;
+    let newTodoItemData: z.infer<typeof todoItemCreateData>;
     // biome-ignore lint/suspicious/noExplicitAny: it can be any here
     let bodyObj: any;
 

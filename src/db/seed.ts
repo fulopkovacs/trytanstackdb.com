@@ -18,7 +18,7 @@ import {
 type BoardName = "Todo" | "In Progress" | "Done";
 type TodoItemBase = Omit<
   TodoItemRecord,
-  "id" | "boardId" | "tempDbId" | "createdAt"
+  "id" | "boardId" | "projectId" | "tempDbId" | "createdAt"
 > & { boardName: BoardName };
 
 type ProjectBase = ProjectRecord & {
@@ -215,6 +215,7 @@ function getMockBoardsAndTodoItemsForProject({
       ...item,
       id: nanoid(),
       boardId: boardIds[boardName],
+      projectId,
       createdAt: now,
     }),
   );

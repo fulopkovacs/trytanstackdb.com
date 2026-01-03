@@ -13,5 +13,15 @@
     "bps": true,
     "folderMillis": 1766184598553,
     "hash": "34b95068a8520477abc224439403ce87853814c878b1e4457492528b98cbe70b"
+  },
+  {
+    "sql": [
+      "ALTER TABLE \"todo_items\" ADD COLUMN \"project_id\" text NOT NULL;",
+      "\nALTER TABLE \"todo_items\" ADD CONSTRAINT \"todo_items_project_id_projects_id_fk\" FOREIGN KEY (\"project_id\") REFERENCES \"public\".\"projects\"(\"id\") ON DELETE cascade ON UPDATE no action;",
+      "\nCREATE INDEX \"todo_items_project_id_idx\" ON \"todo_items\" USING btree (\"project_id\");"
+    ],
+    "bps": true,
+    "folderMillis": 1767455245894,
+    "hash": "6f5679430929920907927eacc8252c4256cd9bf75c1b568cd164b906d6e9403d"
   }
 ]

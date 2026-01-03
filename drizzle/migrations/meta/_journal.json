@@ -8,6 +8,13 @@
       "when": 1766184598553,
       "tag": "0000_outstanding_silvermane",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1767455245894,
+      "tag": "0001_previous_chronomancer",
+      "breakpoints": true
     }
   ]
 }
