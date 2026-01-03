@@ -92,6 +92,9 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
             params.set(`${fieldName}_lt`, String(value));
           } else if (operator === "gt") {
             params.set(`${fieldName}_gt`, String(value));
+          } else if (operator === "in" && Array.isArray(value)) {
+            // Handle inArray - join values with comma
+            params.set(`${fieldName}_in`, value.join(","));
           }
         });
 
@@ -172,11 +175,13 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
       } catch (_) {
         toast.error(`Failed to update todo item "${original.title}"`);
 
-        // Do not sync if the collection is already refetching
-        if (todoItemsCollection.utils.isRefetching === false) {
-          // Sync back the server's data
-          todoItemsCollection.utils.refetch();
-        }
+        // TODO: handle this one later properly
+        // with queryClient.invalidateQueries(todoItemsQueryKey);
+        // // Do not sync if the collection is already refetching
+        // if (todoItemsCollection.utils.isRefetching === false) {
+        //   // Sync back the server's data
+        //   todoItemsCollection.utils.refetch();
+        // }
       }
 
       // Do not sync back the server's data by default
