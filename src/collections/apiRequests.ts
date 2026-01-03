@@ -10,6 +10,7 @@ export type ApiRequest = {
   pathname: string;
   requestBody?: unknown;
   responseBody?: unknown;
+  search?: string;
   status: number | "pending";
   duration: number | null; // null when pending
 };

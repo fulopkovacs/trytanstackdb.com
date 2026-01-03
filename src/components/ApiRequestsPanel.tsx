@@ -21,7 +21,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { ScrollArea } from "./ui/scroll-area";
 
 const API_PANEL_WIDTH = "24rem";
 const PANEL_ANIMATION_DURATION = 0.15;
@@ -74,17 +73,17 @@ function RequestItem({ request }: { request: ApiRequest }) {
   const isPending = request.status === "pending";
 
   return (
-    <div className="border-b border-border last:border-b-0">
+    <div className="border-b border-border last:border-b-0 overflow-hidden">
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-3 hover:bg-muted/50 transition-colors text-left"
+        className="w-full p-3 hover:bg-muted/50 transition-colors text-left overflow-hidden"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-hidden">
           <Badge
             variant="outline"
             className={cn(
-              `font-mono text-[10px] px-1.5 py-0`,
+              `font-mono text-[10px] px-1.5 py-0 shrink-0`,
               request.method === "GET"
                 ? "bg-blue-100 text-blue-700  border-blue-700/30  dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30"
                 : request.method === "POST"
@@ -98,15 +97,16 @@ function RequestItem({ request }: { request: ApiRequest }) {
           >
             {request.method}
           </Badge>
-          <span className="flex-1 font-mono text-xs truncate">
+          <span className="flex-1 font-mono text-xs truncate min-w-0 max-w-full overflow-hidden">
             {request.pathname}
+            <span className="text-muted-foreground">{request.search}</span>
           </span>
           {isPending ? (
-            <LoaderIcon className="h-3 w-3 text-orange-400 animate-spin" />
+            <LoaderIcon className="h-3 w-3 text-orange-400 animate-spin shrink-0" />
           ) : (
             <span
               className={cn(
-                "text-xs font-mono",
+                "text-xs font-mono shrink-0",
                 request.status === "pending"
                   ? "text-orange-400 dark:text-orange-300"
                   : request.status >= 200 && request.status < 300
@@ -119,13 +119,13 @@ function RequestItem({ request }: { request: ApiRequest }) {
               {request.status}
             </span>
           )}
-          <span className="text-xs text-muted-foreground font-mono">
+          <span className="text-xs text-muted-foreground font-mono shrink-0">
             {formatDuration(request.duration)}
           </span>
           {isExpanded ? (
-            <ChevronDownIcon className="h-3 w-3 text-muted-foreground" />
+            <ChevronDownIcon className="h-3 w-3 text-muted-foreground shrink-0" />
           ) : (
-            <ChevronRightIcon className="h-3 w-3 text-muted-foreground" />
+            <ChevronRightIcon className="h-3 w-3 text-muted-foreground shrink-0" />
           )}
         </div>
       </button>
@@ -184,7 +184,7 @@ export function ApiRequestsPanel() {
             style={{ width: API_PANEL_WIDTH }}
           >
             <motion.div
-              className="flex flex-col h-full"
+              className="flex flex-col h-full overflow-hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -216,7 +216,7 @@ export function ApiRequestsPanel() {
               </div>
 
               {/* Request list */}
-              <ScrollArea className="flex-1 min-h-0">
+              <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
                 {requests.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full p-4 text-center">
                     <p className="text-sm text-muted-foreground">
@@ -233,7 +233,7 @@ export function ApiRequestsPanel() {
                     ))}
                   </div>
                 )}
-              </ScrollArea>
+              </div>
             </motion.div>
           </div>
         </motion.div>
