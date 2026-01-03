@@ -1,6 +1,5 @@
 import CollectionsIntro from "@/data/tutorial/collections-intro.mdx";
 import HowDoCollectionsWork from "@/data/tutorial/how-do-collections-work.mdx";
-import OptimisticActions from "@/data/tutorial/optimistic-actions.mdx";
 import OptimisticUpdates from "@/data/tutorial/optimistic-updates.mdx";
 import WhatIsNext from "@/data/tutorial/what-is-next.mdx";
 
@@ -48,10 +47,10 @@ export const tutorialArticles: Step[] = tutorialArticlesWithoutNextSteps.map(
 );
 
 const deepDiveArticlesWithoutNextSteps: Step[] = [
-  {
-    title: "Optimistic Actions",
-    file: OptimisticActions,
-  },
+  // {
+  //   title: "Optimistic Actions",
+  //   file: OptimisticActions,
+  // },
 ];
 
 // export const deepDiveArticles: Step[] = deepDiveArticlesWithoutNextSteps.map(
