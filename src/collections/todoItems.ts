@@ -1,10 +1,9 @@
-import { createCollection, parseLoadSubsetOptions } from "@tanstack/db";
+import {
+  createCollection,
+  type IR,
+  parseLoadSubsetOptions,
+} from "@tanstack/db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import type {
-  BasicExpression,
-  Offset,
-  OrderBy,
-} from "node_modules/@tanstack/db/dist/esm/query/ir";
 import { toast } from "sonner";
 import type { TodoItemRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
@@ -60,9 +59,9 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
 
       if (meta) {
         const { limit, offset, where, orderBy } = meta.loadSubsetOptions as {
-          where?: BasicExpression<boolean>;
-          orderBy?: OrderBy;
-          offset?: Offset;
+          where?: IR.BasicExpression<boolean>;
+          orderBy?: IR.OrderBy;
+          offset?: IR.Offset;
           limit?: number;
         };
 
