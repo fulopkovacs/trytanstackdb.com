@@ -71,9 +71,10 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
 
         async function processRequestInMainThread(body: any) {
           const requestData = requestSchema.parse(body);
-          const handler = (API as APIType)[requestData.pathname][
-            requestData.method
-          ];
+          const url = new URL(requestData.href);
+
+          const handler = (API as APIType)[url.pathname][requestData.method];
+
           if (handler) {
             // Generate unique request ID for tracking
             const requestId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -84,7 +85,7 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
               id: requestId,
               timestamp: Date.now(),
               method: requestData.method,
-              pathname: requestData.pathname,
+              pathname: url.pathname,
               requestBody: requestData.requestBody,
               status: "pending",
               duration: null,

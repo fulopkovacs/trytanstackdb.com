@@ -19,7 +19,7 @@ export type APIRouteHandler = Partial<
 export type APIType = Record<Pathname, APIRouteHandler>;
 
 export const requestSchema = z.object({
-  pathname: z.string().min(1),
+  href: z.url(),
   method: methodShema,
   requestBody: z.any().optional(),
 });
@@ -51,7 +51,7 @@ export function constructRequestForHandler(requestData: RequestData): {
   request: Request;
 } {
   return {
-    request: new Request(requestData.pathname, {
+    request: new Request(requestData.href, {
       method: requestData.method,
       headers: {
         "Content-Type": "application/json",
