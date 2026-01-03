@@ -30,7 +30,10 @@ import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
 import { CreateOrEditTodoItems } from "./CreateOrEditTodoItems";
 import { PriorityRatingPopup } from "./PriorityRating";
-import { TodoBoardsLoading } from "./TodoBoardsLoading";
+import {
+  LoadingTasksOnBoardSkeleton,
+  TodoBoardsLoading,
+} from "./TodoBoardsLoading";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -171,10 +174,14 @@ function Board({
   board,
   todoItems,
   projectId,
+  showTodoItemsLoading,
+  boardIndex,
 }: {
   board: BoardRecord;
   todoItems: TodoItemRecord[];
   projectId: string;
+  showTodoItemsLoading?: boolean;
+  boardIndex: number;
 }) {
   const { active, over } = useDndContext();
   const { scrollRef, canScrollUp, canScrollDown } = useScrollShadow();
@@ -233,55 +240,63 @@ function Board({
           {board.description}
         </p>
         <CreateOrEditTodoItems todoItem={{ boardId: board.id, projectId }}>
-          <Button className="w-full" variant={"outline"}>
+          <Button
+            className="w-full"
+            variant={"outline"}
+            disabled={!!showTodoItemsLoading}
+          >
             <PlusIcon /> Add Task
           </Button>
         </CreateOrEditTodoItems>
       </div>
-      <div className="relative flex-1 min-h-0">
-        <ScrollShadow position="top" visible={canScrollUp} />
+      {showTodoItemsLoading ? (
+        <LoadingTasksOnBoardSkeleton boardIndex={boardIndex} />
+      ) : (
+        <div className="relative flex-1 min-h-0">
+          <ScrollShadow position="top" visible={canScrollUp} />
 
-        <div
-          ref={(node) => {
-            setNodeRef(node);
-            scrollRef.current = node;
-          }}
-          className="h-full overflow-auto"
-        >
-          <SortableContext
-            strategy={verticalListSortingStrategy}
-            items={todoItems.map((task) => task.id)}
+          <div
+            ref={(node) => {
+              setNodeRef(node);
+              scrollRef.current = node;
+            }}
+            className="h-full overflow-auto"
           >
-            {
-              /*
-                Empty columns do not have any todo items in them, so we can't
-                render the drop indicator when we iterate through the todo items.
+            <SortableContext
+              strategy={verticalListSortingStrategy}
+              items={todoItems.map((task) => task.id)}
+            >
+              {
+                /*
+                  Empty columns do not have any todo items in them, so we can't
+                  render the drop indicator when we iterate through the todo items.
 
-                In that case, we need to render the drop indicator here.
-              */
-              active && dropIndex === 0 && todoItems.length === 0 && (
-                <DropIndicator />
-              )
-            }
-            <Virtualizer data={todoItems}>
-              {(todoItem, index) => {
-                const showDropIndicator = active && dropIndex === index;
-                return (
-                  <div key={`${todoItem.id}-wrapper`}>
-                    {showDropIndicator && <DropIndicator />}
-                    <DraggableTask task={todoItem} />
-                    {active &&
-                      dropIndex === todoItems.length &&
-                      index === todoItems.length - 1 && <DropIndicator />}
-                  </div>
-                );
-              }}
-            </Virtualizer>
-          </SortableContext>
+                  In that case, we need to render the drop indicator here.
+                */
+                active && dropIndex === 0 && todoItems.length === 0 && (
+                  <DropIndicator />
+                )
+              }
+              <Virtualizer data={todoItems}>
+                {(todoItem, index) => {
+                  const showDropIndicator = active && dropIndex === index;
+                  return (
+                    <div key={`${todoItem.id}-wrapper`}>
+                      {showDropIndicator && <DropIndicator />}
+                      <DraggableTask task={todoItem} />
+                      {active &&
+                        dropIndex === todoItems.length &&
+                        index === todoItems.length - 1 && <DropIndicator />}
+                    </div>
+                  );
+                }}
+              </Virtualizer>
+            </SortableContext>
+          </div>
+
+          <ScrollShadow position="bottom" visible={canScrollDown} />
         </div>
-
-        <ScrollShadow position="bottom" visible={canScrollDown} />
-      </div>
+      )}
     </div>
   );
 }
@@ -326,6 +341,37 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         }),
     [projectId],
   );
+
+  // TODO: not sure if this is necessary
+  const [projectIds, setProjectIds] = useState<string[]>([]);
+
+  const [showTodoItemsLoading, setShowTodoItemsLoading] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+
+    if (
+      allTodoItems.length === 0 &&
+      todoItemsCollection.isLoadingSubset &&
+      !projectIds.includes(projectId)
+    ) {
+      setShowTodoItemsLoading(true);
+      setProjectIds((prev) => [...prev, projectId]);
+
+      unsubscribe = todoItemsCollection.on("loadingSubset:change", (event) => {
+        if (event.loadingSubsetTransition === "end") {
+          setShowTodoItemsLoading(false);
+        }
+      });
+    } else {
+      setShowTodoItemsLoading(false);
+    }
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, [projectId, projectIds, allTodoItems.length]);
 
   // Get active todo item from already-loaded collection data
   // instead of making a separate query
@@ -449,7 +495,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
           <TodoBoardsLoading />
         ) : (
           <div className="grid grid-cols-3 gap-4 h-full min-h-0">
-            {sortedBoards.map((board) => (
+            {sortedBoards.map((board, i) => (
               <Board
                 board={board}
                 key={board.id}
@@ -457,6 +503,8 @@ export function TodoBoards({ projectId }: { projectId: string }) {
                   (item) => item.boardId === board.id,
                 )}
                 projectId={projectId}
+                showTodoItemsLoading={showTodoItemsLoading}
+                boardIndex={i}
               />
             ))}
           </div>
