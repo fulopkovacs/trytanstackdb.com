@@ -68,10 +68,6 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
         // Parse the expressions into simple format
         const parsed = parseLoadSubsetOptions({ where, orderBy, limit });
 
-        console.info({
-          parsed,
-        });
-
         // Build query parameters from parsed filters
 
         // Add filters
