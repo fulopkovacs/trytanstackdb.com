@@ -35,27 +35,6 @@ async function updateTodoItem({
   return updatedItem;
 }
 
-export async function batchUpdateTodoItem({
-  data,
-}: {
-  data: (Partial<TodoItemRecord> & { id: string })[];
-}) {
-  const res = await fetch("/api/batch/todo-items", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to batch update todo items");
-  }
-
-  // TODO: it'd be nice to avoid type casting here
-  return (await res.json()) as Partial<TodoItemRecord>[];
-}
-
 async function insertTodoItem({ data }: { data: TodoItemCreateDataType }) {
   const res = await fetch("/api/todo-items", {
     method: "POST",
