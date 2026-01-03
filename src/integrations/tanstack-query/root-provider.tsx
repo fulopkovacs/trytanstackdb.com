@@ -1,14 +1,26 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// Singleton queryClient to ensure the same instance is used everywhere
-let queryClientSingleton: QueryClient | null = null;
+// Client-side singleton to ensure the same instance is used across the app
+let clientQueryClient: QueryClient | null = null;
+
+function makeQueryClient() {
+  return new QueryClient();
+}
 
 export function getContext() {
-  if (!queryClientSingleton) {
-    queryClientSingleton = new QueryClient();
+  // Server: always create a new QueryClient per request to avoid data leaks
+  if (typeof window === "undefined") {
+    return {
+      queryClient: makeQueryClient(),
+    };
+  }
+
+  // Client: use singleton to preserve cache across navigations
+  if (!clientQueryClient) {
+    clientQueryClient = makeQueryClient();
   }
   return {
-    queryClient: queryClientSingleton,
+    queryClient: clientQueryClient,
   };
 }
 
