@@ -86,6 +86,7 @@ export const setupServiceWorkerHttpsProxy = createIsomorphicFn().client(
               timestamp: Date.now(),
               method: requestData.method,
               pathname: url.pathname,
+              search: url.search,
               requestBody: requestData.requestBody,
               status: "pending",
               duration: null,
