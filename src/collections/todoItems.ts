@@ -54,45 +54,22 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
       const params = new URLSearchParams();
 
       if (meta) {
-        const { limit, offset, where, orderBy } = meta.loadSubsetOptions;
+        const { where } = meta.loadSubsetOptions;
 
         // Parse the expressions into simple format
-        const parsed = parseLoadSubsetOptions({ where, orderBy, limit });
+        const parsed = parseLoadSubsetOptions({ where });
 
         // Build query parameters from parsed filters
 
         // Add filters
         parsed.filters.forEach(({ field, operator, value }) => {
           const fieldName = field.join(".");
+
+          // Currently only "eq" operator is supported in the API
           if (operator === "eq") {
             params.set(fieldName, String(value));
-          } else if (operator === "lt") {
-            params.set(`${fieldName}_lt`, String(value));
-          } else if (operator === "gt") {
-            params.set(`${fieldName}_gt`, String(value));
-          } else if (operator === "in" && Array.isArray(value)) {
-            // Handle inArray - join values with comma
-            params.set(`${fieldName}_in`, value.join(","));
           }
         });
-
-        // Add sorting
-        if (parsed.sorts.length > 0) {
-          const sortParam = parsed.sorts
-            .map((s) => `${s.field.join(".")}:${s.direction}`)
-            .join(",");
-          params.set("sort", sortParam);
-        }
-
-        // Add limit
-        if (parsed.limit) {
-          params.set("limit", String(parsed.limit));
-        }
-
-        // Add offset for pagination
-        if (offset) {
-          params.set("offset", String(offset));
-        }
       }
 
       const res = await fetch(`/api/todo-items?${params}`, { method: "GET" });
