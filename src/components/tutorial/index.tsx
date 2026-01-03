@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { GithubIcon, SearchIcon } from "lucide-react";
-import { type ReactNode, useMemo } from "react";
+import { type ReactNode, useCallback, useMemo } from "react";
 import z from "zod";
+import { userPreferencesCollection } from "@/collections/UserPreferences";
+import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
 import { Button } from "../ui/button";
 
 /**
@@ -17,6 +19,8 @@ export const highlightParamSchema = z.object({
       "board",
       "editProject",
       "apiLatencyConfigurator",
+      "networkPanel_toggle",
+      "networkPanel_panel",
     ])
     .optional(),
 });
@@ -91,6 +95,38 @@ export function HighLightComponent({
   );
 }
 
+export function HighlightLink({
+  h_id: newHighLightGroupId,
+  children,
+}: {
+  h_id: string;
+  children: ReactNode;
+}) {
+  const highlight = useMemo(() => {
+    try {
+      return highlightParamSchema.parse({
+        highlight: newHighLightGroupId,
+      }).highlight;
+    } catch (e) {
+      return undefined;
+    }
+  }, [newHighLightGroupId]);
+
+  return (
+    <Link
+      className="inline"
+      to="."
+      replace={true}
+      search={(s) => ({
+        ...s,
+        highlight,
+      })}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function LinkToArticle({
   children,
   articleTitle,
@@ -110,6 +146,33 @@ export function LinkToArticle({
         article: encodedTitle,
       }}
       className="text-orange-500 underline hover:text-orange-600 transition-colors cursor-pointer"
+    >
+      {children}
+    </Link>
+  );
+}
+
+export function OpenAPIRequestsPanelLink({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const openThePanel = useCallback(() => {
+    if (typeof window !== "undefined") {
+      userPreferencesCollection.update(USER_PLACEHOLDER.id, (draft) => {
+        draft.networkPanel = "open";
+      });
+    }
+  }, []);
+
+  return (
+    <Link
+      to="."
+      onClick={openThePanel}
+      search={{
+        // highlight the toggle button of the network panel
+        highlight: "networkPanel_panel",
+      }}
     >
       {children}
     </Link>

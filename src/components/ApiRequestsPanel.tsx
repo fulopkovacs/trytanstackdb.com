@@ -13,6 +13,7 @@ import {
 } from "@/collections/apiRequests";
 import { userPreferencesCollection } from "@/collections/UserPreferences";
 import { cn } from "@/lib/utils";
+import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -196,58 +197,60 @@ export function ApiRequestsPanel() {
             className="flex flex-col h-full max-h-full overflow-hidden bg-background"
             style={{ width: API_PANEL_WIDTH }}
           >
-            <motion.div
-              className="flex flex-col h-full overflow-hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                duration: PANEL_ANIMATION_DURATION,
-                delay: PANEL_ANIMATION_DURATION,
-              }}
-            >
-              {/* Header */}
-              <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b bg-muted/30">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-medium">API Requests</h2>
-                  <Badge
-                    variant="secondary"
-                    className="text-[10px] px-1.5 py-0"
+            <HighlightWrapper highlightId="networkPanel_panel">
+              <motion.div
+                className="flex flex-col h-full overflow-hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: PANEL_ANIMATION_DURATION,
+                  delay: PANEL_ANIMATION_DURATION,
+                }}
+              >
+                {/* Header */}
+                <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm font-medium">API Requests</h2>
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] px-1.5 py-0"
+                    >
+                      {requests.length}
+                    </Badge>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={clearRequests}
+                    disabled={requests.length === 0}
                   >
-                    {requests.length}
-                  </Badge>
+                    <Trash2Icon />
+                    <span className="sr-only">Clear requests</span>
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={clearRequests}
-                  disabled={requests.length === 0}
-                >
-                  <Trash2Icon />
-                  <span className="sr-only">Clear requests</span>
-                </Button>
-              </div>
 
-              {/* Request list */}
-              <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-                {requests.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      No requests yet
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      API requests will appear here
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    {requests.map((request) => (
-                      <RequestItem key={request.id} request={request} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </motion.div>
+                {/* Request list */}
+                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+                  {requests.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+                      <p className="text-sm text-muted-foreground">
+                        No requests yet
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        API requests will appear here
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      {requests.map((request) => (
+                        <RequestItem key={request.id} request={request} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </HighlightWrapper>
           </div>
         </motion.div>
       )}
