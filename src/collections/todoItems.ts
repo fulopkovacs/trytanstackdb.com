@@ -1,5 +1,10 @@
-import { createCollection } from "@tanstack/db";
+import { createCollection, parseLoadSubsetOptions } from "@tanstack/db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
+import type {
+  BasicExpression,
+  Offset,
+  OrderBy,
+} from "node_modules/@tanstack/db/dist/esm/query/ir";
 import { toast } from "sonner";
 import type { TodoItemRecord } from "@/db/schema";
 import * as TanstackQuery from "@/integrations/tanstack-query/root-provider";
@@ -58,8 +63,65 @@ const todoItemsQueryKey = ["todo-items"];
 export const todoItemsCollection = createCollection<TodoItemRecord>(
   queryCollectionOptions({
     queryKey: todoItemsQueryKey,
-    queryFn: getTodoItems,
+    queryFn: async ({ meta }) => {
+      const params = new URLSearchParams();
+
+      if (meta) {
+        const { limit, offset, where, orderBy } = meta.loadSubsetOptions as {
+          where?: BasicExpression<boolean>;
+          orderBy?: OrderBy;
+          offset?: Offset;
+          limit?: number;
+        };
+
+        // Parse the expressions into simple format
+        const parsed = parseLoadSubsetOptions({ where, orderBy, limit });
+
+        console.info({
+          parsed,
+        });
+
+        // Build query parameters from parsed filters
+
+        // Add filters
+        parsed.filters.forEach(({ field, operator, value }) => {
+          const fieldName = field.join(".");
+          if (operator === "eq") {
+            params.set(fieldName, String(value));
+          } else if (operator === "lt") {
+            params.set(`${fieldName}_lt`, String(value));
+          } else if (operator === "gt") {
+            params.set(`${fieldName}_gt`, String(value));
+          }
+        });
+
+        // Add sorting
+        if (parsed.sorts.length > 0) {
+          const sortParam = parsed.sorts
+            .map((s) => `${s.field.join(".")}:${s.direction}`)
+            .join(",");
+          params.set("sort", sortParam);
+        }
+
+        // Add limit
+        if (parsed.limit) {
+          params.set("limit", String(parsed.limit));
+        }
+
+        // Add offset for pagination
+        if (offset) {
+          params.set("offset", String(offset));
+        }
+      }
+
+      const res = await fetch(`/api/todo-items?${params}`, { method: "GET" });
+
+      const todoItems: TodoItemRecord[] = await res.json();
+
+      return todoItems;
+    },
     queryClient: TanstackQuery.getContext().queryClient,
+    syncMode: "on-demand",
     onInsert: async ({ transaction }) => {
       const { modified: newTodoItem } = transaction.mutations[0];
 
