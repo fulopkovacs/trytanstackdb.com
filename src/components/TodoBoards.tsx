@@ -12,12 +12,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  debounceStrategy,
-  eq,
-  useLiveQuery,
-  usePacedMutations,
-} from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { generateKeyBetween } from "fractional-indexing";
 import {
   CircleCheckBigIcon,
@@ -30,10 +25,7 @@ import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { Virtualizer } from "virtua";
 import { boardCollection } from "@/collections/boards";
 import { projectsCollection } from "@/collections/projects";
-import {
-  batchUpdateTodoItem,
-  todoItemsCollection,
-} from "@/collections/todoItems";
+import { todoItemsCollection } from "@/collections/todoItems";
 import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
@@ -312,49 +304,22 @@ function Board({ board }: { board: BoardRecord }) {
 export function TodoBoards({ projectId }: { projectId: string }) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
-  // Create paced mutation with 3 second debounce for updating todo positions
-  const updateTodoPosition = usePacedMutations<
-    {
-      itemId: string;
-      boardId?: string;
-      newPosition: string;
-    },
-    TodoItemRecord
-  >({
-    onMutate: ({ itemId, boardId, newPosition }) => {
-      // Apply optimistic update immediately
-      todoItemsCollection.update(itemId, (item) => {
-        if (boardId) {
-          item.boardId = boardId;
-        }
-        item.position = newPosition;
-      });
-    },
-    mutationFn: async ({ transaction }) => {
-      // Persist all position updates to the backend after debounce
-      const mutations = transaction.mutations;
-
-      const updates = mutations.reduce(
-        (acc, mutation) => {
-          const { modified, changes } = mutation;
-          acc.push({
-            id: modified.id,
-            ...changes,
-          });
-          return acc;
-        },
-        [] as (Partial<TodoItemRecord> & { id: string })[],
-      );
-
-      await batchUpdateTodoItem({
-        data: updates,
-      });
-
-      // Refetch to ensure consistency with backend
-      await todoItemsCollection.utils.refetch();
-    },
-    strategy: debounceStrategy({ wait: 1_000 }),
-  });
+  const updateTodoPosition = ({
+    itemId,
+    boardId,
+    newPosition,
+  }: {
+    itemId: string;
+    boardId?: string;
+    newPosition: string;
+  }) => {
+    todoItemsCollection.update(itemId, (item) => {
+      if (boardId) {
+        item.boardId = boardId;
+      }
+      item.position = newPosition;
+    });
+  };
 
   const { data: boards, isLoading: isLoadingBoards } = useLiveQuery(
     (q) =>
