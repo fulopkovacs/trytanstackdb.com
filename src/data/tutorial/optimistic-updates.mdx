@@ -3,6 +3,7 @@ import {
   GHLink,
   HighLightComponent,
   LinkToArticle,
+  OpenAPIRequestsPanelLink
 } from '/src/components/tutorial'
 
 ## Optimistic updates
@@ -34,20 +35,21 @@ Set the API latency to 5s and <a href="">reload the page</a>. You'll see that th
 
 Now rename the project again. It still changes immediately!
 
-The reason why we see the change so fast is that the displayed data is from the cache which gets updated basically instantly, while the changes are synced back to the remote db in the background.
+The reason why we see the change so fast is that the displayed data is from the cache which gets updated basically instantly, while the changes are synced back to the remote database in the background.
 
 ### What happens when the data in the remote db can't be updated?
 
 Let's rename our current project to the name of another existing project (like `Project Beta`).
 
-1. at first, everything is the same (fast update)
-2. when the http request fails in the background (because all project names
+1. At first, everything is the same (fast update)
+2. When the HTTP request fails in the background (because all project names
    must be unique)
-   - the changes are immediately rolled back,
-   - and a toast error message appears in the top right corner
+   - The changes are immediately rolled back,
+   - And an error message appears in the top right corner
+   - A new `GET` request to `/api/projects` syncs the local state with the remote database (check the <OpenAPIRequestsPanelLink>_API Requests_ panel</OpenAPIRequestsPanelLink>)
 
-When an update fails, the mutations are rolled back. Rollbacks work seamlessly even for mutations that involve multiple collections (see the tutorial article on <LinkToArticle articleTitle="Optimistic Actions">Optimistic Actions</LinkToArticle>).
+The rule is simple: when an update fails, the mutation is rolled back and the collection's state is synced with the remote data source.
 
 **"Okay, but how does the syncing happen? Is it magic???"**. Glad you asked.
-Everything is magic if you just believe in it, let me show you how it works in
+Everything is magic if you just believe in it; let me show you how it works in
 the next section. ✨
