@@ -159,12 +159,6 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
           },
         });
 
-        // If successful, we can keep the optimistic update
-        todoItemsCollection.utils.writeUpdate({
-          id: original.id,
-          ...changes,
-        });
-
         // Update the TanStack Query cache so switching projects shows correct data
         const queryClient = TanstackQuery.getContext().queryClient;
         queryClient.setQueriesData<TodoItemRecord[]>(
