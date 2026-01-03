@@ -110,7 +110,7 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
       } catch (_) {
         toast.error(`Failed to update todo item "${original.title}"`);
 
-        // Abort all ongoing sync queries
+        // Do not sync if the collection is already refetching
         if (todoItemsCollection.utils.isRefetching === false) {
           // Sync back the server's data
           todoItemsCollection.utils.refetch();
