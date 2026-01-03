@@ -90,6 +90,7 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
       } catch (error) {
         toast.error(`Failed to insert todo item "${newTodoItem.title}"`);
         console.error("Failed to insert todo item:", error);
+        throw error;
       }
     },
     onUpdate: async ({ transaction }) => {
@@ -133,7 +134,7 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
             );
           },
         );
-      } catch (_) {
+      } catch (error) {
         toast.error(`Failed to update todo item "${original.title}"`);
 
         // TODO: handle this one later properly
@@ -143,6 +144,7 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
         //   // Sync back the server's data
         //   todoItemsCollection.utils.refetch();
         // }
+        throw error;
       }
 
       // Do not sync back the server's data by default
