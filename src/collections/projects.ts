@@ -34,6 +34,8 @@ export const projectsCollection = createCollection(
           // TODO: handle error
           console.error("Failed to update todo item:", error);
         }
+        // Re-throw to trigger immediate rollback of optimistic update
+        throw error;
       }
     },
     getKey: (item) => item.id,
