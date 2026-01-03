@@ -24,7 +24,6 @@ import {
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { Virtualizer } from "virtua";
 import { boardCollection } from "@/collections/boards";
-import { projectsCollection } from "@/collections/projects";
 import { todoItemsCollection } from "@/collections/todoItems";
 import type { BoardRecord, TodoItemRecord } from "@/db/schema";
 import { useScrollShadow } from "@/hooks/use-scroll-shadow";
@@ -55,10 +54,7 @@ function DropIndicator() {
   return <div className="h-0.5 bg-primary mx-2 mb-[0.4375rem] rounded-full" />;
 }
 
-function findPrevItem<
-  T extends { boardId: string; todoItemId: string },
-  U extends T,
->({
+function findPrevItem<T extends { boardId: string; id: string }, U extends T>({
   todoItems,
   target,
 }: {
@@ -68,9 +64,7 @@ function findPrevItem<
   todoItems: U[];
   target: T;
 }) {
-  const targetIndex = todoItems.findIndex(
-    (t) => t.todoItemId === target.todoItemId,
-  );
+  const targetIndex = todoItems.findIndex((t) => t.id === target.id);
 
   const prev = todoItems[targetIndex - 1];
 
@@ -329,53 +323,26 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     [projectId],
   );
 
-  const { data: activeTodoItemData } = useLiveQuery(
-    (q) => {
-      if (!activeId) return undefined;
+  // Get active todo item from already-loaded collection data
+  // instead of making a separate query
+  const activeTodoItem = activeId
+    ? todoItemsCollection.toArray.find((item) => item.id === activeId)
+    : undefined;
 
-      return q
-        .from({ todoItem: todoItemsCollection })
-        .where(({ todoItem }) => eq(todoItem.id, activeId));
-    },
-    [activeId],
-  );
-
-  const activeTodoItem = activeTodoItemData?.[0];
-
-  const { data: orderedTodoItems } = useLiveQuery(
-    (q) =>
-      q
-        .from({
-          todoItem: todoItemsCollection,
-        })
-        .innerJoin({ board: boardCollection }, ({ todoItem, board }) =>
-          eq(todoItem.boardId, board.id),
-        )
-        .innerJoin({ project: projectsCollection }, ({ board, project }) =>
-          eq(board.projectId, project.id),
-        )
-        .where(({ project }) => eq(project.id, projectId))
-        .select(({ todoItem, board }) => ({
-          boardId: todoItem.boardId,
-          boardName: board.name,
-          todoTitle: todoItem.title,
-          projectId: projectId,
-          position: todoItem.position,
-          todoItemId: todoItem.id,
-        }))
-        .orderBy(({ todoItem }) => [todoItem.boardId, todoItem.position], {
-          direction: "asc",
-          /*
-            We use fractional indexes, so we need lexical sorting to get the correct order.
-
-            Ascending order of ["Zz",  "a0"] is:
-            - lexical string sort: ["Zz",  "a0"]
-            - default result (uses "locale"): ["a0", "Zz"]
-          */
-          stringSort: "lexical",
-        }),
-    [projectId],
-  );
+  // Derive ordered todo items from already-loaded collection data
+  // instead of making a separate query
+  const orderedTodoItems = useMemo(() => {
+    const boardIdSet = new Set(boards.map((b) => b.id));
+    return todoItemsCollection.toArray
+      .filter((item) => boardIdSet.has(item.boardId))
+      .sort((a, b) => {
+        // Sort by boardId first, then by position (lexical for fractional indexing)
+        if (a.boardId !== b.boardId) {
+          return a.boardId.localeCompare(b.boardId);
+        }
+        return a.position < b.position ? -1 : a.position > b.position ? 1 : 0;
+      });
+  }, [boards]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
@@ -422,7 +389,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
           todoItems: orderedTodoItems,
           target: {
             boardId: overTodoItem.boardId,
-            todoItemId: overTodoItem.id as string,
+            id: overTodoItem.id as string,
           },
         });
 
@@ -444,7 +411,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
           todoItems: orderedTodoItems,
           target: {
             boardId: overTodoItem.boardId,
-            todoItemId: overTodoItem.id as string,
+            id: overTodoItem.id as string,
           },
         });
 

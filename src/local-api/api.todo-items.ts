@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { type TodoItemRecord, todoItemsTable } from "@/db/schema";
@@ -28,7 +28,10 @@ export default {
   GET: async ({ request }) => {
     const url = new URL(request.url);
 
+    // NOTE: these query params should not be
+    // mutually exclusive
     const boardId = url.searchParams.get("boardId");
+    const boardIdIn = url.searchParams.get("boardId_in");
     const id = url.searchParams.get("id");
 
     if (boardId) {
@@ -36,6 +39,13 @@ export default {
         .select()
         .from(todoItemsTable)
         .where(eq(todoItemsTable.boardId, boardId));
+      return json(results);
+    } else if (boardIdIn) {
+      const boardIds = boardIdIn.split(",");
+      const results = await db
+        .select()
+        .from(todoItemsTable)
+        .where(inArray(todoItemsTable.boardId, boardIds));
       return json(results);
     } else if (id) {
       const results = await db
