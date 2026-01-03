@@ -15,7 +15,7 @@ const todoItemCreateData = z.object({
 
 export type TodoItemCreateDataType = z.infer<typeof todoItemCreateData>;
 
-export const todoItemUpdateData = z.object({
+const todoItemUpdateData = z.object({
   id: z.string(),
   boardId: z.string().optional(),
   priority: z.number().nullable().optional(),
