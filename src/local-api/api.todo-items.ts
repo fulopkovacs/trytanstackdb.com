@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { type TodoItemRecord, todoItemsTable } from "@/db/schema";
