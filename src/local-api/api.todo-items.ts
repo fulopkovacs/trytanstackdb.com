@@ -109,11 +109,12 @@ export default {
       return new Response(`No columns to update`, { status: 400 });
     }
 
-    const results = await db
+    const [updatedTodoItemData] = await db
       .update(todoItemsTable)
       .set(updatedData)
-      .where(eq(todoItemsTable.id, updatedData.id));
+      .where(eq(todoItemsTable.id, updatedData.id))
+      .returning();
 
-    return json(results);
+    return json(updatedTodoItemData);
   },
 } satisfies APIRouteHandler;
