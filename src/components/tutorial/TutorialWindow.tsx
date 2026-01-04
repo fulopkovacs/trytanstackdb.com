@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import { steps as articles } from "@/data/tutorial";
 import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
@@ -21,7 +22,6 @@ import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { ScrollShadow } from "../ui/scroll-shadow";
 import { TutorialTableOfContents } from "./TutorialTableOfContents";
-import { toast } from "sonner";
 
 function CopyArticleLinkButton({ activeStep }: { activeStep: string | null }) {
   const [copied, setCopied] = useState(false);
