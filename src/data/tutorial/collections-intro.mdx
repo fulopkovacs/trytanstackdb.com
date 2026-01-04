@@ -22,18 +22,17 @@ In the `AppSidebar` component, we use this query to get the list of projects:
     }),
   );
 ```
-<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/013849f87b6ce7ab5dee3873424d8e1012b810fc/src/components/AppSidebar.tsx#L45-L49" />
+<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/5551f19041a217fd70ef406e9c96d09dc62d5eb1/src/components/AppSidebar.tsx#L31-L35" />
 
 <HighLightComponent h_id="project_sidebar">Highlight `AppSidebar`</HighLightComponent>
 
-On the project's page, the `RouteComponent` loads only the data relevant for the currently viewed project:
+On the project's page, the `EditableProjectDetails` component loads only the data relevant for the currently viewed project:
 
 ```tsx
   const {
     data: [project],
   } = useLiveQuery(
-    (q) =>
-      q
+    (q) => q
         .from({ project: projectsCollection })
         .where(({ project }) => eq(project.id, projectId)),
     // This hook has a dependency array as seen below.
@@ -42,7 +41,7 @@ On the project's page, the `RouteComponent` loads only the data relevant for the
     [projectId],
   );
 ```
-<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/013849f87b6ce7ab5dee3873424d8e1012b810fc/src/routes/_tempDbRequired.projects.$projectId.tsx#L19-L27" />
+<GHLink href="https://github.com/fulopkovacs/trytanstackdb.com/blob/5551f19041a217fd70ef406e9c96d09dc62d5eb1/src/components/EditableProjectDetails.tsx#L93-L104" />
 
 <HighLightComponent h_id="project_projectPage">Highlight `RouteComponent`</HighLightComponent>
 
