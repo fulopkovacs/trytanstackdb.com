@@ -501,10 +501,6 @@ export function TutorialWindow({
         activeArticleFromSearch.toLowerCase(),
       ).trim();
 
-      console.info({
-        articleInSearch,
-      });
-
       const article = articles.find(
         (a) => a.title.toLowerCase().trim() === articleInSearch,
       );
