@@ -46,7 +46,7 @@ Let's rename our current project to the name of another existing project (like `
    must be unique)
    - The changes are immediately rolled back,
    - And an error message appears in the top right corner
-   - A new `GET` request to `/api/projects` syncs the local state with the remote database (check the <OpenAPIRequestsPanelLink>_API Requests_ panel</OpenAPIRequestsPanelLink>)
+   - A new `GET` request to `/api/projects` syncs the local state with the remote database. You can watch this happen in the <OpenAPIRequestsPanelLink>_API Requests_ panel</OpenAPIRequestsPanelLink>
 
 The rule is simple: when an update fails, the mutation is rolled back and the collection's state is synced with the remote data source.
 
