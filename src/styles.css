@@ -51,6 +51,32 @@ html.dark .shiki span {
   background-color: var(--shiki-dark-bg) !important;
 }
 
+/* Shiki line highlighting */
+.shiki code {
+  display: grid;
+}
+
+.shiki .line.highlighted {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: calc(1rem - 3px);
+  padding-right: 1rem;
+  border-left: 3px solid var(--primary);
+  background-color: oklch(from var(--accent) l c h / 0.3) !important;
+}
+
+html:not(.dark) .shiki .line.highlighted span {
+  background-color: transparent !important;
+}
+
+html.dark .shiki .line.highlighted {
+  background-color: oklch(from var(--accent) l c h / 0.1) !important;
+}
+
+html.dark .shiki .line.highlighted span {
+  background-color: transparent !important;
+}
+
 :root {
   --background:
     oklch(0.9789 0.0082 121.6272);

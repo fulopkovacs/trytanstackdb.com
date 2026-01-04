@@ -40,6 +40,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@shikijs/rehype": "^3.20.0",
+    "@shikijs/transformers": "^3.20.0",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/db": "^0.5.16",
     "@tanstack/query-db-collection": "^1.0.12",
