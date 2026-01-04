@@ -486,6 +486,7 @@ export function TutorialWindow({
   const [isClosed, setIsClosed] = useState(tutorialData.isClosed);
 
   const { article: activeArticleFromSearch } = useSearch({ strict: false });
+  const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(
     tutorialData.tutorialStep || articles[0].title,
@@ -498,13 +499,28 @@ export function TutorialWindow({
     ) {
       const articleInSearch = decodeURIComponent(
         activeArticleFromSearch.toLowerCase(),
+      ).trim();
+
+      console.info({
+        articleInSearch,
+      });
+
+      const article = articles.find(
+        (a) => a.title.toLowerCase().trim() === articleInSearch,
       );
 
-      if (articles.find((a) => a.title === articleInSearch)) {
-        setActiveStep(articleInSearch);
+      if (article) {
+        setActiveStep(article.title);
+        navigate({
+          to: ".",
+          search: ({ article: _, ...old }) => {
+            return { ...old };
+          },
+          replace: true,
+        });
       }
     }
-  }, [activeArticleFromSearch]);
+  }, [activeArticleFromSearch, navigate]);
 
   const router = useRouter();
 
