@@ -2,6 +2,7 @@ import {Link} from '@tanstack/react-router'
 import {
   GHLink,
   HighLightComponent,
+  OpenAPIRequestsPanelLink
 } from '/src/components/tutorial'
 
 ## What's next?
@@ -10,21 +11,32 @@ You might still have a lot of questions.
 
 What if you don't want to download all of your data at once, because your db is too big (tip: use the `on-demand` sync strategy)? How to do complex mutations on multiple collections at once and still have instant rollbacks (tip: use `createOptimisticAction`)? And probably many more.
 
-Well, that's what the docs are for. They still might be incomplete at places, but the project is moving at a very fast pace and we have some very dedicated folks working on it. In the meanwhile, check out the <a target="_blank" href="https://tlinz.com/discord">Discord channel</a> if you have questions.
+## Useful resources
+I recommend checking out:
+- The official <a target="_blank" href="https://tanstack.com/db/latest/docs/quick-start">Quick Start</a> guide if you want to write some code yourself
+- The <a target="_blank" href="https://tlinz.com/discord">Discord channel</a> channel if you have questions
 
 ## Play with this project
 
 Until then, you can play with this project.
 
-The source code is <a target="_blank" href="https://github.com/fulopkovacs/trytanstackdb.com">on GitHub</a>, and you can keep monitoring the requests in the Network tab.
+The source code is <a target="_blank" href="https://github.com/fulopkovacs/trytanstackdb.com">on GitHub</a>, and you can keep monitoring the requests in the <OpenAPIRequestsPanelLink>_API Requests_ panel</OpenAPIRequestsPanelLink>.
 
-> Note that requests won't show up in the Network tab of the DevTools until they are completed (no PENDING state).
-> This is because currently they are handled locally by a service worker and this implementation comes with this limitation.
-
-## Check out the official _"Quick Start"_ guide
-
-If you want get your hands dirty and write some code, you can check out the official <a target="_blank" href="https://tanstack.com/db/latest/docs/quick-start">Quick Start</a> guide.
+> Keep in mind that this project's architecture is a bit special.
+> We had some special constraints:
+> - the db had to be local to keep the project financially viable and secure
+> - but the API requests had to be observable (for educational purposes).
+> Thanks to these, we ended up having:
+> - a PGLite db on the client (a Postgres instance in WASM)
+> - a service worker that intercepts API requests and forwards them to the API routes that are defined locally (these API routes receive HTTP Requests and give HTTP Responses, just like a normal API would)
+>
+> All of this architectural complexity is specific to this project, and not required by TanStack DB.
 
 ## Deep Dive Articles
 
-We have a growing list of deep dive articles  that explore more complex topics (such as Optimistic Actions for mutations involving multiple collections). You can view them in the TOC on the left.
+We have a growing list of deep dive articles that explore more complex topics (such as Optimistic Actions for mutations involving multiple collections). You can view them in the TOC on the left.
+
+## Say hi 👋
+If you liked this guide, please star (⭐) <a target="_blank" href="https://github.com/fulopkovacs/trytanstackdb.com/">the repo on GitHub</a>.
+
+I want to make this guide the best resource for beginners to learn TanStack DB, so **if you have any feedback, please don't hold it in!** I'm <a target="_blank" href="https://x.com/notacheetah">@notacheetah</a> on X. 🫡
