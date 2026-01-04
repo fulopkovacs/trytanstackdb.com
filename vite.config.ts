@@ -1,6 +1,7 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
 import mdx from "@mdx-js/rollup";
 import rehypeShiki from "@shikijs/rehype";
+import { transformerMetaHighlight } from "@shikijs/transformers";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -37,6 +38,7 @@ const config = defineConfig({
             },
             defaultColor: false,
             transformers: [
+              transformerMetaHighlight(),
               {
                 name: "add-language-data-attribute",
                 pre(node: { properties: Record<string, string> }) {
