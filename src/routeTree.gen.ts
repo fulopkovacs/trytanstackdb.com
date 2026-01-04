@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as TutorialRouteImport } from './routes/_tutorial'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TutorialDbRouteImport } from './routes/_tutorial._db'
@@ -17,6 +18,11 @@ import { Route as TutorialDbProjectRootRouteImport } from './routes/_tutorial._d
 import { Route as TutorialDbProjectsIndexRouteImport } from './routes/_tutorial._db.projects.index'
 import { Route as TutorialDbProjectsProjectIdRouteImport } from './routes/_tutorial._db.projects.$projectId'
 
+const MobileRoute = MobileRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TutorialRoute = TutorialRouteImport.update({
   id: '/_tutorial',
   getParentRoute: () => rootRouteImport,
@@ -54,6 +60,7 @@ const TutorialDbProjectsProjectIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mobile': typeof MobileRoute
   '/project-root': typeof TutorialDbProjectRootRoute
   '/projects': typeof TutorialDbProjectsRouteWithChildren
   '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
@@ -61,6 +68,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mobile': typeof MobileRoute
   '/project-root': typeof TutorialDbProjectRootRoute
   '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
   '/projects': typeof TutorialDbProjectsIndexRoute
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_tutorial': typeof TutorialRouteWithChildren
+  '/mobile': typeof MobileRoute
   '/_tutorial/_db': typeof TutorialDbRouteWithChildren
   '/_tutorial/_db/project-root': typeof TutorialDbProjectRootRoute
   '/_tutorial/_db/projects': typeof TutorialDbProjectsRouteWithChildren
@@ -79,16 +88,18 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/mobile'
     | '/project-root'
     | '/projects'
     | '/projects/$projectId'
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/project-root' | '/projects/$projectId' | '/projects'
+  to: '/' | '/mobile' | '/project-root' | '/projects/$projectId' | '/projects'
   id:
     | '__root__'
     | '/'
     | '/_tutorial'
+    | '/mobile'
     | '/_tutorial/_db'
     | '/_tutorial/_db/project-root'
     | '/_tutorial/_db/projects'
@@ -99,10 +110,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TutorialRoute: typeof TutorialRouteWithChildren
+  MobileRoute: typeof MobileRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mobile': {
+      id: '/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof MobileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_tutorial': {
       id: '/_tutorial'
       path: ''
@@ -197,6 +216,7 @@ const TutorialRouteWithChildren = TutorialRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TutorialRoute: TutorialRouteWithChildren,
+  MobileRoute: MobileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

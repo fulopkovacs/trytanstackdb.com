@@ -63,9 +63,11 @@ function WavyLine() {
 export function HomeIntro({
   activeStep,
   showIntro,
+  isMobile = false,
 }: {
   activeStep: string | null;
   showIntro: boolean;
+  isMobile?: boolean;
 }) {
   const [open, setOpen] = useState(
     activeStep === null ||
@@ -143,11 +145,18 @@ export function HomeIntro({
                 Sounds amazing, right? Learn the basics with this interactive
                 tutorial in 6-7 minutes!
               </p>
+              {isMobile && (
+                <p className="max-w-sm text-destructive text-center font-bold text-sm">
+                  This interactive tutorial requires features not available on
+                  mobile browsers. Please visit on a desktop computer.
+                </p>
+              )}
             </CardContent>
             <CardFooter className="flex justify-center items-center flex-col gap-10">
               <Button
                 onClick={startTutorial}
                 className="bg-primary cursor-pointer"
+                disabled={isMobile}
               >
                 Get started <ArrowRightIcon />
               </Button>
