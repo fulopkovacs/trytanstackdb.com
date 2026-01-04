@@ -1,3 +1,4 @@
+import QueryDrivenSync from "@/data/deep-dives/query-driven-sync.mdx";
 import CollectionsIntro from "@/data/tutorial/collections-intro.mdx";
 import HowDoCollectionsWork from "@/data/tutorial/how-do-collections-work.mdx";
 import OptimisticUpdates from "@/data/tutorial/optimistic-updates.mdx";
@@ -47,10 +48,10 @@ export const tutorialArticles: Step[] = tutorialArticlesWithoutNextSteps.map(
 );
 
 const deepDiveArticlesWithoutNextSteps: Step[] = [
-  // {
-  //   title: "Optimistic Actions",
-  //   file: OptimisticActions,
-  // },
+  {
+    title: "Query-driven sync",
+    file: QueryDrivenSync,
+  },
 ];
 
 // export const deepDiveArticles: Step[] = deepDiveArticlesWithoutNextSteps.map(
