@@ -122,7 +122,7 @@ export function HomeIntro({
                 front-ends.
               </motion.p>
               <WavyLine />
-              <ul className="flex flex-wrap gap-4">
+              <ul className="flex flex-wrap gap-4 justify-center">
                 <FeatureItem emoji={"🚀"} title="User actions feel instant">
                   Updates show immediately while sync happens in the background.
                 </FeatureItem>
