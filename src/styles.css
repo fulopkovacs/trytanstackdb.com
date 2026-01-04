@@ -56,6 +56,11 @@ html.dark .shiki span {
   display: grid;
 }
 
+/* Ensure empty lines are preserved */
+.shiki .line:empty::before {
+  content: " ";
+}
+
 .shiki .line.highlighted {
   margin-left: -1rem;
   margin-right: -1rem;
