@@ -1,6 +1,6 @@
 import { Tabs, TabsContent } from "@radix-ui/react-tabs";
 import { useNavigate, useRouter, useSearch } from "@tanstack/react-router";
-import { DatabaseZapIcon, XIcon } from "lucide-react";
+import { CheckIcon, DatabaseZapIcon, LinkIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   useCallback,
@@ -21,6 +21,60 @@ import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { ScrollShadow } from "../ui/scroll-shadow";
 import { TutorialTableOfContents } from "./TutorialTableOfContents";
+
+function CopyArticleLinkButton({ activeStep }: { activeStep: string | null }) {
+  const [copied, setCopied] = useState(false);
+
+  const copyLink = useCallback(() => {
+    if (!activeStep) return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set(
+      "article",
+      encodeURIComponent(activeStep.toLowerCase()),
+    );
+
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [activeStep]);
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={copyLink}
+      className="absolute top-2 right-4 z-20"
+      title="Copy link to this article"
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        {copied ? (
+          <motion.div
+            key="check"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.5, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <CheckIcon className="h-4 w-4 text-green-600" />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="link"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.5, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <LinkIcon className="h-4 w-4" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {copied ? "Copied!" : "Copy link"}
+    </Button>
+  );
+}
 
 function FloatingWindowHeader({ toggleWindow }: { toggleWindow: () => void }) {
   return (
@@ -365,6 +419,7 @@ function FloatingWindow({
               isResizing && "pointer-events-none",
             )}
           >
+            <CopyArticleLinkButton activeStep={activeStep} />
             <ScrollShadow
               position="top"
               visible={canScrollUp}
