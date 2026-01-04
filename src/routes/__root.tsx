@@ -5,6 +5,7 @@ import {
   ClientOnly,
   createRootRouteWithContext,
   HeadContent,
+  redirect,
   ScriptOnce,
   Scripts,
 } from "@tanstack/react-router";
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/sonner";
 import { client, idbName } from "@/db";
+import { getIsMobile } from "@/server/functions/getIsMobile";
 import { seo } from "@/utils/seo";
 import appCss from "../styles.css?url";
 
@@ -24,6 +26,20 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+  beforeLoad: async ({ location }) => {
+    // Skip redirect if already on /mobile to avoid infinite loop
+    if (location.pathname === "/mobile") {
+      return;
+    }
+
+    const isMobile = await getIsMobile();
+
+    if (isMobile) {
+      throw redirect({
+        to: "/mobile",
+      });
+    }
+  },
   head: () => ({
     meta: [
       {
