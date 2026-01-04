@@ -1,0 +1,159 @@
+import {Link} from '@tanstack/react-router'
+import {
+  GHLink,
+  HighLightComponent,
+  LinkToArticle,
+  OpenAPIRequestsPanelLink,
+} from '/src/components/tutorial'
+
+## Query-driven sync
+
+Sometimes you don't want to load all your data into your collection, only the subset that is required by the live queries you're running.
+
+For example:
+
+- instead of loading all the todo items a user has when they visit a project's page,
+- we can just load the ones that belong to that project.
+
+This can be achieved by using the `on-demand` sync mode.
+
+> FYI: the docs recommend it for large datasets (>50k rows), which means that using it is not really warranted in our case (we have a bit more than 1k rows). <a target="_blank" href="https://tanstack.com/db/latest/docs/overview#sync-modes">(source)</a>
+
+### Switching to `"on-demand"`
+
+Every collection's sync strategy is `"eager"` by default, which loads the entire collection upfront. First, we need to change it to `"on-demand"`:
+
+```ts {4}
+export const todoItemsCollection = createCollection<TodoItemRecord>(
+  queryCollectionOptions({
+    // ...
+    syncMode: "on-demand",
+    // ...
+  })
+```
+
+When the `syncMode` was eager, the function that we used to populate the collection and keep it in sync (`queryFn`) was basically one `fetch` call to the API:
+
+```ts {4-11}
+export const todoItemsCollection = createCollection<TodoItemRecord>(
+  queryCollectionOptions({
+    // ...
+    syncMode: 'eager',
+    queryFn: async () => {
+      // Fetch all the todo items
+      const res = await fetch('/api/todo-items', {method: 'GET'})
+
+      const todoItems: TodoItemRecord[] = await res.json()
+
+      return todoItems
+    },
+    // ...
+  }),
+)
+```
+
+Using this `queryFn` for the `"on-demand"` `syncMode` would defeat the very purpose of it, because it would fetch every single todo item in the database for each query.
+
+Instead of that, we want the collection to load all the todo items that are required for the queries we run. Right now, we have only one query for the `todoItemsCollection`:
+
+```tsx {5}
+const {data: allTodoItems} = useLiveQuery(
+  (q) =>
+    q
+      .from({todoItem: todoItemsCollection})
+      .where(({todoItem}) => eq(todoItem.projectId, projectId))
+      .orderBy(({todoItem}) => todoItem.position, {
+        direction: 'asc',
+        stringSort: 'lexical',
+      }),
+  [projectId],
+)
+```
+
+The highlighted line in the code block above is the filter we need to use in the database query on the server. Luckily for us, when this live query runs, TanStack DB automatically passes down all the predicates coming from this live query to the `queryFn`.
+
+```ts {22}
+export const todoItemsCollection = createCollection<TodoItemRecord>(
+  queryCollectionOptions({
+    syncMode: 'on-demand',
+    queryFn: async ({meta}) => {
+      const params = new URLSearchParams()
+
+      if (meta) {
+        const {where} = meta.loadSubsetOptions
+        // Parse the expressions into simple format
+        const parsed = parseLoadSubsetOptions({where})
+        // Build query parameters from parsed filters
+        // Add filters
+        parsed.filters.forEach(({field, operator, value}) => {
+          const fieldName = field.join('.')
+          // Currently only the "eq" operator is supported by our API
+          if (operator === 'eq') {
+            params.set(fieldName, String(value))
+          }
+        })
+      }
+
+      const res = await fetch(`/api/todo-items?${params}`, {method: 'GET'})
+      const todoItems: TodoItemRecord[] = await res.json()
+      return todoItems
+    },
+  }),
+)
+```
+
+To observe this behavior
+
+- open the <OpenAPIRequestsPanelLink>API Request Panel</OpenAPIRequestsPanelLink>,
+- and [reload this page]()
+
+You should see that the request to `/api/todo-items` has a search string attached to it, similar to this one: `?projectId=aQLI4Nzvmls31l4aep9LqnU`.
+
+### Query predicates
+
+In this app we stop here, but the predicates (`where` clauses, `orderBy`, `limit`, and `offset`) coming from the queries can cover far more advanced use cases.
+
+We could use `orderBy` to order elements on the server, `offset` to support pagination and more.
+
+Check out the <a target="_blank" href="https://tanstack.com/db/latest/docs/collections/query-collection#queryfn-and-predicate-push-down">documentation</a> for more info about them.
+
+### Transitioning from `"eager"` to `"on-demand"`: some pitfalls
+
+When I first refactor the `todoItemsCollection` to use `on-demand` sync, I ran into some issues.
+
+#### `.toArrayWhenReady()` vs `.toArray`
+
+For example, this line of code calling the <a target="_blank" href="https://tanstack.com/db/latest/docs/reference/interfaces/Collection#toarraywhenready">`.toArrayWhenReady()` method</a> caused the collection to fetch every single todo item from the remote source:
+
+```ts
+// ❌ Get the current state of the collection from the server,
+await todoItemsCollection.toArrayWhenReady()
+```
+
+I had to change it to <a target="_blank" href="https://tanstack.com/db/latest/docs/reference/interfaces/Collection#toarray">`toArray`</a>, to use only the data that we already have in the client-side cache:
+
+```ts
+// ✅ Get the current state of the collection from the cache
+await todoItemsCollection.toArray
+```
+
+#### `.refetch()`
+
+Another line that resulted in loading all the collection data instead of the subset required by the query in `"on-demand"` mode was this one:
+
+```ts
+// ❌ Triggers fetching every todo item in the collection
+todoItemsCollection.utils.refetch();
+```
+
+The moral of the story is that you have to watch out and make sure you don't accidentally sync all the data in the collection when you use `"on-demand"` mode.
+
+### Progressive mode
+
+There is a third sync mode, that I haven't mentioned before called `"progressive"`. Here's how it relates to the other two:
+
+- `"eager"`: load all the data in the collection
+- `"on-demand"`: load only the queried data
+- `"progressive"`: load the queried data first, then everything else in the background
+
+You can read more about the sync modes <a target="_blank" href="https://tanstack.com/db/latest/docs/overview#sync-modes">in the documentation</a>.

@@ -65,7 +65,7 @@ export const todoItemsCollection = createCollection<TodoItemRecord>(
         parsed.filters.forEach(({ field, operator, value }) => {
           const fieldName = field.join(".");
 
-          // Currently only "eq" operator is supported in the API
+          // Currently only the "eq" operator is supported by our API
           if (operator === "eq") {
             params.set(fieldName, String(value));
           }
