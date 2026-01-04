@@ -99,7 +99,7 @@ export function LinkToArticle({
   articleTitle: string;
 }) {
   const encodedTitle = useMemo(
-    () => encodeURIComponent(articleTitle),
+    () => encodeURIComponent(articleTitle.toLowerCase()),
     [articleTitle],
   );
 
@@ -107,7 +107,7 @@ export function LinkToArticle({
     <Link
       to="."
       search={{
-        step: encodedTitle,
+        article: encodedTitle,
       }}
       className="text-orange-500 underline hover:text-orange-600 transition-colors cursor-pointer"
     >

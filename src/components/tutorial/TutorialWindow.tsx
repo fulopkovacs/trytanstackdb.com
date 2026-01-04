@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { steps } from "@/data/tutorial";
+import { steps as articles } from "@/data/tutorial";
 import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 import { cn } from "@/lib/utils";
 import {
@@ -379,7 +379,7 @@ function FloatingWindow({
                 isResizing ? "contain-strict" : "contain-none",
               )}
             >
-              {steps.map((step) => (
+              {articles.map((step) => (
                 <TabsContent
                   key={step.title}
                   value={step.title}
@@ -424,20 +424,26 @@ export function TutorialWindow({
 }) {
   const [isClosed, setIsClosed] = useState(tutorialData.isClosed);
 
-  const { step: activeStepFromSearch } = useSearch({ strict: false });
+  const { article: activeArticleFromSearch } = useSearch({ strict: false });
 
   const [activeStep, setActiveStep] = useState(
-    tutorialData.tutorialStep || steps[0].title,
+    tutorialData.tutorialStep || articles[0].title,
   );
 
   useEffect(() => {
-    if (activeStepFromSearch && typeof activeStepFromSearch === "string") {
-      const stepInSearch = decodeURIComponent(activeStepFromSearch);
-      if (steps.find((step) => step.title === stepInSearch)) {
-        setActiveStep(stepInSearch);
+    if (
+      activeArticleFromSearch &&
+      typeof activeArticleFromSearch === "string"
+    ) {
+      const articleInSearch = decodeURIComponent(
+        activeArticleFromSearch.toLowerCase(),
+      );
+
+      if (articles.find((a) => a.title === articleInSearch)) {
+        setActiveStep(articleInSearch);
       }
     }
-  }, [activeStepFromSearch]);
+  }, [activeArticleFromSearch]);
 
   const router = useRouter();
 
