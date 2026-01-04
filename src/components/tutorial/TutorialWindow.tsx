@@ -21,6 +21,7 @@ import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { ScrollShadow } from "../ui/scroll-shadow";
 import { TutorialTableOfContents } from "./TutorialTableOfContents";
+import { toast } from "sonner";
 
 function CopyArticleLinkButton({ activeStep }: { activeStep: string | null }) {
   const [copied, setCopied] = useState(false);
@@ -34,10 +35,15 @@ function CopyArticleLinkButton({ activeStep }: { activeStep: string | null }) {
       encodeURIComponent(activeStep.toLowerCase()),
     );
 
-    navigator.clipboard.writeText(url.toString()).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    navigator.clipboard
+      .writeText(url.toString())
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((_) => {
+        toast.error("Couldn't copy the url");
+      });
   }, [activeStep]);
 
   return (
