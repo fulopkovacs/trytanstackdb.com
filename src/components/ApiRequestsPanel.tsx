@@ -15,6 +15,7 @@ import { userPreferencesCollection } from "@/collections/UserPreferences";
 import { cn } from "@/lib/utils";
 import { HighlightWrapper } from "@/utils/highlight-collection-related-info";
 import { USER_PLACEHOLDER } from "@/utils/USER_PLACEHOLDER_CONSTANT";
+import { CodeHighlighter } from "./CodeHighlighter";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -58,6 +59,9 @@ function JsonViewer({
     return null;
   }
 
+  const jsonString =
+    typeof data === "string" ? data : JSON.stringify(data, null, 2);
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
@@ -69,9 +73,7 @@ function JsonViewer({
         {label}
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <pre className="mt-1 whitespace-pre-wrap p-2 bg-muted/50 rounded text-xs overflow-x-auto max-h-40 overflow-y-auto">
-          {typeof data === "string" ? data : JSON.stringify(data, null, 2)}
-        </pre>
+        <CodeHighlighter code={jsonString} language="json" />
       </CollapsibleContent>
     </Collapsible>
   );
