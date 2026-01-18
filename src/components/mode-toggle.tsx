@@ -1,38 +1,60 @@
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { type UserTheme, useTheme } from "./theme-provider";
 
-export function ModeToggle() {
-  const { setTheme } = useTheme();
+type ThemeToggleProps = {
+  getTheme?: () => UserTheme;
+};
+
+function ThemeIcon({ theme }: { theme: UserTheme }) {
+  const iconClass = "h-[1.2rem] w-[1.2rem]";
+
+  if (theme === "system") {
+    return <MonitorIcon className={iconClass} />;
+  }
+  if (theme === "dark") {
+    return <MoonIcon className={iconClass} />;
+  }
+  return <SunIcon className={iconClass} />;
+}
+
+export function ModeToggle({ getTheme }: ThemeToggleProps) {
+  const { setTheme, userTheme } = useTheme();
+  const theme = getTheme ? getTheme() : userTheme;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          <SunIcon className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          <ThemeIcon theme={theme} />
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          <SunIcon />
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          <MoonIcon />
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          <MonitorIcon />
-          System
-        </DropdownMenuItem>
+        <DropdownMenuRadioGroup
+          value={theme}
+          onValueChange={(value) => setTheme(value as UserTheme)}
+        >
+          <DropdownMenuRadioItem value="light">
+            <SunIcon />
+            Light
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark">
+            <MoonIcon />
+            Dark
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system">
+            <MonitorIcon />
+            System
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
