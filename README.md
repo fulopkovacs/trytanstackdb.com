@@ -8,7 +8,10 @@ An interactive guide for taking the first steps with
 
 [🔗 trytanstackdb.com](https://trytanstackdb.com)
 
-https://github.com/user-attachments/assets/32efe3de-f976-4009-9970-40605f1f1b51
+
+
+https://github.com/user-attachments/assets/1d437530-e575-4e52-8db9-2e99a00635a2
+
 
 ## TODO
 
