@@ -1,4 +1,4 @@
-# trytanstackdb.com _(ALPHA version)_
+# trytanstackdb.com _(BETA version)_
 
 > Note that this project is still in its early stages.
 
