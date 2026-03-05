@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "codemogger": {
+      "command": "npx",
+      "args": ["-y", "codemogger", "mcp"]
+    },
+    "memelord": {
+      "command": "memelord",
+      "args": ["serve"],
+      "env": {
+        "MEMELORD_DIR": "/Users/fulopkovacs/dev-projects/2025/trytanstackdb.com/fix-displaced-todo-items/.memelord"
+      }
+    }
+  }
+}

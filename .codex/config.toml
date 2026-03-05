@@ -1,0 +1,9 @@
+[mcp_servers.codemogger]
+command = "npx"
+args = ["-y", "codemogger", "mcp"]
+enabled = true
+[mcp_servers.memelord]
+command = "memelord"
+args = ["serve"]
+env = { MEMELORD_DIR = "/Users/fulopkovacs/dev-projects/2025/trytanstackdb.com/fix-displaced-todo-items/.memelord" }
+enabled = true
