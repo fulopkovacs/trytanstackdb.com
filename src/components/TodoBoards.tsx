@@ -74,6 +74,22 @@ function findPrevItem<T extends { boardId: string; id: string }, U extends T>({
   return prev?.boardId === target.boardId ? prev : null;
 }
 
+function sortByBoardAndPosition(a: TodoItemRecord, b: TodoItemRecord): number {
+  if (a.boardId !== b.boardId) {
+    return a.boardId.localeCompare(b.boardId);
+  }
+
+  if (a.position < b.position) {
+    return -1;
+  }
+
+  if (a.position > b.position) {
+    return 1;
+  }
+
+  return 0;
+}
+
 function handlePriorityPointerDown(e: React.PointerEvent) {
   e.stopPropagation();
   e.preventDefault();
@@ -397,32 +413,29 @@ export function TodoBoards({ projectId }: { projectId: string }) {
     ? todoItemsCollection.toArray.find((item) => item.id === activeId)
     : undefined;
 
-  // Derive ordered todo items from already-loaded collection data
-  // instead of making a separate query
-  const orderedTodoItems = useMemo(() => {
-    const boardIdSet = new Set(boards.map((b) => b.id));
-    return todoItemsCollection.toArray
-      .filter((item) => boardIdSet.has(item.boardId))
-      .sort((a, b) => {
-        // Sort by boardId first, then by position (lexical for fractional indexing)
-        if (a.boardId !== b.boardId) {
-          return a.boardId.localeCompare(b.boardId);
-        }
-        return a.position < b.position ? -1 : a.position > b.position ? 1 : 0;
-      });
-  }, [boards]);
-
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
 
     if (!over) return;
 
-    // Find which column the dragged task is in
+    const boardIdSet = new Set(boards.map((board) => board.id));
+
+    const orderedTodoItems = todoItemsCollection.toArray
+      .filter((item) => boardIdSet.has(item.boardId))
+      .sort(sortByBoardAndPosition);
+
+    const activeTodoItem = orderedTodoItems.find(
+      (item) => item.id === active.id,
+    );
+
+    if (!activeTodoItem) {
+      return;
+    }
 
     if (boards.some((board) => board.id === over.id)) {
       // This is either an empty column or the last place of a column
@@ -441,9 +454,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
         newPosition,
       });
     } else {
-      const overTodoItem = todoItemsCollection.toArray.find(
-        (item) => item.id === over.id,
-      );
+      const overTodoItem = orderedTodoItems.find((item) => item.id === over.id);
 
       if (!overTodoItem) {
         console.error("overTodoId not found");
@@ -500,7 +511,7 @@ export function TodoBoards({ projectId }: { projectId: string }) {
 
   const sortedBoards = useMemo(
     () =>
-      boards.sort((a) =>
+      [...boards].sort((a) =>
         a.name === "Todo" ? -1 : a.name === "In Progress" ? -1 : 1,
       ),
     [boards],

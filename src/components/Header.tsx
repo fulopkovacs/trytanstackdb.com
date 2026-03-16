@@ -1,5 +1,11 @@
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { ClientOnly } from "@tanstack/react-router";
-import { BugIcon, GithubIcon } from "lucide-react";
+import { BugIcon, GithubIcon, LoaderIcon, RotateCwIcon } from "lucide-react";
+import { retryUnsyncedTodoItemsSync } from "@/collections/todoItems";
+import {
+  TODO_ITEMS_SYNC_STATE_ID,
+  todoItemsSyncCollection,
+} from "@/collections/todoItemsSync";
 import { ApiLatencyConfigurator } from "./ApiLatencyConfigurator";
 import { ApiPanelToggle } from "./ApiPanelToggle";
 import { ConfigureDB } from "./ConfigureDB";
@@ -7,6 +13,53 @@ import { ModeToggle } from "./mode-toggle";
 import { ResetTheDbDialog } from "./ResetTheDbDialog";
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+
+function RetryTodoItemsSyncButton() {
+  const { data: syncState } = useLiveQuery((q) =>
+    q
+      .from({ syncState: todoItemsSyncCollection })
+      .where(({ syncState }) => eq(syncState.id, TODO_ITEMS_SYNC_STATE_ID))
+      .findOne(),
+  );
+
+  const failedCount = syncState?.failedItemIds.length ?? 0;
+  const inFlightCount = syncState?.inFlightItemIds.length ?? 0;
+
+  if (failedCount === 0) {
+    return null;
+  }
+
+  const tooltipText = `Retries failed sync requests (${failedCount} pending failure${failedCount > 1 ? "s" : ""}). Local changes stay in the UI.`;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void retryUnsyncedTodoItemsSync();
+            }}
+            disabled={failedCount === 0}
+          >
+            {inFlightCount > 0 ? (
+              <LoaderIcon className="animate-spin" />
+            ) : (
+              <RotateCwIcon />
+            )}
+            Retry sync
+            {failedCount > 0 ? ` (${failedCount})` : ""}
+          </Button>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        <p className="max-w-72">{tooltipText}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 export function Header() {
   return (
@@ -48,6 +101,9 @@ export function Header() {
       </ClientOnly>
       <ClientOnly fallback={null}>
         <ApiLatencyConfigurator />
+      </ClientOnly>
+      <ClientOnly fallback={null}>
+        <RetryTodoItemsSyncButton />
       </ClientOnly>
       <a
         href="https://github.com/fulopkovacs/trytanstackdb.com"
