@@ -4,7 +4,7 @@
     "codemogger": {
       "type": "local",
       "command": ["npx", "-y", "codemogger", "mcp"],
-      "enabled": true
+      "enabled": false
     },
     "memelord": {
       "type": "local",
@@ -12,7 +12,7 @@
       "environment": {
         "MEMELORD_DIR": "/Users/fulopkovacs/dev-projects/2025/trytanstackdb.com/fix-displaced-todo-items/.memelord"
       },
-      "enabled": true
+      "enabled": false
     }
   }
 }
