@@ -1,2 +1,19 @@
-# this document
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.env
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
+!.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# build brief
 trytanstackdb.com V2 — Build brief for coding agents.md

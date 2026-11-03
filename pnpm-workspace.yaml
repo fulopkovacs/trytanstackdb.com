@@ -1,0 +1,31 @@
+allowBuilds:
+  esbuild: true
+  lightningcss: true
+  sharp: true
+  workerd: true
+packages:
+  - .
+onlyBuiltDependencies:
+  - esbuild
+  - lightningcss
+  - sharp
+  - workerd
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@1.4.0
+  vite-plus: 1.4.0
+overrides:
+  vite@*: "catalog:"
+peerDependencyRules:
+  allowAny:
+    - vite
+  allowedVersions:
+    vite: "*"
+minimumReleaseAgeExclude:
+  - "@tanstack/db-ivm@1.0.0-rc.1.2"
+  - "@tanstack/db@1.0.0-rc.1.2"
+  - "@tanstack/query-core@5.105.3"
+  - "@tanstack/query-db-collection@1.5.1"
+  - "@tanstack/query-devtools@5.105.3"
+  - "@tanstack/react-db@1.0.0-rc.1.2"
+  - "@tanstack/react-query-devtools@5.105.3"
+  - "@tanstack/react-query@5.105.3"

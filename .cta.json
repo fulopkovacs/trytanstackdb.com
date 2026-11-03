@@ -1,0 +1,18 @@
+{
+  "bundler": "vite",
+  "projectName": "trytanstackdb-v2",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "pnpm",
+  "includeExamples": false,
+  "tailwind": true,
+  "projectPreset": "default",
+  "routerOnly": false,
+  "addOnOptions": {},
+  "git": true,
+  "install": false,
+  "intent": true,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": ["cloudflare", "db", "form", "tanstack-query"]
+}
