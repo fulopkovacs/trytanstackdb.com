@@ -7,7 +7,15 @@ import { pacedPerRecord } from "./paced-per-record";
 function fakeTransaction() {
   let settle!: () => void;
   const settled = new Promise<void>((resolve) => (settle = resolve));
-  const transaction = { when: () => settled } as unknown as Transaction<object>;
+  const fake = {
+    state: "pending",
+    when: () => settled,
+    rollback: () => {
+      fake.state = "failed";
+      settle();
+    },
+  };
+  const transaction = fake as unknown as Transaction<object>;
   return { transaction, settle: async () => (settle(), await settled, await tick()) };
 }
 
@@ -17,23 +25,37 @@ it("shares one instance per record until all its transactions settle", async () 
   const created: string[] = [];
   const transactions = [fakeTransaction(), fakeTransaction(), fakeTransaction()];
   let next = 0;
-  const mutate = pacedPerRecord((id) => {
+  const records = pacedPerRecord((id) => {
     created.push(id);
     return () => transactions[next++]!.transaction;
   });
 
-  mutate("a", undefined);
-  mutate("a", undefined);
+  records.mutate("a", undefined);
+  records.mutate("a", undefined);
   expect(created).toEqual(["a"]);
 
   await transactions[0]!.settle();
-  mutate("a", undefined); // "a" still has an unsettled transaction: same instance
+  records.mutate("a", undefined); // "a" still has an unsettled transaction: same instance
   expect(created).toEqual(["a"]);
 
   await transactions[1]!.settle();
   await transactions[2]!.settle();
   next = 0;
   transactions.splice(0, 3, fakeTransaction(), fakeTransaction(), fakeTransaction());
-  mutate("a", undefined); // all settled: a fresh instance
+  records.mutate("a", undefined); // all settled: a fresh instance
   expect(created).toEqual(["a", "a"]);
+});
+
+it("cancels a record's changes that haven't started saving", async () => {
+  const pending = fakeTransaction();
+  const saving = fakeTransaction();
+  (saving.transaction as { state: string }).state = "persisting";
+  const queue = [saving, pending];
+  const records = pacedPerRecord(() => () => queue.shift()!.transaction);
+  records.mutate("a", undefined);
+  records.mutate("a", undefined);
+
+  records.cancelPending("a");
+  expect(pending.transaction.state).toBe("failed");
+  expect(saving.transaction.state).toBe("persisting");
 });

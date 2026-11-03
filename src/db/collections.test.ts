@@ -2,11 +2,22 @@ import { createPacedMutations, debounceStrategy } from "@tanstack/react-db";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { api } from "@/api/client";
+import { fakeFetch } from "@/api/fake-fetch";
 import { setNetworkConfig } from "@/api/network-config";
 import { clearRequestLog, requestLogStore } from "@/api/request-log";
 
 import { foldersCollection, notesCollection, saveNoteUpdates } from "./collections";
-import { createNote, editNote, renameFolder, setNotePinned } from "./mutations";
+import { subscribeToAppActions } from "@/lib/app-actions";
+import type { AppActionEvent } from "@/lib/app-actions";
+
+import {
+  createNote,
+  deleteNote,
+  deleteNotePermanently,
+  editNote,
+  renameFolder,
+  setNotePinned,
+} from "./mutations";
 import type { Note } from "./schema";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -15,6 +26,10 @@ const requests = () => requestLogStore.get().map((entry) => `${entry.method} ${e
 beforeAll(async () => {
   setNetworkConfig({ latencyMs: 0 });
   await Promise.all([foldersCollection.preload(), notesCollection.preload()]);
+  // Like the app (`useAppData`): stay subscribed, so the query doesn't refetch
+  // each time a test's watcher subscribes again.
+  notesCollection.subscribeChanges(() => {});
+  foldersCollection.subscribeChanges(() => {});
 });
 
 beforeEach(() => {
@@ -114,6 +129,96 @@ describe("note edits from several editors", () => {
     await Promise.all([first.when("settled"), newest.when("settled")]);
     expect(notesCollection.get("note-05")?.title).toBe("Newest");
     expect((await api.get<Note>("/api/notes/note-05")).title).toBe("Newest");
+  });
+});
+
+/** Every distinct value `pick` gives for a note while the collection changes. */
+function watchNote<T>(noteId: string, pick: (note: Note | undefined) => T) {
+  const values = [pick(notesCollection.get(noteId))];
+  const subscription = notesCollection.subscribeChanges(() =>
+    values.push(pick(notesCollection.get(noteId))),
+  );
+  return () => {
+    subscription.unsubscribe();
+    return values.filter((value, index) => index === 0 || value !== values[index - 1]);
+  };
+}
+
+function watchRollbacks() {
+  const rollbacks: AppActionEvent[] = [];
+  const stop = subscribeToAppActions((event) => {
+    if (event.status === "rolled-back") rollbacks.push(event);
+  });
+  return () => (stop(), rollbacks);
+}
+
+describe("a note action right after typing", () => {
+  it.each([0, 100, 600])("pin doesn't flicker back (%i ms latency)", async (latencyMs) => {
+    const noteId = `note-1${latencyMs === 0 ? 0 : latencyMs === 100 ? 1 : 2}`;
+    await setNotePinned(noteId, false).when("settled");
+    setNetworkConfig({ latencyMs });
+    const pinned = watchNote(noteId, (note) => note?.pinned);
+    const rollbacks = watchRollbacks();
+
+    editNote(noteId, { title: "Edited" });
+    await setNotePinned(noteId, true).when("settled");
+    await sleep(latencyMs + 50);
+
+    expect(pinned()).toEqual([false, true]);
+    expect(rollbacks()).toEqual([]);
+    expect(await api.get<Note>(`/api/notes/${noteId}`)).toMatchObject({
+      title: "Edited",
+      pinned: true,
+    });
+  });
+
+  it.each([0, 100, 600])("delete doesn't bring the note back (%i ms)", async (latencyMs) => {
+    const noteId = `note-1${latencyMs === 0 ? 3 : latencyMs === 100 ? 4 : 5}`;
+    setNetworkConfig({ latencyMs });
+    const deleted = watchNote(noteId, (note) => note?.deletedAt != null);
+    const rollbacks = watchRollbacks();
+
+    editNote(noteId, { title: "Edited" });
+    await deleteNote(noteId).when("settled");
+    await sleep(latencyMs + 50);
+
+    expect(deleted()).toEqual([false, true]);
+    expect(rollbacks()).toEqual([]);
+    expect((await api.get<Note>(`/api/notes/${noteId}`)).deletedAt).not.toBeNull();
+  });
+
+  it.each([0, 100, 600])(
+    "permanent delete drops the unsaved edit, without a failure (%i ms)",
+    async (latencyMs) => {
+      const noteId = `note-1${latencyMs === 0 ? 6 : latencyMs === 100 ? 7 : 8}`;
+      setNetworkConfig({ latencyMs });
+      const present = watchNote(noteId, (note) => note !== undefined);
+      const rollbacks = watchRollbacks();
+
+      editNote(noteId, { title: "Edited" });
+      await deleteNotePermanently(noteId).when("settled");
+      await sleep(latencyMs + 600); // past the editor's debounce
+
+      expect(present()).toEqual([true, false]);
+      expect(rollbacks()).toEqual([]);
+      expect(requests()).toEqual([`DELETE /api/notes/${noteId}`]);
+      expect((await fakeFetch(`/api/notes/${noteId}`)).status).toBe(404);
+    },
+  );
+
+  it("permanent delete waits for an edit that's already saving", async () => {
+    setNetworkConfig({ latencyMs: 300 });
+    const present = watchNote("note-19", (note) => note !== undefined);
+    const rollbacks = watchRollbacks();
+
+    const saving = editNote("note-19", { title: "Edited" });
+    await sleep(550); // the edit's PATCH is in flight
+    await deleteNotePermanently("note-19").when("settled");
+    await saving.when("settled");
+
+    expect(present()).toEqual([true, false]);
+    expect(rollbacks()).toEqual([]);
+    expect(requests()).toEqual(["PATCH /api/notes/note-19", "DELETE /api/notes/note-19"]);
   });
 });
 

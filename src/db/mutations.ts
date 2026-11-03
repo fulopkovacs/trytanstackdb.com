@@ -1,6 +1,7 @@
 import { createPacedMutations, debounceStrategy, safeRandomUUID } from "@tanstack/react-db";
 
 import { reportMutation } from "@/lib/app-actions";
+import type { AppAction } from "@/lib/app-actions";
 
 import {
   accountCollection,
@@ -18,6 +19,7 @@ import type { Account, Note } from "./schema";
  *
  * They return the transaction, so callers can wait for the server with
  * `await tx.when("settled")` (it throws if the change was rolled back).
+ * Each one changes a single record, so transactions never span records.
  */
 
 export function createNote(folderId: string) {
@@ -39,15 +41,26 @@ export function createNote(folderId: string) {
   return { note, tx };
 }
 
-export type NoteEdit = Partial<Pick<Note, "title" | "body">>;
+/** What can change on an existing note. */
+export type NoteChange = Partial<
+  Pick<Note, "title" | "body" | "pinned" | "folderId" | "deletedAt">
+>;
+export type NoteEdit = Pick<NoteChange, "title" | "body">;
 
-/** One paced mutation per note, shared by every editor that shows it. */
-const pacedNoteEdits = pacedPerRecord((noteId) =>
-  createPacedMutations<NoteEdit, Note>({
-    onMutate: (edit) => {
+/**
+ * Every change to an existing note (typing, pinning, moving, deleting) goes
+ * through one paced mutation per note. Each change shows up at once; they're
+ * sent together, in order, when things go quiet for a moment. With a single
+ * path per note, a newer change can't be hidden behind an older unsaved one.
+ */
+const noteChanges = pacedPerRecord((noteId) =>
+  createPacedMutations<NoteChange, Note>({
+    onMutate: (change) => {
       notesCollection.update(noteId, (draft) => {
-        Object.assign(draft, edit);
-        draft.updatedAt = new Date().toISOString();
+        Object.assign(draft, change);
+        if (change.title !== undefined || change.body !== undefined) {
+          draft.updatedAt = new Date().toISOString();
+        }
       });
     },
     mutationFn: ({ transaction }) => saveNoteUpdates(transaction),
@@ -55,55 +68,45 @@ const pacedNoteEdits = pacedPerRecord((noteId) =>
   }),
 );
 
-/**
- * Edits a note's title or body as you type. Every keystroke updates the note
- * right away; the changes go to the server together once typing pauses, in
- * the order they were typed, from whichever editor (or layout) they came.
- */
-export function editNote(noteId: string, edit: NoteEdit) {
-  const tx = pacedNoteEdits(noteId, edit);
-  reportMutation({ type: "note.edited", noteId }, tx);
+function changeNote(action: AppAction, noteId: string, change: NoteChange) {
+  const tx = noteChanges.mutate(noteId, change);
+  reportMutation(action, tx);
   return tx;
 }
 
+/** Typing in the title or body, from any editor (or layout) that shows the note. */
+export function editNote(noteId: string, edit: NoteEdit) {
+  return changeNote({ type: "note.edited", noteId }, noteId, edit);
+}
+
 export function setNotePinned(noteId: string, pinned: boolean) {
-  const tx = notesCollection.update(noteId, (draft) => {
-    draft.pinned = pinned;
-  });
-  reportMutation({ type: "note.pinned", noteId, pinned }, tx);
-  return tx;
+  return changeNote({ type: "note.pinned", noteId, pinned }, noteId, { pinned });
 }
 
 /** Moves a note to another folder (out of Recently Deleted, too). */
 export function moveNote(noteId: string, folderId: string) {
-  const tx = notesCollection.update(noteId, (draft) => {
-    draft.folderId = folderId;
-    draft.deletedAt = null;
+  return changeNote({ type: "note.moved", noteId, folderId }, noteId, {
+    folderId,
+    deletedAt: null,
   });
-  reportMutation({ type: "note.moved", noteId, folderId }, tx);
-  return tx;
 }
 
 /** Moves a note to Recently Deleted. */
 export function deleteNote(noteId: string) {
-  const tx = notesCollection.update(noteId, (draft) => {
-    draft.deletedAt = new Date().toISOString();
+  return changeNote({ type: "note.deleted", noteId, permanently: false }, noteId, {
+    deletedAt: new Date().toISOString(),
   });
-  reportMutation({ type: "note.deleted", noteId, permanently: false }, tx);
-  return tx;
 }
 
 /** Takes a note out of Recently Deleted, back into its folder. */
 export function restoreNote(noteId: string) {
-  const tx = notesCollection.update(noteId, (draft) => {
-    draft.deletedAt = null;
-  });
-  reportMutation({ type: "note.restored", noteId }, tx);
-  return tx;
+  return changeNote({ type: "note.restored", noteId }, noteId, { deletedAt: null });
 }
 
 /** Deletes a note for good (from Recently Deleted). */
 export function deleteNotePermanently(noteId: string) {
+  // The note is going away: drop its changes that haven't been sent yet.
+  noteChanges.cancelPending(noteId);
   const tx = notesCollection.delete(noteId);
   reportMutation({ type: "note.deleted", noteId, permanently: true }, tx);
   return tx;

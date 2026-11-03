@@ -64,25 +64,33 @@ export function reportAction(action: AppAction) {
 
 /**
  * Reports a mutation: `applied` now, then `confirmed` or `rolled-back` once
- * its transaction settles. Reporting the same transaction again (paced
- * mutations merge many edits into one) only adds another `applied`.
+ * its transaction settles. One transaction can carry several actions (a
+ * paced mutation merges an edit and a pin made close together); each action
+ * is reported once per transaction, however often it repeats (keystrokes).
+ * A transaction the app cancelled itself isn't reported as rolled back.
  */
 export function reportMutation(
   action: AppAction,
   transaction: { when: (state: "settled") => Promise<unknown> },
 ) {
   emitAppAction({ ...action, status: "applied" });
-  if (reportedTransactions.has(transaction)) return;
-  reportedTransactions.add(transaction);
+  const reported = reportedActions.get(transaction) ?? new Set<string>();
+  reportedActions.set(transaction, reported);
+  const key = JSON.stringify(action);
+  if (reported.has(key)) return;
+  reported.add(key);
   transaction.when("settled").then(
     () => emitAppAction({ ...action, status: "confirmed" }),
-    (error: unknown) =>
+    (error: unknown) => {
+      // A rollback without an error is a cancellation, not a rejection.
+      if (error === undefined) return;
       emitAppAction({
         ...action,
         status: "rolled-back",
-        error: error instanceof Error ? error : new Error(String(error)),
-      }),
+        error: error instanceof Error ? error : new Error("The change was rolled back."),
+      });
+    },
   );
 }
 
-const reportedTransactions = new WeakSet<object>();
+const reportedActions = new WeakMap<object, Set<string>>();
