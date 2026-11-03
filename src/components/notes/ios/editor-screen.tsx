@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Check, Ellipsis, ListChecks, Paperclip, PenTool, Share } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   DropdownMenu,
@@ -32,6 +32,16 @@ export function IosEditorScreen({ folderId, note }: { folderId: string; note: No
   const backToList = useBackToList(folderId);
   const deleted = note?.deletedAt != null;
 
+  // The open note went away (a rolled-back create, a delete elsewhere): back to the list.
+  const hadNote = useRef(note !== undefined);
+  useEffect(() => {
+    if (note) hadNote.current = true;
+    else if (hadNote.current) {
+      hadNote.current = false; // only once, even if we render again before navigating
+      backToList();
+    }
+  });
+
   return (
     <IosScreen
       background="plain"
@@ -55,7 +65,7 @@ export function IosEditorScreen({ folderId, note }: { folderId: string; note: No
               )}
             </DropdownMenu>
           </GlassPill>
-          {editing && (
+          {editing && note && !deleted && (
             // iOS shows a yellow ✓ while you type; it closes the keyboard.
             <GlassCircle
               aria-label="Done"
