@@ -83,7 +83,11 @@ interface IosScreenProps {
   children: ReactNode;
 }
 
-/** One full-screen page of the iPhone navigation stack. */
+/**
+ * One full-screen page of the iPhone navigation stack. The floating buttons
+ * sit on blurred bars (iOS 26's scroll edge effect), and the content is padded
+ * so its first and last rows can always scroll clear of them.
+ */
 export function IosScreen({
   background = "grouped",
   leading,
@@ -91,23 +95,33 @@ export function IosScreen({
   bottom,
   children,
 }: IosScreenProps) {
+  const grouped = background === "grouped";
   return (
     <div
       className={cn(
         "group/screen relative h-full font-sans text-ios-text",
-        background === "grouped" ? "bg-ios-bg" : "bg-ios-plain",
+        // Height of the bottom bar: a 3rem pill, 1rem below it, plus the home indicator.
+        "[--ios-bottom-bar:calc(4rem+env(safe-area-inset-bottom))]",
+        grouped ? "bg-ios-bg" : "bg-ios-plain",
       )}
     >
-      <div data-page-scroll className="notes-scroll h-full overflow-y-auto px-4 pt-[68px] pb-28">
+      <div
+        data-page-scroll
+        className={cn(
+          "notes-scroll h-full overflow-y-auto px-4 pt-[68px]",
+          bottom
+            ? "pb-[calc(var(--ios-bottom-bar)+1.5rem)]"
+            : "pb-[calc(2rem+env(safe-area-inset-bottom))]",
+        )}
+      >
         {children}
       </div>
 
       <div
+        aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b to-transparent",
-          background === "grouped"
-            ? "from-ios-bg via-ios-bg/80"
-            : "from-ios-plain via-ios-plain/80",
+          "pointer-events-none absolute inset-x-0 top-0 h-[68px] mask-b-from-70% backdrop-blur-xl",
+          grouped ? "bg-ios-bg/85" : "bg-ios-plain/85",
         )}
       />
       <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 px-4 pt-3">
@@ -116,9 +130,18 @@ export function IosScreen({
       </div>
 
       {bottom && (
-        <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 px-5 pb-4">
-          {bottom}
-        </div>
+        <>
+          <div
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute inset-x-0 bottom-0 h-(--ios-bottom-bar) mask-t-from-50% backdrop-blur-md",
+              grouped ? "bg-ios-bg/70" : "bg-ios-plain/70",
+            )}
+          />
+          <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 px-5 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            {bottom}
+          </div>
+        </>
       )}
     </div>
   );
