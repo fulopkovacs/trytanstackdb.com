@@ -61,6 +61,7 @@ export function MobileWorkspace({ appSlot }: { appSlot: ReactNode }) {
         <MobileGuideHeader scrollRef={scrollRef} />
         <div
           ref={scrollRef}
+          data-wrap-code
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]"
         >
           <GuideDocument />

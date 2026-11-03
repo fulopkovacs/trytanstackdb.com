@@ -4,6 +4,8 @@ import { highlight } from "sugar-high";
 
 import { cn } from "@/lib/utils";
 
+import { withLineIndents } from "./code-lines";
+
 interface CodeBlockProps {
   code: string;
   /** Shown in the header, e.g. `src/collections/notes.ts`. */
@@ -12,7 +14,10 @@ interface CodeBlockProps {
 }
 
 export function CodeBlock({ code, filename, className }: CodeBlockProps) {
-  const html = useMemo(() => highlight(code.trim()), [code]);
+  const html = useMemo(() => {
+    const source = code.trim();
+    return withLineIndents(highlight(source), source);
+  }, [code]);
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -28,19 +33,22 @@ export function CodeBlock({ code, filename, className }: CodeBlockProps) {
         className,
       )}
     >
-      <figcaption className="flex h-9 items-center justify-between border-b px-4 font-mono text-xs text-muted-foreground">
-        <span>{filename ?? "example.ts"}</span>
+      <figcaption className="flex h-9 items-center justify-between gap-2 border-b px-4 font-mono text-xs text-muted-foreground">
+        <span className="min-w-0 truncate" title={filename}>
+          {filename ?? "example.ts"}
+        </span>
         <button
           type="button"
           onClick={copy}
-          className="flex items-center gap-1 rounded-md px-1.5 py-1 opacity-0 transition-opacity group-hover/code:opacity-100 hover:bg-muted focus-visible:opacity-100"
+          className="code-block-copy flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 opacity-0 transition-opacity group-hover/code:opacity-100 hover:bg-muted focus-visible:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
         </button>
       </figcaption>
-      <pre className="notes-scroll overflow-x-auto px-4 py-3.5 font-mono text-[12.5px] leading-relaxed">
-        {/* sugar-high only emits <span>s with colour variables, from our own static snippets. */}
+      <pre className="code-block-pre notes-scroll overflow-x-auto px-4 py-3.5 font-mono text-[12.5px] leading-relaxed">
+        {/* sugar-high only emits <span>s with colour variables, from our own static snippets.
+            Copy uses `code`, so wrapped lines (small screens) are copied unwrapped. */}
         <code dangerouslySetInnerHTML={{ __html: html }} />
       </pre>
     </figure>

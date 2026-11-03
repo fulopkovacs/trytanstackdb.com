@@ -303,6 +303,39 @@
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/* Guide code blocks on small screens                                         */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * In the small-screen guide ([data-wrap-code]) long lines soft-wrap instead of
+ * scrolling sideways, and each continuation hangs two characters past its
+ * line's own indentation (`--indent`, set per line by `withLineIndents`).
+ * Unlayered on purpose, so it overrides the block's utility classes.
+ */
+/* No hover on phones: keep the Copy button visible. */
+[data-wrap-code] .code-block-copy {
+  opacity: 1;
+}
+[data-wrap-code] .code-block-pre {
+  padding-inline: 0.875rem;
+  font-size: 12px;
+}
+[data-wrap-code] .code-block-pre code {
+  display: block;
+  /* The newlines between line blocks are just markup now. */
+  white-space: normal;
+}
+[data-wrap-code] .code-block-pre .sh__line {
+  --hang: calc(var(--indent, 0ch) + 2ch);
+  display: block;
+  min-height: 1lh;
+  padding-left: var(--hang);
+  text-indent: calc(-1 * var(--hang));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 /* Apple-style hairline scrollbars inside the fake app */
 .notes-scroll {
   scrollbar-width: thin;
