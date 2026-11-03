@@ -184,6 +184,9 @@ importers:
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(@voidzero-dev/vite-plus-core@1.4.0(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(typescript@6.0.3))
+      '@tanstack/db':
+        specifier: 1.0.0-rc.1.2
+        version: 1.0.0-rc.1.2(typescript@6.0.3)
       '@tanstack/query-db-collection':
         specifier: 1.5.1
         version: 1.5.1(@tanstack/db@1.0.0-rc.1.2(typescript@6.0.3))(@tanstack/query-core@5.105.3)(typescript@6.0.3)
@@ -235,6 +238,9 @@ importers:
       react-resizable-panels:
         specifier: 4.17.0
         version: 4.17.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      sonner:
+        specifier: 2.0.8
+        version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       sugar-high:
         specifier: 2.6.4
         version: 2.6.4
@@ -3353,6 +3359,16 @@ packages:
     engines: {node: '>=18.0.0', pnpm: '>=8.6.0'}
     peerDependencies:
       solid-js: ^1.6.12
+
+  sonner@2.0.8:
+    resolution: {integrity: sha512-UM/ByIoFra8yzV75n1o0Puu0bw5U/9UNnDacrJNspekBewIfsQ3D6ez1nvlWpt7aTsO6rujQtifBpycwIivqlg==}
+    peerDependencies:
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   source-map-js@1.2.2:
     resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
@@ -6499,6 +6515,13 @@ snapshots:
       '@solid-primitives/refs': 1.1.4(solid-js@1.9.18)
       '@solid-primitives/transition-group': 1.1.2(solid-js@1.9.18)
       solid-js: 1.9.18
+
+  sonner@2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+    dependencies:
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+    optionalDependencies:
+      '@types/react': 19.3.0
 
   source-map-js@1.2.2: {}
 

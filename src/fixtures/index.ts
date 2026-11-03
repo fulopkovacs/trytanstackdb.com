@@ -1,10 +1,10 @@
 import accountJson from "./account.json";
 import foldersJson from "./folders.json";
 import notesJson from "./notes.json";
-import { accountSchema, folderSchema, noteSchema } from "./schema";
-import type { Account, Folder, Note } from "./schema";
+import { accountSchema, folderSchema, noteSchema } from "@/db/schema";
+import type { Account, Folder, Note } from "@/db/schema";
 
-export * from "./schema";
+export * from "@/db/schema";
 
 /**
  * The fixtures were written as if "now" was this moment. When seeding, every
