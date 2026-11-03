@@ -6,7 +6,7 @@ import { setNetworkConfig } from "@/api/network-config";
 import { clearRequestLog, requestLogStore } from "@/api/request-log";
 
 import { foldersCollection, notesCollection, saveNoteUpdates } from "./collections";
-import { createNote, renameFolder, setNotePinned } from "./mutations";
+import { createNote, editNote, renameFolder, setNotePinned } from "./mutations";
 import type { Note } from "./schema";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -82,6 +82,25 @@ describe("overlapping saves to one record", () => {
     expect(requests().filter((request) => request.includes("/folders/travel"))).toHaveLength(1);
     expect(foldersCollection.get("travel")?.name).toBe("Travel");
     expect(notesCollection.get("note-02")?.pinned).toBe(true);
+  });
+});
+
+describe("note edits from several editors", () => {
+  it("save in the order they were typed: a buffered older edit can't land last", async () => {
+    // Editor A types, pauses (its save starts, slowly), then types more.
+    setNetworkConfig({ latencyMs: 300 });
+    const first = editNote("note-05", { title: "First" });
+    await sleep(600);
+    expect(requests()).toEqual(["PATCH /api/notes/note-05"]); // in flight
+    setNetworkConfig({ latencyMs: 0 });
+    editNote("note-05", { title: "Older buffered" });
+    // Editor B (another mount or layout) edits the same note.
+    const newest = editNote("note-05", { title: "Newest" });
+    expect(notesCollection.get("note-05")?.title).toBe("Newest");
+
+    await Promise.all([first.when("settled"), newest.when("settled")]);
+    expect(notesCollection.get("note-05")?.title).toBe("Newest");
+    expect((await api.get<Note>("/api/notes/note-05")).title).toBe("Newest");
   });
 });
 

@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { useImperativeHandle, useLayoutEffect, useRef } from "react";
 import type { ComponentProps, KeyboardEvent, Ref } from "react";
 
-import { useEditNote } from "@/db/mutations";
+import { editNote } from "@/db/mutations";
 import type { Note } from "@/db/schema";
 import { parseEditableBody, serializeBody } from "@/lib/notes/note-body";
 import type { NoteBlock } from "@/lib/notes/note-body";
@@ -48,7 +48,6 @@ export function focusNoteWhenOpened(noteId: string) {
  * caret stays put.
  */
 export function NoteEditor({ note, variant, handleRef }: NoteEditorProps) {
-  const editNote = useEditNote(note.id);
   const blocks = parseEditableBody(note.body);
   const fields = useRef(new Map<number, HTMLTextAreaElement>());
   const pendingCaret = useRef<Caret | null>(null);
@@ -89,7 +88,7 @@ export function NoteEditor({ note, variant, handleRef }: NoteEditorProps) {
     }
     // Placed after the re-render that shows the edit.
     if (moveCaret) pendingCaret.current = edit.caret;
-    editNote(changes);
+    editNote(note.id, changes);
   }
 
   const text = { title: note.title, blocks };
@@ -172,7 +171,9 @@ export function NoteEditor({ note, variant, handleRef }: NoteEditorProps) {
             key={index}
             block={block}
             ios={ios}
-            onToggleChecked={() => editNote({ body: serializeBody(toggleChecked(blocks, index)) })}
+            onToggleChecked={() =>
+              editNote(note.id, { body: serializeBody(toggleChecked(blocks, index)) })
+            }
           >
             <EditorField
               ref={register(index)}

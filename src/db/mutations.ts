@@ -1,4 +1,4 @@
-import { debounceStrategy, safeRandomUUID, usePacedMutations } from "@tanstack/react-db";
+import { createPacedMutations, debounceStrategy, safeRandomUUID } from "@tanstack/react-db";
 
 import { reportMutation } from "@/lib/app-actions";
 
@@ -8,6 +8,7 @@ import {
   notesCollection,
   saveNoteUpdates,
 } from "./collections";
+import { pacedPerRecord } from "./paced-per-record";
 import type { Account, Note } from "./schema";
 
 /**
@@ -40,12 +41,9 @@ export function createNote(folderId: string) {
 
 export type NoteEdit = Partial<Pick<Note, "title" | "body">>;
 
-/**
- * Edits a note's title or body as you type. Every keystroke updates the note
- * right away; the changes are sent to the server together once typing pauses.
- */
-export function useEditNote(noteId: string) {
-  const editNote = usePacedMutations<NoteEdit, Note>({
+/** One paced mutation per note, shared by every editor that shows it. */
+const pacedNoteEdits = pacedPerRecord((noteId) =>
+  createPacedMutations<NoteEdit, Note>({
     onMutate: (edit) => {
       notesCollection.update(noteId, (draft) => {
         Object.assign(draft, edit);
@@ -54,13 +52,18 @@ export function useEditNote(noteId: string) {
     },
     mutationFn: ({ transaction }) => saveNoteUpdates(transaction),
     strategy: debounceStrategy({ wait: 500 }),
-  });
+  }),
+);
 
-  return (edit: NoteEdit) => {
-    const tx = editNote(edit);
-    reportMutation({ type: "note.edited", noteId }, tx);
-    return tx;
-  };
+/**
+ * Edits a note's title or body as you type. Every keystroke updates the note
+ * right away; the changes go to the server together once typing pauses, in
+ * the order they were typed, from whichever editor (or layout) they came.
+ */
+export function editNote(noteId: string, edit: NoteEdit) {
+  const tx = pacedNoteEdits(noteId, edit);
+  reportMutation({ type: "note.edited", noteId }, tx);
+  return tx;
 }
 
 export function setNotePinned(noteId: string, pinned: boolean) {
