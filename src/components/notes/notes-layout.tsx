@@ -19,21 +19,37 @@ interface NotesLayoutContextValue {
 }
 
 const NotesLayoutContext = createContext<NotesLayoutContextValue | null>(null);
+const FixedLayoutContext = createContext<NotesLayout | null>(null);
+
+/**
+ * Pins the layout regardless of width (`null`: pick by width). The app sheet
+ * on small screens always shows the iPhone app, even on a phone in landscape.
+ */
+export function FixedNotesLayout({
+  layout,
+  children,
+}: {
+  layout: NotesLayout | null;
+  children: ReactNode;
+}) {
+  return <FixedLayoutContext value={layout}>{children}</FixedLayoutContext>;
+}
 
 export function NotesLayoutProvider({ children }: { children: ReactNode }) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const fixedLayout = useContext(FixedLayoutContext);
 
   const value = useMemo<NotesLayoutContextValue | null>(
     () =>
       width === null
         ? null
         : {
-            layout: width < IOS_LAYOUT_MAX_WIDTH ? "ios" : "mac",
+            layout: fixedLayout ?? (width < IOS_LAYOUT_MAX_WIDTH ? "ios" : "mac"),
             sidebarVisible,
             toggleSidebar: () => setSidebarVisible((visible) => !visible),
           },
-    [width, sidebarVisible],
+    [width, fixedLayout, sidebarVisible],
   );
 
   return (

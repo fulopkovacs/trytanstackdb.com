@@ -3,6 +3,8 @@
  * phase 3 rewrites each section against the working app. Section ids are
  * stable: phase 4 maps app state (route, last action…) to them.
  */
+import { linkOptions } from "@tanstack/react-router";
+import type { LinkOptions } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { Callout } from "@/components/guide/callout";
@@ -12,6 +14,13 @@ export interface GuideSectionContent {
   id: string;
   eyebrow: string;
   title: string;
+  /** Label for the active-section chip in the mobile header. Keep it short: it's never truncated. */
+  shortTitle: string;
+  /**
+   * The app screen this section's hands-on step happens on. Sections with one
+   * get a "Try it" button on mobile that opens the app there.
+   */
+  tryIt?: LinkOptions;
   content: ReactNode;
 }
 
@@ -20,6 +29,8 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
     id: "introduction",
     eyebrow: "Start here",
     title: "A notes app where every view is a query",
+    shortTitle: "Intro",
+    tryIt: linkOptions({ to: "/" }),
     content: (
       <>
         <p>
@@ -42,6 +53,8 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
     id: "collections",
     eyebrow: "Step 1",
     title: "What are collections?",
+    shortTitle: "Collections",
+    tryIt: linkOptions({ to: "/" }),
     content: (
       <>
         <p>
@@ -79,6 +92,8 @@ export const notesCollection = createCollection(
     id: "live-queries",
     eyebrow: "Step 2",
     title: "Live queries",
+    shortTitle: "Live queries",
+    tryIt: linkOptions({ to: "/folders/$folderId", params: { folderId: "all" } }),
     content: (
       <>
         <p>
@@ -108,6 +123,8 @@ const { data: notes } = useLiveQuery({
     id: "optimistic-updates",
     eyebrow: "Step 3",
     title: "Optimistic updates",
+    shortTitle: "Optimistic updates",
+    tryIt: linkOptions({ to: "/folders/$folderId", params: { folderId: "work" } }),
     content: (
       <>
         <p>
@@ -130,6 +147,8 @@ notesCollection.update(note.id, (draft) => {
     id: "rollbacks",
     eyebrow: "Step 4",
     title: "Rollbacks",
+    shortTitle: "Rollbacks",
+    tryIt: linkOptions({ to: "/" }),
     content: (
       <>
         <p>
@@ -147,6 +166,7 @@ notesCollection.update(note.id, (draft) => {
     id: "sync",
     eyebrow: "Step 5",
     title: "How collections sync",
+    shortTitle: "Syncing",
     content: (
       <>
         <p>
@@ -165,6 +185,8 @@ notesCollection.update(note.id, (draft) => {
     id: "aggregations",
     eyebrow: "Step 6",
     title: "Aggregations",
+    shortTitle: "Aggregations",
+    tryIt: linkOptions({ to: "/analytics" }),
     content: (
       <>
         <p>
@@ -193,6 +215,7 @@ const { data: perFolder } = useLiveQuery({
     id: "whats-next",
     eyebrow: "Wrap-up",
     title: "What's next",
+    shortTitle: "What's next",
     content: (
       <>
         <p>

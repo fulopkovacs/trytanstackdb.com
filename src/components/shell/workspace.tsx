@@ -1,59 +1,81 @@
 import { useLocation } from "@tanstack/react-router";
+import { useState } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 import { BrowserFrame } from "@/components/browser/browser-frame";
 import { GuidePanel } from "@/components/guide/guide-panel";
+import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { cn } from "@/lib/utils";
+
+import { AppSlot } from "./app-slot";
+import { MobileWorkspace } from "./mobile-workspace";
+
+/** At this width and up, the guide and the app sit side by side. Below it, the guide comes first. */
+export const SPLIT_LAYOUT_MIN_WIDTH = 768;
 
 /**
- * The page: the guide and the app as two framed panels with a resizable gap
- * between them. Side by side on desktop; stacked (app on top) on small screens.
+ * The page. Wide screens: the guide and the app (in a fake browser) as two
+ * framed panels with a resizable gap between them. Small screens: the guide
+ * full screen, with the app in a sheet that "Try it" buttons open.
+ *
+ * The app is rendered exactly once, here, and portalled into whichever
+ * layout is showing (see `AppSlot`), so resizing across the breakpoint never
+ * remounts it. Only its look changes: on small screens it's pinned to the
+ * iPhone layout.
  */
 export function Workspace({ app }: { app: ReactNode }) {
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const isSplit = useMediaQuery(`(min-width: ${SPLIT_LAYOUT_MIN_WIDTH}px)`);
+  // This route renders on the client only (`ssr: false`), so `document` exists.
+  const [appHost] = useState(() => {
+    const host = document.createElement("div");
+    host.className = "h-full";
+    return host;
+  });
+  const appSlot = <AppSlot host={appHost} />;
+
+  return (
+    <>
+      {isSplit ? <SplitWorkspace appSlot={appSlot} /> : <MobileWorkspace appSlot={appSlot} />}
+      {createPortal(
+        <FixedNotesLayout layout={isSplit ? null : "ios"}>{app}</FixedNotesLayout>,
+        appHost,
+      )}
+    </>
+  );
+}
+
+function SplitWorkspace({ appSlot }: { appSlot: ReactNode }) {
+  // Tablets and small laptop windows get a narrower guide and smaller minimums
+  // (the app switches to its iPhone layout when its pane gets narrow). Default
+  // sizes only apply on mount; crossing this width later only changes the limits.
+  const isWide = useMediaQuery("(min-width: 1024px)");
   const title = usePageTitle();
   const path = useLocation({ select: (location) => location.pathname });
 
-  const appPanel = (
-    <Frame>
-      <BrowserFrame title={title} path={path} compact={!isDesktop}>
-        {app}
-      </BrowserFrame>
-    </Frame>
-  );
-  const guidePanel = (
-    <Frame>
-      <GuidePanel />
-    </Frame>
-  );
-
   return (
     <main className="h-dvh bg-muted p-2 lg:p-4 dark:bg-[#0c0c0d]">
-      {isDesktop ? (
-        <ResizablePanelGroup key="desktop" orientation="horizontal">
-          <ResizablePanel id="guide" defaultSize="34%" minSize={320}>
-            {guidePanel}
-          </ResizablePanel>
-          <GapHandle orientation="horizontal" />
-          <ResizablePanel id="app" defaultSize="66%" minSize={720}>
-            {appPanel}
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      ) : (
-        <ResizablePanelGroup key="mobile" orientation="vertical">
-          <ResizablePanel id="app" defaultSize="50%" minSize={220}>
-            {appPanel}
-          </ResizablePanel>
-          <GapHandle orientation="vertical" />
-          <ResizablePanel id="guide" defaultSize="50%" minSize={120}>
-            {/* Phase 4 can turn this panel into Guide / Requests tabs. */}
-            {guidePanel}
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      )}
+      <ResizablePanelGroup orientation="horizontal">
+        <ResizablePanel
+          id="guide"
+          defaultSize={isWide ? "34%" : "42%"}
+          minSize={isWide ? 320 : 280}
+        >
+          <Frame>
+            <GuidePanel />
+          </Frame>
+        </ResizablePanel>
+        <GapHandle />
+        <ResizablePanel id="app" defaultSize={isWide ? "66%" : "58%"} minSize={isWide ? 720 : 360}>
+          <Frame>
+            <BrowserFrame title={title} path={path}>
+              {appSlot}
+            </BrowserFrame>
+          </Frame>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </main>
   );
 }
@@ -67,21 +89,10 @@ function Frame({ children }: { children: ReactNode }) {
 }
 
 /** The divider lives in the gap between the two panels. */
-function GapHandle({ orientation }: { orientation: "horizontal" | "vertical" }) {
-  const horizontal = orientation === "horizontal";
+function GapHandle() {
   return (
-    <ResizableHandle
-      className={cn(
-        "group/handle bg-transparent after:hidden focus-visible:ring-0",
-        horizontal ? "w-3 lg:w-4" : "aria-[orientation=horizontal]:h-2",
-      )}
-    >
-      <span
-        className={cn(
-          "rounded-full bg-foreground/15 transition-colors group-hover/handle:bg-foreground/40 group-data-[separator=hover]/handle:bg-foreground/40 group-data-[separator=active]/handle:bg-guide-accent group-focus-visible/handle:bg-guide-accent",
-          horizontal ? "h-10 w-1" : "h-1 w-10",
-        )}
-      />
+    <ResizableHandle className="group/handle w-3 bg-transparent after:hidden focus-visible:ring-0 lg:w-4">
+      <span className="h-10 w-1 rounded-full bg-foreground/15 transition-colors group-hover/handle:bg-foreground/40 group-data-[separator=hover]/handle:bg-foreground/40 group-data-[separator=active]/handle:bg-guide-accent group-focus-visible/handle:bg-guide-accent" />
     </ResizableHandle>
   );
 }

@@ -1,9 +1,17 @@
+import { useRef } from "react";
+
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
-import { DevSectionPicker } from "./dev-section-picker";
+import { DevGuideMenu } from "./dev-guide-menu";
 import { GuideDocument } from "./guide-document";
+import { TanStackDbMark } from "./tanstack-db-mark";
+import { useReadingPosition } from "./use-reading-position";
 
+/** The guide as a framed panel next to the app (desktop). */
 export function GuidePanel() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useReadingPosition(scrollRef);
+
   return (
     <div className="@container/guide flex h-full min-h-0 flex-col">
       <div className="flex h-12 shrink-0 items-center gap-2 border-b px-3 @md/guide:px-4">
@@ -12,24 +20,13 @@ export function GuidePanel() {
           Try TanStack DB
         </span>
         <div className="ml-auto flex min-w-0 items-center gap-2">
-          {import.meta.env.DEV && <DevSectionPicker />}
+          {import.meta.env.DEV && <DevGuideMenu />}
           <ThemeToggle />
         </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <GuideDocument />
       </div>
     </div>
-  );
-}
-
-function TanStackDbMark() {
-  return (
-    <span
-      aria-hidden
-      className="grid size-6 place-items-center rounded-md bg-guide-accent text-[11px] font-black text-white"
-    >
-      DB
-    </span>
   );
 }
