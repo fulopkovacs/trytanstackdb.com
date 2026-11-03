@@ -181,8 +181,9 @@ notesCollection.update(note.id, (draft) => {
     content: (
       <>
         <p>
-          Query collections load data with a <code>queryFn</code> and refetch after writes. Data
-          flows one way: server → collection → live queries → components.
+          Query collections load data with a <code>queryFn</code>, and after each write they store
+          what the server sent back. Data flows one way: server → collection → live queries →
+          components.
         </p>
         <ul>
           <li>Query collections: any REST or RPC API</li>

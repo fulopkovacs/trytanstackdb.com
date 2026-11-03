@@ -5,15 +5,20 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { api } from "@/api/client";
 
 import { queryClient } from "./query-client";
+import { inOrder } from "./write-queue";
 import { accountSchema, folderSchema, noteSchema } from "./schema";
 import type { Account, Folder, Note } from "./schema";
 
 /**
  * The app's data: three query collections over the REST API. Each one loads
  * its endpoint with `queryFn`, and its handlers send optimistic changes to the
- * server. A handler that throws (a 4xx or 5xx response) rolls its change back;
- * one that succeeds refetches, so the collection ends up with what the server
- * actually saved.
+ * server:
+ *
+ * - A handler that throws (a 4xx or 5xx response) rolls its change back.
+ * - One that succeeds writes the server's response into the collection as
+ *   confirmed data, so the collection holds exactly what the server saved.
+ * - Writes to the same record go out one at a time (`inOrder`), so an older
+ *   save can never land after a newer one.
  */
 
 export const foldersCollection = createCollection(
@@ -25,12 +30,13 @@ export const foldersCollection = createCollection(
     schema: folderSchema,
     getKey: (folder) => folder.id,
     onUpdate: async ({ transaction, collection }) => {
-      await Promise.all(
-        transaction.mutations.map((mutation) =>
-          api.patch(`/api/folders/${mutation.key}`, mutation.changes),
-        ),
+      const folders = await Promise.all(
+        transaction.mutations.map(({ key, changes }) => {
+          const url = `/api/folders/${key}`;
+          return inOrder(url, () => api.patch<Folder>(url, changes));
+        }),
       );
-      await collection.utils.refetch();
+      await collection.utils.writeUpdate(folders);
     },
   }),
 );
@@ -44,32 +50,39 @@ export const notesCollection = createCollection(
     schema: noteSchema,
     getKey: (note) => note.id,
     onInsert: async ({ transaction, collection }) => {
-      await Promise.all(
-        transaction.mutations.map((mutation) => api.post("/api/notes", mutation.modified)),
+      const notes = await Promise.all(
+        transaction.mutations.map(({ key, modified }) =>
+          inOrder(`/api/notes/${key}`, () => api.post<Note>("/api/notes", modified)),
+        ),
       );
-      await collection.utils.refetch();
+      await collection.utils.writeUpsert(notes);
     },
     onUpdate: ({ transaction }) => saveNoteUpdates(transaction),
     onDelete: async ({ transaction, collection }) => {
+      const keys = transaction.mutations.map(({ key }) => key);
       await Promise.all(
-        transaction.mutations.map((mutation) => api.delete(`/api/notes/${mutation.key}`)),
+        keys.map((key) => {
+          const url = `/api/notes/${key}`;
+          return inOrder(url, () => api.delete(url));
+        }),
       );
-      await collection.utils.refetch();
+      await collection.utils.writeDelete(keys);
     },
   }),
 );
 
 /**
- * Sends a transaction's note updates to the server, then refetches the notes.
- * Also used by the editor, which batches keystrokes into one transaction.
+ * Sends a transaction's note updates to the server and writes back the saved
+ * notes. Also used by the editor, which batches keystrokes into one transaction.
  */
 export async function saveNoteUpdates(transaction: Transaction<Note>) {
-  await Promise.all(
-    transaction.mutations.map((mutation) =>
-      api.patch(`/api/notes/${mutation.key}`, mutation.changes),
-    ),
+  const notes = await Promise.all(
+    transaction.mutations.map(({ key, changes }) => {
+      const url = `/api/notes/${key}`;
+      return inOrder(url, () => api.patch<Note>(url, changes));
+    }),
   );
-  await notesCollection.utils.refetch();
+  await notesCollection.utils.writeUpdate(notes);
 }
 
 export const accountCollection = createCollection(
@@ -82,10 +95,12 @@ export const accountCollection = createCollection(
     schema: accountSchema,
     getKey: (account) => account.id,
     onUpdate: async ({ transaction, collection }) => {
-      await Promise.all(
-        transaction.mutations.map((mutation) => api.patch("/api/account", mutation.changes)),
+      const accounts = await Promise.all(
+        transaction.mutations.map(({ changes }) =>
+          inOrder("/api/account", () => api.patch<Account>("/api/account", changes)),
+        ),
       );
-      await collection.utils.refetch();
+      await collection.utils.writeUpdate(accounts);
     },
   }),
 );

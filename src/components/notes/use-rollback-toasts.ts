@@ -25,8 +25,11 @@ export function useRollbackToasts() {
       subscribeToAppActions((event) => {
         if (event.status !== "rolled-back") return;
         const title = (FAILED[event.type] as ((action: AppAction) => string) | undefined)?.(event);
+        const description = `${event.error?.message ?? "The server rejected it."} The change was undone.`;
+        // One failed save also undoes the edits queued behind it: show one toast for all of them.
         toast.error(title ?? "Couldn't save the change", {
-          description: `${event.error?.message ?? "The server rejected it."} The change was undone.`,
+          id: `${title}|${description}`,
+          description,
         });
       }),
     [],
