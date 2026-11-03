@@ -7,8 +7,8 @@ import { useSyncExternalStore } from "react";
  * - the "active" (highlighted) section. Phase 4 sets it from app state; for
  *   now it can be set from the dev menu in the guide header.
  * - which sections the reader has done (did the section's hands-on step).
- *   Phase 4 calls `markSectionDone` when the app sees the section's action,
- *   e.g. a renamed note for "Optimistic updates".
+ *   `guide/section-progress.ts` marks a section done when the app reports
+ *   the section's action (its `doneWhen` in `guide/content.tsx`).
  */
 interface GuideState {
   activeSectionId: string | null;

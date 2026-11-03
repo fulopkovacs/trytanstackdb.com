@@ -10,6 +10,7 @@ import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Toaster } from "@/components/ui/sonner";
 import { exposeFakeApiOnWindow } from "@/api/dev-console";
+import { trackSectionProgress } from "@/guide/section-progress";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 import { AppSlot } from "./app-slot";
@@ -38,6 +39,8 @@ export function Workspace({ app }: { app: ReactNode }) {
   });
   const appSlot = <AppSlot host={appHost} />;
 
+  // Doing a section's step in the app ticks it off in the guide.
+  useEffect(() => trackSectionProgress(), []);
   useEffect(() => exposeFakeApiOnWindow(), []);
 
   return (
