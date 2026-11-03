@@ -6,6 +6,7 @@ import type {
   RefObject,
 } from "react";
 
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { cn } from "@/lib/utils";
 
 import { DRAG_START_THRESHOLD, sheetOffset, shouldCloseOnRelease } from "./sheet-gesture";
@@ -27,6 +28,8 @@ interface BottomSheetProps {
  *
  * Unlike a dialog, the content stays mounted while the sheet is closed (just
  * hidden and inert), so whatever is inside keeps its state between openings.
+ * That's also why focus is kept in with `useFocusTrap` rather than a focus
+ * scope that relies on mounting and unmounting.
  * The open/close motion lives in `styles.css` (`.bottom-sheet`).
  */
 export function BottomSheet({ open, onClose, label, header, children }: BottomSheetProps) {
@@ -34,17 +37,10 @@ export function BottomSheet({ open, onClose, label, header, children }: BottomSh
   const backdropRef = useRef<HTMLDivElement>(null);
   const drag = useSheetDrag({ sheetRef, backdropRef, onClose });
 
-  // Move focus into the sheet when it opens, and back to where it was when it closes.
-  useEffect(() => {
-    if (!open) return;
-    const returnFocusTo = document.activeElement;
-    sheetRef.current?.focus({ preventScroll: true });
-    return () => {
-      if (returnFocusTo instanceof HTMLElement) returnFocusTo.focus({ preventScroll: true });
-    };
-  }, [open]);
+  // Focus moves in on open, stays in (Tab wraps), and goes back to the trigger on close.
+  useFocusTrap(sheetRef, open);
 
-  // Escape closes, wherever focus is (it drops to <body> when the app changes screens).
+  // Escape closes, wherever focus is.
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   useEffect(() => {
