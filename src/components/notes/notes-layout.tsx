@@ -22,14 +22,14 @@ const NotesLayoutContext = createContext<NotesLayoutContextValue | null>(null);
 const FixedLayoutContext = createContext<NotesLayout | null>(null);
 
 /**
- * Pins the layout regardless of width. The app sheet on small screens always
- * shows the iPhone app, even on a phone in landscape.
+ * Pins the layout regardless of width (`null`: pick by width). The app sheet
+ * on small screens always shows the iPhone app, even on a phone in landscape.
  */
 export function FixedNotesLayout({
   layout,
   children,
 }: {
-  layout: NotesLayout;
+  layout: NotesLayout | null;
   children: ReactNode;
 }) {
   return <FixedLayoutContext value={layout}>{children}</FixedLayoutContext>;

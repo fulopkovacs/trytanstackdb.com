@@ -1,14 +1,16 @@
 import { useLocation } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 
-import { closeAppSheet } from "@/components/app-sheet/app-sheet-store";
 import { BrowserFrame } from "@/components/browser/browser-frame";
 import { GuidePanel } from "@/components/guide/guide-panel";
+import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
+import { AppSlot } from "./app-slot";
 import { MobileWorkspace } from "./mobile-workspace";
 
 /** At this width and up, the guide and the app sit side by side. Below it, the guide comes first. */
@@ -18,26 +20,44 @@ export const SPLIT_LAYOUT_MIN_WIDTH = 768;
  * The page. Wide screens: the guide and the app (in a fake browser) as two
  * framed panels with a resizable gap between them. Small screens: the guide
  * full screen, with the app in a sheet that "Try it" buttons open.
+ *
+ * The app is rendered exactly once, here, and portalled into whichever
+ * layout is showing (see `AppSlot`), so resizing across the breakpoint never
+ * remounts it. Only its look changes: on small screens it's pinned to the
+ * iPhone layout.
  */
 export function Workspace({ app }: { app: ReactNode }) {
   const isSplit = useMediaQuery(`(min-width: ${SPLIT_LAYOUT_MIN_WIDTH}px)`);
-  return isSplit ? <SplitWorkspace app={app} /> : <MobileWorkspace app={app} />;
+  // This route renders on the client only (`ssr: false`), so `document` exists.
+  const [appHost] = useState(() => {
+    const host = document.createElement("div");
+    host.className = "h-full";
+    return host;
+  });
+  const appSlot = <AppSlot host={appHost} />;
+
+  return (
+    <>
+      {isSplit ? <SplitWorkspace appSlot={appSlot} /> : <MobileWorkspace appSlot={appSlot} />}
+      {createPortal(
+        <FixedNotesLayout layout={isSplit ? null : "ios"}>{app}</FixedNotesLayout>,
+        appHost,
+      )}
+    </>
+  );
 }
 
-function SplitWorkspace({ app }: { app: ReactNode }) {
-  // Tablets and small laptop windows get a narrower guide and smaller minimums;
-  // the app switches to its iPhone layout when its pane gets narrow.
+function SplitWorkspace({ appSlot }: { appSlot: ReactNode }) {
+  // Tablets and small laptop windows get a narrower guide and smaller minimums
+  // (the app switches to its iPhone layout when its pane gets narrow). Default
+  // sizes only apply on mount; crossing this width later only changes the limits.
   const isWide = useMediaQuery("(min-width: 1024px)");
   const title = usePageTitle();
   const path = useLocation({ select: (location) => location.pathname });
 
-  // The app sheet only exists on small screens. If the window grows past the
-  // breakpoint while it's open (a tablet rotating), don't bring it back later.
-  useEffect(() => closeAppSheet(), []);
-
   return (
     <main className="h-dvh bg-muted p-2 lg:p-4 dark:bg-[#0c0c0d]">
-      <ResizablePanelGroup key={isWide ? "wide" : "narrow"} orientation="horizontal">
+      <ResizablePanelGroup orientation="horizontal">
         <ResizablePanel
           id="guide"
           defaultSize={isWide ? "34%" : "42%"}
@@ -51,7 +71,7 @@ function SplitWorkspace({ app }: { app: ReactNode }) {
         <ResizablePanel id="app" defaultSize={isWide ? "66%" : "58%"} minSize={isWide ? 720 : 360}>
           <Frame>
             <BrowserFrame title={title} path={path}>
-              {app}
+              {appSlot}
             </BrowserFrame>
           </Frame>
         </ResizablePanel>

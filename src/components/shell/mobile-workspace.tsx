@@ -1,39 +1,44 @@
-import { useRouter } from "@tanstack/react-router";
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useLocation } from "@tanstack/react-router";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
 import { AppSheet } from "@/components/app-sheet/app-sheet";
-import { openAppSheet, useAppSheet } from "@/components/app-sheet/app-sheet-store";
+import {
+  rememberSheetLocation,
+  useIsAppSheetOpen,
+  useOpenAppSheet,
+} from "@/components/app-sheet/app-sheet-store";
 import { GuideDocument } from "@/components/guide/guide-document";
 import { MobileGuideHeader } from "@/components/guide/mobile-guide-header";
 import { TryItProvider } from "@/components/guide/try-it";
-import type { TryItHandler } from "@/components/guide/try-it";
-import { isOnScreen } from "@/lib/app-screen";
+import { useReadingPosition } from "@/components/guide/use-reading-position";
 import { captureScrollAnchor, restoreScrollAnchor } from "@/lib/scroll-anchor";
+import { setRecordSheetState } from "@/lib/sheet-aware-history";
 import type { ScrollAnchor } from "@/lib/scroll-anchor";
 
 /**
  * Small screens: the guide fills the screen, and each hands-on section's
  * "Try it" slides the app up as a sheet, already on the screen the section is
- * about. Closing it puts the guide back exactly where it was.
+ * about. Whether the sheet is open follows browser history (Back closes it);
+ * closing it puts the guide back exactly where it was.
  */
-export function MobileWorkspace({ app }: { app: ReactNode }) {
-  const router = useRouter();
-  const { open } = useAppSheet();
+export function MobileWorkspace({ appSlot }: { appSlot: ReactNode }) {
+  const open = useIsAppSheetOpen();
+  const openAppSheet = useOpenAppSheet();
+  const href = useLocation({ select: (location) => location.href });
   const scrollRef = useRef<HTMLDivElement>(null);
   const savedScroll = useRef<ScrollAnchor | null>(null);
 
-  const tryIt = useCallback<TryItHandler>(
-    (sectionId, target) => {
-      const screen = router.buildLocation(target).pathname;
-      // Already on that screen (or deeper in it)? Leave the app where the reader left it.
-      if (!isOnScreen(router.state.location.pathname, screen)) void router.navigate(target);
-      openAppSheet({ sectionId });
-    },
-    [router],
-  );
+  // While this layout shows, history entries record whether the sheet is open.
+  useLayoutEffect(() => {
+    setRecordSheetState(true);
+    return () => setRecordSheetState(false);
+  }, []);
 
-  // Remember the guide's position when the sheet opens; put it back when it closes.
+  // Same place in the guide as before a layout change…
+  useReadingPosition(scrollRef);
+
+  // …and as before the sheet opened, once it closes.
   useLayoutEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
@@ -45,8 +50,13 @@ export function MobileWorkspace({ app }: { app: ReactNode }) {
     }
   }, [open]);
 
+  // Where the app was, so the next "Try it" for this screen picks up there.
+  useEffect(() => {
+    if (open) rememberSheetLocation(href);
+  }, [open, href]);
+
   return (
-    <TryItProvider onTryIt={tryIt}>
+    <TryItProvider onTryIt={openAppSheet}>
       <div className="flex h-dvh flex-col bg-background" inert={open}>
         <MobileGuideHeader scrollRef={scrollRef} />
         <div
@@ -56,7 +66,7 @@ export function MobileWorkspace({ app }: { app: ReactNode }) {
           <GuideDocument />
         </div>
       </div>
-      <AppSheet app={app} />
+      <AppSheet app={appSlot} />
     </TryItProvider>
   );
 }

@@ -8,10 +8,14 @@ import {
   LatencyControl,
   RequestLog,
 } from "@/components/network/network-controls";
-import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { cn } from "@/lib/utils";
 
-import { closeAppSheet, setAppSheetView, useAppSheet } from "./app-sheet-store";
+import {
+  setAppSheetView,
+  useAppSheetView,
+  useCloseAppSheet,
+  useIsAppSheetOpen,
+} from "./app-sheet-store";
 import { BottomSheet } from "./bottom-sheet";
 
 /**
@@ -19,11 +23,13 @@ import { BottomSheet } from "./bottom-sheet";
  * layout inside. The header holds Close and a Network button that shows the
  * latency/failure controls and the request inspector over the app.
  *
- * `app` stays mounted while the sheet is closed, so the app's screen (and,
- * from phase 2, anything else in its tree) survives between openings.
+ * `app` is the slot the (single, always mounted) Notes app is placed in; see
+ * `AppSlot` in the workspace.
  */
 export function AppSheet({ app }: { app: ReactNode }) {
-  const { open, view } = useAppSheet();
+  const open = useIsAppSheetOpen();
+  const view = useAppSheetView();
+  const closeAppSheet = useCloseAppSheet();
   const networkPanelId = useId();
   const showNetwork = view === "network";
 
@@ -60,7 +66,7 @@ export function AppSheet({ app }: { app: ReactNode }) {
       }
     >
       <div className="h-full border-t" inert={showNetwork}>
-        <FixedNotesLayout layout="ios">{app}</FixedNotesLayout>
+        {app}
       </div>
       <NetworkPanel id={networkPanelId} open={showNetwork} />
     </BottomSheet>

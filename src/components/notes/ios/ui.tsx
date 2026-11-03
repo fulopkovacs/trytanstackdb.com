@@ -2,7 +2,8 @@ import { createLink, useRouter } from "@tanstack/react-router";
 import { ChevronDown, ChevronLeft, ChevronRight, Mic, Search, SquarePen } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
-import { usePreviousPath } from "@/lib/history-tracker";
+import { useCurrentEntrySheetOpen, usePreviousEntry } from "@/lib/history-tracker";
+import { isRecordingSheetState } from "@/lib/sheet-aware-history";
 import { cn } from "@/lib/utils";
 
 /* iOS 26 "Liquid Glass": translucent capsules floating over the content. */
@@ -25,7 +26,8 @@ export function GlassCircle({ className, ...props }: ComponentProps<"button">) {
 
 function BackAnchor({ className, href, onClick, ...props }: ComponentProps<"a">) {
   const router = useRouter();
-  const previousPath = usePreviousPath();
+  const previous = usePreviousEntry();
+  const sheetOpen = useCurrentEntrySheetOpen();
 
   return (
     <a
@@ -35,7 +37,12 @@ function BackAnchor({ className, href, onClick, ...props }: ComponentProps<"a">)
         const plainClick = !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
         // Came here from the parent screen: pop back to it, like a real navigation
         // stack, so history doesn't grow and the parent's scroll is restored.
-        if (plainClick && href && previousPath === new URL(href, window.location.href).pathname) {
+        // Not if that entry is from before the app sheet opened: popping it would close the sheet.
+        const parentIsPrevious =
+          href !== undefined &&
+          previous?.pathname === new URL(href, window.location.href).pathname &&
+          (!isRecordingSheetState() || previous.sheetOpen === sheetOpen);
+        if (plainClick && parentIsPrevious) {
           event.preventDefault();
           router.history.back();
           return;
