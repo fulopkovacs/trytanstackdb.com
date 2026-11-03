@@ -1,15 +1,276 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/inter";
 
-* {
-  box-sizing: border-box;
+@custom-variant dark (&:is(.dark *));
+
+/* The shadcn "nova" components use state variants; map them to Radix's data-state attributes. */
+@custom-variant data-open (&:is([data-state="open"], [data-open]:not([data-open="false"])));
+@custom-variant data-closed (&:is([data-state="closed"], [data-closed]:not([data-closed="false"])));
+@custom-variant data-checked (&:is([data-state="checked"], [data-checked]:not([data-checked="false"])));
+@custom-variant data-unchecked (&:is([data-state="unchecked"], [data-unchecked]:not([data-unchecked="false"])));
+@custom-variant data-horizontal (&:is([data-orientation="horizontal"]));
+@custom-variant data-vertical (&:is([data-orientation="vertical"]));
+
+/* -------------------------------------------------------------------------- */
+/* shadcn/ui tokens                                                           */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* Guide accent (TanStack DB orange) */
+  --guide-accent: oklch(0.7 0.18 50);
+  --guide-accent-soft: oklch(0.97 0.03 60);
+
+  /* Fake browser chrome */
+  --browser-frame: #e8e8ea;
+  --browser-toolbar: #f7f7f8;
+  --browser-tab: #ffffff;
+  --browser-field: #ececee;
+
+  /* Apple Notes — macOS (sampled from reference screenshots) */
+  --mac-sidebar: #f2f2f2;
+  --mac-content: #ffffff;
+  --mac-toolbar: #f6f6f6;
+  --mac-text: #1d1d1f;
+  --mac-text-secondary: #8a8a8e;
+  --mac-folder-selected: #e0e0e0;
+  --mac-row-selected: #dedede;
+  --mac-separator: #e5e5e5;
+  --mac-column-border: #e6e6e6;
+  --mac-control: #f6f6f6;
+  --mac-control-border: #e3e3e3;
+  --mac-icon: #6e6e73;
+
+  /* Apple Notes — iOS 26 */
+  --ios-bg: #f2f2f7;
+  --ios-card: #ffffff;
+  --ios-plain: #ffffff;
+  --ios-text: #000000;
+  --ios-secondary: #8e8e93;
+  --ios-separator: #c6c6c8;
+  --ios-glass: rgb(255 255 255 / 0.72);
+  --ios-glass-border: rgb(0 0 0 / 0.06);
+
+  /* Shared Notes accent */
+  --notes-accent: #e5b400;
+  --notes-quick: #f2c94c;
+  --notes-shared: #5ac8fa;
 }
 
-html,
-body,
-#app {
-  min-height: 100%;
+.dark {
+  --background: oklch(0.17 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+
+  --guide-accent: oklch(0.75 0.17 55);
+  --guide-accent-soft: oklch(0.26 0.04 55);
+
+  --browser-frame: #1a1a1c;
+  --browser-toolbar: #2a2a2c;
+  --browser-tab: #2a2a2c;
+  --browser-field: #1e1e20;
+
+  --mac-sidebar: #242424;
+  --mac-content: #1e1e1e;
+  --mac-toolbar: #2b2b2b;
+  --mac-text: #e8e8e8;
+  --mac-text-secondary: #9a9a9a;
+  --mac-folder-selected: #393939;
+  --mac-row-selected: #454545;
+  --mac-separator: #333333;
+  --mac-column-border: #2f2f2f;
+  --mac-control: #2b2b2b;
+  --mac-control-border: #383838;
+  --mac-icon: #a8a8ad;
+
+  --ios-bg: #000000;
+  --ios-card: #1c1c1e;
+  --ios-plain: #000000;
+  --ios-text: #ffffff;
+  --ios-secondary: #8e8e93;
+  --ios-separator: #38383a;
+  --ios-glass: rgb(40 40 42 / 0.72);
+  --ios-glass-border: rgb(255 255 255 / 0.08);
+
+  --notes-accent: #e6b32e;
 }
 
-body {
-  margin: 0;
+@theme inline {
+  --font-sans:
+    "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-guide-accent: var(--guide-accent);
+  --color-guide-accent-soft: var(--guide-accent-soft);
+
+  --color-browser-frame: var(--browser-frame);
+  --color-browser-toolbar: var(--browser-toolbar);
+  --color-browser-tab: var(--browser-tab);
+  --color-browser-field: var(--browser-field);
+
+  --color-mac-sidebar: var(--mac-sidebar);
+  --color-mac-content: var(--mac-content);
+  --color-mac-toolbar: var(--mac-toolbar);
+  --color-mac-text: var(--mac-text);
+  --color-mac-text-secondary: var(--mac-text-secondary);
+  --color-mac-folder-selected: var(--mac-folder-selected);
+  --color-mac-row-selected: var(--mac-row-selected);
+  --color-mac-separator: var(--mac-separator);
+  --color-mac-column-border: var(--mac-column-border);
+  --color-mac-control: var(--mac-control);
+  --color-mac-control-border: var(--mac-control-border);
+  --color-mac-icon: var(--mac-icon);
+
+  --color-ios-bg: var(--ios-bg);
+  --color-ios-card: var(--ios-card);
+  --color-ios-plain: var(--ios-plain);
+  --color-ios-text: var(--ios-text);
+  --color-ios-secondary: var(--ios-secondary);
+  --color-ios-separator: var(--ios-separator);
+  --color-ios-glass: var(--ios-glass);
+  --color-ios-glass-border: var(--ios-glass-border);
+
+  --color-notes-accent: var(--notes-accent);
+  --color-notes-quick: var(--notes-quick);
+  --color-notes-shared: var(--notes-shared);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    margin: 0;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Code highlighting (sugar-high)                                             */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --sh-class: #8250df;
+  --sh-identifier: #24292f;
+  --sh-sign: #57606a;
+  --sh-property: #0550ae;
+  --sh-entity: #8250df;
+  --sh-jsxliterals: #24292f;
+  --sh-string: #0a3069;
+  --sh-keyword: #cf222e;
+  --sh-comment: #6e7781;
+}
+
+.dark {
+  --sh-class: #d2a8ff;
+  --sh-identifier: #e6edf3;
+  --sh-sign: #8b949e;
+  --sh-property: #79c0ff;
+  --sh-entity: #d2a8ff;
+  --sh-jsxliterals: #e6edf3;
+  --sh-string: #a5d6ff;
+  --sh-keyword: #ff7b72;
+  --sh-comment: #8b949e;
+}
+
+/* Apple-style hairline scrollbars inside the fake app */
+.notes-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 22%, transparent) transparent;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Guide typography                                                           */
+/* -------------------------------------------------------------------------- */
+
+@layer components {
+  .guide-prose {
+    @apply text-[15px] leading-7 text-foreground/85;
+  }
+  .guide-prose > p + p {
+    @apply mt-3;
+  }
+  .guide-prose h3 {
+    @apply mt-6 mb-2 text-base font-semibold text-foreground;
+  }
+  .guide-prose ul {
+    @apply my-3 list-disc space-y-1 pl-5 marker:text-muted-foreground;
+  }
+  .guide-prose ol {
+    @apply my-3 list-decimal space-y-1 pl-5 marker:text-muted-foreground;
+  }
+  .guide-prose :not(pre) > code {
+    @apply rounded-md bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground;
+  }
+  .guide-prose a {
+    @apply font-medium text-foreground underline decoration-guide-accent/60 underline-offset-4 hover:decoration-guide-accent;
+  }
+  .guide-prose strong {
+    @apply font-semibold text-foreground;
+  }
 }

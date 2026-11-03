@@ -1,0 +1,13 @@
+{
+  "id": "account-1",
+  "name": "Alex Morgan",
+  "email": "alex.morgan@icloud.com",
+  "plan": "iCloud+ 200 GB",
+  "storageUsedGb": 61.4,
+  "storageTotalGb": 200,
+  "defaultFolderId": "notes",
+  "sortNotesBy": "dateEdited",
+  "newNotesStartWith": "title",
+  "groupNotesByDate": true,
+  "createdAt": "2024-05-17T19:40:00.000Z"
+}
