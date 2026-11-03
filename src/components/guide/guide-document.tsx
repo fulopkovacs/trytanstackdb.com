@@ -21,6 +21,7 @@ export function GuideDocument() {
           id={section.id}
           eyebrow={section.eyebrow}
           title={section.title}
+          tryIt={section.tryIt}
         >
           {section.content}
         </GuideSection>

@@ -1,8 +1,6 @@
 import { ArrowLeft, ArrowRight, Lock, Plus, RotateCw, X } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
-
 import { useBrowserHistory } from "./use-browser-history";
 
 export const FAKE_HOST = "notes.app";
@@ -12,24 +10,16 @@ interface BrowserFrameProps {
   title: string;
   /** Path part of the fake URL, e.g. `/folders/work`. */
   path: string;
-  /** Mobile: one compact toolbar row and no tab strip. */
-  compact?: boolean;
   /** Reserved for latency and failure controls (phase 4). */
   controls?: ReactNode;
   children: ReactNode;
 }
 
-export function BrowserFrame({
-  title,
-  path,
-  compact = false,
-  controls,
-  children,
-}: BrowserFrameProps) {
+export function BrowserFrame({ title, path, controls, children }: BrowserFrameProps) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-browser-frame">
-      {!compact && <TabStrip title={title} />}
-      <Toolbar path={path} compact={compact} controls={controls} />
+      <TabStrip title={title} />
+      <Toolbar path={path} controls={controls} />
       <div className="relative min-h-0 flex-1 overflow-hidden">{children}</div>
     </div>
   );
@@ -53,35 +43,20 @@ function TabStrip({ title }: { title: string }) {
   );
 }
 
-function Toolbar({
-  path,
-  compact,
-  controls,
-}: {
-  path: string;
-  compact: boolean;
-  controls?: ReactNode;
-}) {
+function Toolbar({ path, controls }: { path: string; controls?: ReactNode }) {
   const { canGoBack, canGoForward, back, forward, reload } = useBrowserHistory();
 
   return (
-    <div
-      className={cn(
-        "flex shrink-0 items-center gap-1 border-b bg-browser-toolbar px-2",
-        compact ? "h-10" : "h-11",
-      )}
-    >
+    <div className="flex h-11 shrink-0 items-center gap-1 border-b bg-browser-toolbar px-2">
       <ToolbarButton label="Back" onClick={back} disabled={!canGoBack}>
         <ArrowLeft />
       </ToolbarButton>
       <ToolbarButton label="Forward" onClick={forward} disabled={!canGoForward}>
         <ArrowRight />
       </ToolbarButton>
-      {!compact && (
-        <ToolbarButton label="Reload" onClick={reload}>
-          <RotateCw />
-        </ToolbarButton>
-      )}
+      <ToolbarButton label="Reload" onClick={reload}>
+        <RotateCw />
+      </ToolbarButton>
       <AddressBar path={path} />
       <div data-slot="browser-controls" className="flex min-w-0 items-center gap-1 empty:hidden">
         {controls}

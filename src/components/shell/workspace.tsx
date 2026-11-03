@@ -1,59 +1,61 @@
 import { useLocation } from "@tanstack/react-router";
+import { useEffect } from "react";
 import type { ReactNode } from "react";
 
+import { closeAppSheet } from "@/components/app-sheet/app-sheet-store";
 import { BrowserFrame } from "@/components/browser/browser-frame";
 import { GuidePanel } from "@/components/guide/guide-panel";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { cn } from "@/lib/utils";
+
+import { MobileWorkspace } from "./mobile-workspace";
+
+/** At this width and up, the guide and the app sit side by side. Below it, the guide comes first. */
+export const SPLIT_LAYOUT_MIN_WIDTH = 768;
 
 /**
- * The page: the guide and the app as two framed panels with a resizable gap
- * between them. Side by side on desktop; stacked (app on top) on small screens.
+ * The page. Wide screens: the guide and the app (in a fake browser) as two
+ * framed panels with a resizable gap between them. Small screens: the guide
+ * full screen, with the app in a sheet that "Try it" buttons open.
  */
 export function Workspace({ app }: { app: ReactNode }) {
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const isSplit = useMediaQuery(`(min-width: ${SPLIT_LAYOUT_MIN_WIDTH}px)`);
+  return isSplit ? <SplitWorkspace app={app} /> : <MobileWorkspace app={app} />;
+}
+
+function SplitWorkspace({ app }: { app: ReactNode }) {
+  // Tablets and small laptop windows get a narrower guide and smaller minimums;
+  // the app switches to its iPhone layout when its pane gets narrow.
+  const isWide = useMediaQuery("(min-width: 1024px)");
   const title = usePageTitle();
   const path = useLocation({ select: (location) => location.pathname });
 
-  const appPanel = (
-    <Frame>
-      <BrowserFrame title={title} path={path} compact={!isDesktop}>
-        {app}
-      </BrowserFrame>
-    </Frame>
-  );
-  const guidePanel = (
-    <Frame>
-      <GuidePanel />
-    </Frame>
-  );
+  // The app sheet only exists on small screens. If the window grows past the
+  // breakpoint while it's open (a tablet rotating), don't bring it back later.
+  useEffect(() => closeAppSheet(), []);
 
   return (
     <main className="h-dvh bg-muted p-2 lg:p-4 dark:bg-[#0c0c0d]">
-      {isDesktop ? (
-        <ResizablePanelGroup key="desktop" orientation="horizontal">
-          <ResizablePanel id="guide" defaultSize="34%" minSize={320}>
-            {guidePanel}
-          </ResizablePanel>
-          <GapHandle orientation="horizontal" />
-          <ResizablePanel id="app" defaultSize="66%" minSize={720}>
-            {appPanel}
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      ) : (
-        <ResizablePanelGroup key="mobile" orientation="vertical">
-          <ResizablePanel id="app" defaultSize="50%" minSize={220}>
-            {appPanel}
-          </ResizablePanel>
-          <GapHandle orientation="vertical" />
-          <ResizablePanel id="guide" defaultSize="50%" minSize={120}>
-            {/* Phase 4 can turn this panel into Guide / Requests tabs. */}
-            {guidePanel}
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      )}
+      <ResizablePanelGroup key={isWide ? "wide" : "narrow"} orientation="horizontal">
+        <ResizablePanel
+          id="guide"
+          defaultSize={isWide ? "34%" : "42%"}
+          minSize={isWide ? 320 : 280}
+        >
+          <Frame>
+            <GuidePanel />
+          </Frame>
+        </ResizablePanel>
+        <GapHandle />
+        <ResizablePanel id="app" defaultSize={isWide ? "66%" : "58%"} minSize={isWide ? 720 : 360}>
+          <Frame>
+            <BrowserFrame title={title} path={path}>
+              {app}
+            </BrowserFrame>
+          </Frame>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </main>
   );
 }
@@ -67,21 +69,10 @@ function Frame({ children }: { children: ReactNode }) {
 }
 
 /** The divider lives in the gap between the two panels. */
-function GapHandle({ orientation }: { orientation: "horizontal" | "vertical" }) {
-  const horizontal = orientation === "horizontal";
+function GapHandle() {
   return (
-    <ResizableHandle
-      className={cn(
-        "group/handle bg-transparent after:hidden focus-visible:ring-0",
-        horizontal ? "w-3 lg:w-4" : "aria-[orientation=horizontal]:h-2",
-      )}
-    >
-      <span
-        className={cn(
-          "rounded-full bg-foreground/15 transition-colors group-hover/handle:bg-foreground/40 group-data-[separator=hover]/handle:bg-foreground/40 group-data-[separator=active]/handle:bg-guide-accent group-focus-visible/handle:bg-guide-accent",
-          horizontal ? "h-10 w-1" : "h-1 w-10",
-        )}
-      />
+    <ResizableHandle className="group/handle w-3 bg-transparent after:hidden focus-visible:ring-0 lg:w-4">
+      <span className="h-10 w-1 rounded-full bg-foreground/15 transition-colors group-hover/handle:bg-foreground/40 group-data-[separator=hover]/handle:bg-foreground/40 group-data-[separator=active]/handle:bg-guide-accent group-focus-visible/handle:bg-guide-accent" />
     </ResizableHandle>
   );
 }

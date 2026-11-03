@@ -1,20 +1,26 @@
+import type { LinkOptions } from "@tanstack/react-router";
+import { Check } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { useActiveSection } from "./guide-store";
+import { useActiveSection, useIsSectionDone } from "./guide-store";
+import { TryItButton } from "./try-it";
 
 interface GuideSectionProps {
   id: string;
   /** Small label above the heading, e.g. "Step 2". */
   eyebrow?: string;
   title: string;
+  /** Where the section's hands-on step happens in the app, if it has one. */
+  tryIt?: LinkOptions;
   children: ReactNode;
 }
 
-export function GuideSection({ id, eyebrow, title, children }: GuideSectionProps) {
+export function GuideSection({ id, eyebrow, title, tryIt, children }: GuideSectionProps) {
   const isActive = useActiveSection() === id;
+  const isDone = useIsSectionDone(id);
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -25,6 +31,7 @@ export function GuideSection({ id, eyebrow, title, children }: GuideSectionProps
     <section
       ref={ref}
       id={id}
+      data-scroll-anchor
       data-active={isActive || undefined}
       aria-current={isActive ? "step" : undefined}
       className={cn(
@@ -42,6 +49,15 @@ export function GuideSection({ id, eyebrow, title, children }: GuideSectionProps
             {eyebrow}
           </span>
         )}
+        {isDone && (
+          <span
+            className="grid size-4 place-items-center rounded-full bg-emerald-600 text-white dark:bg-emerald-500"
+            title="Done"
+          >
+            <Check className="size-3" strokeWidth={3} aria-hidden />
+            <span className="sr-only">Done</span>
+          </span>
+        )}
         {isActive && (
           <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-guide-accent px-2 py-0.5 text-[11px] font-semibold text-white">
             <span className="size-1.5 animate-pulse rounded-full bg-white" />
@@ -53,6 +69,7 @@ export function GuideSection({ id, eyebrow, title, children }: GuideSectionProps
         {title}
       </h2>
       <div className="guide-prose">{children}</div>
+      {tryIt && <TryItButton sectionId={id} target={tryIt} />}
     </section>
   );
 }

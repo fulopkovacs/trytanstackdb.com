@@ -1,8 +1,10 @@
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
-import { DevSectionPicker } from "./dev-section-picker";
+import { DevGuideMenu } from "./dev-guide-menu";
 import { GuideDocument } from "./guide-document";
+import { TanStackDbMark } from "./tanstack-db-mark";
 
+/** The guide as a framed panel next to the app (desktop). */
 export function GuidePanel() {
   return (
     <div className="@container/guide flex h-full min-h-0 flex-col">
@@ -12,7 +14,7 @@ export function GuidePanel() {
           Try TanStack DB
         </span>
         <div className="ml-auto flex min-w-0 items-center gap-2">
-          {import.meta.env.DEV && <DevSectionPicker />}
+          {import.meta.env.DEV && <DevGuideMenu />}
           <ThemeToggle />
         </div>
       </div>
@@ -20,16 +22,5 @@ export function GuidePanel() {
         <GuideDocument />
       </div>
     </div>
-  );
-}
-
-function TanStackDbMark() {
-  return (
-    <span
-      aria-hidden
-      className="grid size-6 place-items-center rounded-md bg-guide-accent text-[11px] font-black text-white"
-    >
-      DB
-    </span>
   );
 }

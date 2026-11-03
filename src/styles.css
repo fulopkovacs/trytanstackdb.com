@@ -238,6 +238,71 @@
   --sh-comment: #8b949e;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Bottom sheet (the app on small screens)                                    */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  /* Open: ~450ms with a hint of overshoot, like a spring settling. Close: a bit faster. */
+  --sheet-open-duration: 450ms;
+  --sheet-open-easing: cubic-bezier(0.22, 1.15, 0.36, 1);
+  --sheet-close-duration: 320ms;
+  --sheet-close-easing: cubic-bezier(0.32, 0.72, 0, 1);
+  --sheet-fade-duration: 200ms;
+}
+
+@layer components {
+  .bottom-sheet {
+    transform: translate3d(0, calc(100% + 2rem), 0);
+    visibility: hidden;
+    transition:
+      transform var(--sheet-close-duration) var(--sheet-close-easing),
+      visibility 0s linear var(--sheet-close-duration);
+  }
+  .bottom-sheet[data-state="open"] {
+    transform: none;
+    visibility: visible;
+    transition:
+      transform var(--sheet-open-duration) var(--sheet-open-easing),
+      visibility 0s;
+  }
+
+  .bottom-sheet-backdrop {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--sheet-close-duration) ease-out;
+  }
+  .bottom-sheet-backdrop[data-state="open"] {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: var(--sheet-open-duration);
+  }
+
+  /* Reduced motion: fade in place instead of sliding. */
+  @media (prefers-reduced-motion: reduce) {
+    .bottom-sheet,
+    .bottom-sheet[data-state="open"] {
+      transform: none;
+    }
+    .bottom-sheet {
+      opacity: 0;
+      transition:
+        opacity var(--sheet-fade-duration) ease-out,
+        visibility 0s linear var(--sheet-fade-duration);
+    }
+    .bottom-sheet[data-state="open"] {
+      opacity: 1;
+      transition:
+        opacity var(--sheet-fade-duration) ease-out,
+        visibility 0s;
+    }
+    .bottom-sheet-backdrop,
+    .bottom-sheet-backdrop[data-state="open"] {
+      transition-duration: var(--sheet-fade-duration);
+    }
+  }
+}
+
 /* Apple-style hairline scrollbars inside the fake app */
 .notes-scroll {
   scrollbar-width: thin;
