@@ -1,5 +1,5 @@
 import { createPacedMutations, debounceStrategy } from "@tanstack/react-db";
-import { beforeAll, beforeEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { api } from "@/api/client";
 import { setNetworkConfig } from "@/api/network-config";
@@ -21,6 +21,19 @@ beforeEach(() => {
   setNetworkConfig({ latencyMs: 0, failNextRequest: false, failureRate: 0 });
   clearRequestLog();
 });
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+/** Makes PATCH requests to `url` take `ms` longer than the others. */
+function delayPatch(url: string, ms: number) {
+  const patch = api.patch;
+  vi.spyOn(api, "patch").mockImplementation(async (target, body) => {
+    if (target === url) await sleep(ms);
+    return patch(target, body);
+  });
+}
 
 describe("overlapping saves to one record", () => {
   it("end on the newest value, even when the older request is slower", async () => {
@@ -101,6 +114,39 @@ describe("note edits from several editors", () => {
     await Promise.all([first.when("settled"), newest.when("settled")]);
     expect(notesCollection.get("note-05")?.title).toBe("Newest");
     expect((await api.get<Note>("/api/notes/note-05")).title).toBe("Newest");
+  });
+});
+
+describe("multi-record transactions", () => {
+  it("confirm each record in order with later saves to it", async () => {
+    // Note A and B saved together; B's request is slow.
+    delayPatch("/api/notes/note-07", 200);
+    const batch = notesCollection.update(["note-06", "note-07"], (drafts) => {
+      for (const draft of drafts) draft.title = "Older batch";
+    });
+    await sleep(20);
+    const newer = notesCollection.update("note-06", (draft) => {
+      draft.title = "Newest";
+    });
+
+    await Promise.all([batch.when("settled"), newer.when("settled")]);
+    expect(notesCollection.get("note-06")?.title).toBe("Newest");
+    expect((await api.get<Note>("/api/notes/note-06")).title).toBe("Newest");
+    expect(notesCollection.get("note-07")?.title).toBe("Older batch");
+  });
+
+  it("keep the records the server accepted when another one is rejected", async () => {
+    const tx = notesCollection.update(["note-08", "note-09"], ([accepted, rejected]) => {
+      accepted!.title = "Saved";
+      rejected!.title = "x".repeat(101); // over the server's limit: 422
+    });
+    const rejectedBefore = (await api.get<Note>("/api/notes/note-09")).title;
+
+    await expect(tx.when("settled")).rejects.toMatchObject({ status: 422 });
+    // The transaction rolled back, but note-08 shows what the server saved.
+    expect(notesCollection.get("note-08")?.title).toBe("Saved");
+    expect((await api.get<Note>("/api/notes/note-08")).title).toBe("Saved");
+    expect(notesCollection.get("note-09")?.title).toBe(rejectedBefore);
   });
 });
 

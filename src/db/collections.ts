@@ -5,20 +5,21 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { api } from "@/api/client";
 
 import { queryClient } from "./query-client";
-import { inOrder } from "./write-queue";
+import { inOrder, saveEach } from "./write-queue";
 import { accountSchema, folderSchema, noteSchema } from "./schema";
 import type { Account, Folder, Note } from "./schema";
 
 /**
  * The app's data: three query collections over the REST API. Each one loads
  * its endpoint with `queryFn`, and its handlers send optimistic changes to the
- * server:
+ * server, one record at a time:
  *
- * - A handler that throws (a 4xx or 5xx response) rolls its change back.
- * - One that succeeds writes the server's response into the collection as
- *   confirmed data, so the collection holds exactly what the server saved.
- * - Writes to the same record go out one at a time (`inOrder`), so an older
- *   save can never land after a newer one.
+ * - The server's response is written into the collection as confirmed data,
+ *   so the collection holds exactly what the server saved.
+ * - A rejected request (4xx or 5xx) makes the handler throw, which rolls the
+ *   transaction's optimistic changes back.
+ * - `inOrder` keeps each record's request and write-back in order, so an
+ *   older save can never land after a newer one.
  */
 
 export const foldersCollection = createCollection(
@@ -29,15 +30,13 @@ export const foldersCollection = createCollection(
     queryClient,
     schema: folderSchema,
     getKey: (folder) => folder.id,
-    onUpdate: async ({ transaction, collection }) => {
-      const folders = await Promise.all(
-        transaction.mutations.map(({ key, changes }) => {
-          const url = `/api/folders/${key}`;
-          return inOrder(url, () => api.patch<Folder>(url, changes));
+    onUpdate: ({ transaction, collection }) =>
+      saveEach(transaction.mutations, ({ key, changes }) =>
+        inOrder(`/api/folders/${key}`, async () => {
+          const folder = await api.patch<Folder>(`/api/folders/${key}`, changes);
+          await collection.utils.writeUpdate(folder);
         }),
-      );
-      await collection.utils.writeUpdate(folders);
-    },
+      ),
   }),
 );
 
@@ -49,40 +48,35 @@ export const notesCollection = createCollection(
     queryClient,
     schema: noteSchema,
     getKey: (note) => note.id,
-    onInsert: async ({ transaction, collection }) => {
-      const notes = await Promise.all(
-        transaction.mutations.map(({ key, modified }) =>
-          inOrder(`/api/notes/${key}`, () => api.post<Note>("/api/notes", modified)),
-        ),
-      );
-      await collection.utils.writeUpsert(notes);
-    },
-    onUpdate: ({ transaction }) => saveNoteUpdates(transaction),
-    onDelete: async ({ transaction, collection }) => {
-      const keys = transaction.mutations.map(({ key }) => key);
-      await Promise.all(
-        keys.map((key) => {
-          const url = `/api/notes/${key}`;
-          return inOrder(url, () => api.delete(url));
+    onInsert: ({ transaction, collection }) =>
+      saveEach(transaction.mutations, ({ key, modified }) =>
+        inOrder(`/api/notes/${key}`, async () => {
+          const note = await api.post<Note>("/api/notes", modified);
+          await collection.utils.writeUpsert(note);
         }),
-      );
-      await collection.utils.writeDelete(keys);
-    },
+      ),
+    onUpdate: ({ transaction }) => saveNoteUpdates(transaction),
+    onDelete: ({ transaction, collection }) =>
+      saveEach(transaction.mutations, ({ key }) =>
+        inOrder(`/api/notes/${key}`, async () => {
+          await api.delete(`/api/notes/${key}`);
+          await collection.utils.writeDelete(key);
+        }),
+      ),
   }),
 );
 
 /**
- * Sends a transaction's note updates to the server and writes back the saved
- * notes. Also used by the editor, which batches keystrokes into one transaction.
+ * Sends a transaction's note updates and writes back the saved notes. Also
+ * the save step of the editor's paced mutations (`editNote`).
  */
-export async function saveNoteUpdates(transaction: Transaction<Note>) {
-  const notes = await Promise.all(
-    transaction.mutations.map(({ key, changes }) => {
-      const url = `/api/notes/${key}`;
-      return inOrder(url, () => api.patch<Note>(url, changes));
+export function saveNoteUpdates(transaction: Transaction<Note>) {
+  return saveEach(transaction.mutations, ({ key, changes }) =>
+    inOrder(`/api/notes/${key}`, async () => {
+      const note = await api.patch<Note>(`/api/notes/${key}`, changes);
+      await notesCollection.utils.writeUpdate(note);
     }),
   );
-  await notesCollection.utils.writeUpdate(notes);
 }
 
 export const accountCollection = createCollection(
@@ -94,13 +88,12 @@ export const accountCollection = createCollection(
     queryClient,
     schema: accountSchema,
     getKey: (account) => account.id,
-    onUpdate: async ({ transaction, collection }) => {
-      const accounts = await Promise.all(
-        transaction.mutations.map(({ changes }) =>
-          inOrder("/api/account", () => api.patch<Account>("/api/account", changes)),
-        ),
-      );
-      await collection.utils.writeUpdate(accounts);
-    },
+    onUpdate: ({ transaction, collection }) =>
+      saveEach(transaction.mutations, ({ changes }) =>
+        inOrder("/api/account", async () => {
+          const account = await api.patch<Account>("/api/account", changes);
+          await collection.utils.writeUpdate(account);
+        }),
+      ),
   }),
 );
