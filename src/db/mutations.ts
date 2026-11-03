@@ -1,4 +1,4 @@
-import { debounceStrategy, usePacedMutations } from "@tanstack/react-db";
+import { debounceStrategy, safeRandomUUID, usePacedMutations } from "@tanstack/react-db";
 
 import { reportMutation } from "@/lib/app-actions";
 
@@ -22,7 +22,8 @@ import type { Account, Note } from "./schema";
 export function createNote(folderId: string) {
   const now = new Date().toISOString();
   const note: Note = {
-    id: crypto.randomUUID(),
+    // Works on plain-HTTP origins too, where `crypto.randomUUID` is missing.
+    id: safeRandomUUID(),
     folderId,
     title: "",
     body: "",
