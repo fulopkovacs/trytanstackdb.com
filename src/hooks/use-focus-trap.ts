@@ -10,6 +10,18 @@ const TABBABLE = [
   "[tabindex]:not([tabindex='-1'])",
 ].join(",");
 
+/**
+ * Menus, dialogs and toasts are portalled to <body>, outside the trap. They
+ * manage their own focus, so the trap leaves them alone.
+ */
+const LAYER =
+  "[data-radix-popper-content-wrapper], [role=dialog], [role=alertdialog], [data-sonner-toaster]";
+
+function isInLayer(node: Node): boolean {
+  const element = node instanceof Element ? node : node.parentElement;
+  return element?.closest(LAYER) != null;
+}
+
 /** Elements Tab can reach inside `container`, in DOM order (inert and hidden ones skipped). */
 function tabbables(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(TABBABLE)).filter(
@@ -30,6 +42,8 @@ function tabbables(container: HTMLElement): HTMLElement[] {
  * - recovers focus when the focused element disappears (e.g. the app inside
  *   changes screens), instead of letting it fall to <body>.
  *
+ * Menus and dialogs opened from inside get to keep focus while they're open.
+ *
  * Listens on the document rather than the container, because content can be
  * portalled in from elsewhere in the React tree (React key events wouldn't
  * bubble through the container's handlers).
@@ -48,6 +62,7 @@ export function useFocusTrap(containerRef: RefObject<HTMLElement | null>, active
       const first = items[0];
       const last = items.at(-1);
       const focused = document.activeElement;
+      if (focused && !container.contains(focused) && isInLayer(focused)) return;
       if (!first || !last) {
         event.preventDefault();
         container.focus({ preventScroll: true });
@@ -65,7 +80,11 @@ export function useFocusTrap(containerRef: RefObject<HTMLElement | null>, active
 
     // Something outside got focus (a click on a devtools overlay, a script): take it back.
     const onFocusIn = (event: FocusEvent) => {
-      if (event.target instanceof Node && !container.contains(event.target)) {
+      if (
+        event.target instanceof Node &&
+        !container.contains(event.target) &&
+        !isInLayer(event.target)
+      ) {
         container.focus({ preventScroll: true });
       }
     };

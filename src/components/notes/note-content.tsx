@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 
-import type { Note } from "@/fixtures";
+import type { Note } from "@/db/schema";
 import { parseNoteBody } from "@/lib/notes/note-body";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +10,10 @@ interface NoteContentProps {
   variant: "mac" | "ios";
 }
 
-/** Renders a note the way the Notes editor does: Title style first line, then blocks. */
+/**
+ * A note, read-only, styled like the editor: Title style first line, then
+ * blocks. Used for notes in Recently Deleted, which can't be edited.
+ */
 export function NoteContent({ note, variant }: NoteContentProps) {
   const blocks = parseNoteBody(note.body);
   const ios = variant === "ios";
@@ -51,7 +54,6 @@ export function NoteContent({ note, variant }: NoteContentProps) {
               >
                 <ChecklistCircle checked={block.checked} large={ios} />
                 <span className={cn(block.checked && "text-mac-text-secondary line-through")}>
-                  {/* Read-only for now; phase 2 turns these into real, labelled checkboxes. */}
                   <span className="sr-only">{block.checked ? "Done: " : "To do: "}</span>
                   {block.text}
                 </span>

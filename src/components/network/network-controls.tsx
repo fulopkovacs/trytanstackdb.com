@@ -3,29 +3,31 @@ import { useId } from "react";
 
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useNetworkConfig } from "@/api/network-config";
 import { cn } from "@/lib/utils";
 
 import { LATENCY_PRESETS, formatLatency } from "./latency";
 
 /*
  * Latency and failure controls for the fake API, plus the request inspector.
- * They're laid out but inert in phase 1: phase 2 adds the fake API and its
- * request log, phase 4 connects these controls to it. They're shared by the
+ * They show the fake API's settings (`api/network-config.ts`) but stay
+ * disabled until phase 4 lets them change it and lists `api/request-log.ts`. They're shared by the
  * app sheet (small screens) and, later, the desktop browser toolbar's
  * controls slot.
  */
 
-/** Phase 1: nothing to control yet. Flip once the fake API exists. */
+/** Phase 4 makes these interactive. */
 const NETWORK_CONTROLS_READY = false;
 
 export function LatencyControl({ className }: { className?: string }) {
+  const { latencyMs } = useNetworkConfig();
   return (
     <ToggleGroup
       type="single"
       variant="outline"
       size="sm"
       spacing={0}
-      value="0"
+      value={String(latencyMs)}
       disabled={!NETWORK_CONTROLS_READY}
       aria-label="API latency"
       className={className}
@@ -41,17 +43,18 @@ export function LatencyControl({ className }: { className?: string }) {
 
 export function FailNextRequestControl({ className }: { className?: string }) {
   const id = useId();
+  const { failNextRequest } = useNetworkConfig();
   return (
     <div className={cn("flex items-center justify-between gap-3", className)}>
       <label htmlFor={id} className="text-sm">
         Fail the next request
       </label>
-      <Switch id={id} checked={false} disabled={!NETWORK_CONTROLS_READY} />
+      <Switch id={id} checked={failNextRequest} disabled={!NETWORK_CONTROLS_READY} />
     </div>
   );
 }
 
-/** Every call to the fake API, newest first. Empty until phase 2 records them. */
+/** Every call to the fake API, newest first. Phase 4 renders `useRequestLog()` here. */
 export function RequestLog({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-col", className)}>
@@ -61,7 +64,7 @@ export function RequestLog({ className }: { className?: string }) {
         <span className="text-right">Status</span>
         <span className="text-right">Time</span>
       </div>
-      {/* Phase 2: an <ol> with one row per recorded request replaces this empty state. */}
+      {/* Phase 4: an <ol> with one row per `useRequestLog()` entry replaces this empty state. */}
       <div className="flex min-h-40 flex-1 flex-col items-center justify-center gap-1 px-6 pb-8 text-center">
         <ArrowDownUp className="mb-1 size-5 text-muted-foreground" aria-hidden />
         <p className="text-sm font-medium">No requests yet</p>

@@ -2,7 +2,7 @@ import { Navigate, createFileRoute } from "@tanstack/react-router";
 
 import { IosFoldersScreen } from "@/components/notes/ios/folders-screen";
 import { ByLayout } from "@/components/notes/notes-layout";
-import { useAccount } from "@/data/notes-data";
+import { useAccount } from "@/db/queries";
 
 export const Route = createFileRoute("/_workspace/")({
   component: FoldersPage,
@@ -15,7 +15,13 @@ function FoldersPage() {
     <ByLayout
       ios={<IosFoldersScreen />}
       mac={
-        <Navigate to="/folders/$folderId" params={{ folderId: account.defaultFolderId }} replace />
+        account && (
+          <Navigate
+            to="/folders/$folderId"
+            params={{ folderId: account.defaultFolderId }}
+            replace
+          />
+        )
       }
     />
   );

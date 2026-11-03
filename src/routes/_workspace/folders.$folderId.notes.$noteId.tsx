@@ -3,7 +3,7 @@ import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { MacEditor } from "@/components/notes/mac/editor";
 import { IosEditorScreen } from "@/components/notes/ios/editor-screen";
 import { ByLayout } from "@/components/notes/notes-layout";
-import { useNoteInFolder } from "@/data/notes-data";
+import { useNoteInFolder } from "@/db/queries";
 
 export const Route = createFileRoute("/_workspace/folders/$folderId/notes/$noteId")({
   component: NotePage,
@@ -11,12 +11,12 @@ export const Route = createFileRoute("/_workspace/folders/$folderId/notes/$noteI
 
 function NotePage() {
   const { folderId, noteId } = Route.useParams();
-  const note = useNoteInFolder(folderId, noteId);
+  const { note, isReady } = useNoteInFolder(folderId, noteId);
 
   return (
     <ByLayout
       mac={
-        note ? (
+        note || !isReady ? (
           <MacEditor note={note} />
         ) : (
           // Not in this folder (bad link, or moved/deleted): select another note,

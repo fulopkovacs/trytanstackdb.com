@@ -2,26 +2,29 @@ import { Link, useParams } from "@tanstack/react-router";
 import { ChevronDown, Ellipsis, Folder } from "lucide-react";
 import { useState } from "react";
 
-import { useFolders, useFolderView, useNotesInFolder } from "@/data/notes-data";
-import type { Note } from "@/fixtures";
+import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { useFolderView, useNoteList } from "@/db/queries";
+import type { NoteListItem } from "@/db/queries";
+import { reportAction } from "@/lib/app-actions";
 import { formatListDate } from "@/lib/notes/dates";
-import { noteSnippet } from "@/lib/notes/note-body";
+import { noteDisplayTitle, noteSnippet } from "@/lib/notes/note-body";
 import { noteListSections } from "@/lib/notes/note-list";
 import { cn } from "@/lib/utils";
 
+import { NoteActionItems } from "../note-actions";
 import { useNotesLayout } from "../notes-layout";
 import { MacCircleButton, MacColumnHeader } from "./controls";
 import { SidebarToggle } from "./sidebar";
 
 export function MacNoteList({ folderId }: { folderId: string }) {
-  const view = useFolderView(folderId);
-  const notes = useNotesInFolder(folderId);
+  const { view } = useFolderView(folderId);
+  const { notes, listOptions } = useNoteList(folderId);
   const { sidebarVisible } = useNotesLayout();
   const { noteId: selectedNoteId } = useParams({ strict: false });
   const [pinnedOpen, setPinnedOpen] = useState(true);
 
   const now = new Date();
-  const { pinned, groups } = noteListSections(notes, now);
+  const { pinned, groups } = noteListSections(notes, now, listOptions);
   const showFolder = view?.showsFolderName ?? false;
 
   return (
@@ -76,9 +79,13 @@ export function MacNoteList({ folderId }: { folderId: string }) {
 
         {groups.map((group) => (
           <div key={group.label}>
-            <h3 className="px-[14px] pt-5 pb-1.5 text-[15px] font-bold text-mac-text">
-              {group.label}
-            </h3>
+            {group.label ? (
+              <h3 className="px-[14px] pt-5 pb-1.5 text-[15px] font-bold text-mac-text">
+                {group.label}
+              </h3>
+            ) : (
+              pinned.length > 0 && <div className="h-3" />
+            )}
             <NoteRows
               notes={group.items}
               selectedNoteId={selectedNoteId}
@@ -98,7 +105,7 @@ function NoteRows({
   showFolder,
   now,
 }: {
-  notes: Note[];
+  notes: NoteListItem[];
   selectedNoteId: string | undefined;
   showFolder: boolean;
   now: Date;
@@ -130,36 +137,60 @@ function NoteRow({
   showFolder,
   now,
 }: {
-  note: Note;
+  note: NoteListItem;
   selected: boolean;
   showFolder: boolean;
   now: Date;
 }) {
-  const folders = useFolders();
-  const folderName = folders.find((folder) => folder.id === note.folderId)?.name;
   const { folderId } = useParams({ strict: false });
 
   return (
-    <Link
-      to="/folders/$folderId/notes/$noteId"
-      params={{ folderId: folderId ?? note.folderId, noteId: note.id }}
-      aria-current={selected ? "page" : undefined}
-      className={cn(
-        "block rounded-[8px] px-[14px] py-[9px] text-mac-text outline-none focus-visible:ring-2 focus-visible:ring-notes-accent/60",
-        selected && "bg-mac-row-selected",
-      )}
-    >
-      <p className="truncate text-[13px] leading-[17px] font-bold">{note.title}</p>
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <Link
+          to="/folders/$folderId/notes/$noteId"
+          params={{ folderId: folderId ?? note.folderId, noteId: note.id }}
+          onClick={() => reportAction({ type: "note.opened", noteId: note.id })}
+          aria-current={selected ? "page" : undefined}
+          className={cn(
+            "block rounded-[8px] px-[14px] py-[9px] text-mac-text outline-none focus-visible:ring-2 focus-visible:ring-notes-accent/60 data-[state=open]:ring-2 data-[state=open]:ring-notes-accent/60",
+            selected && "bg-mac-row-selected",
+          )}
+        >
+          <NoteRowText note={note} showFolder={showFolder} now={now} />
+        </Link>
+      </ContextMenuTrigger>
+      <ContextMenuContent className="min-w-44">
+        <NoteActionItems note={note} menu="context" />
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+}
+
+function NoteRowText({
+  note,
+  showFolder,
+  now,
+}: {
+  note: NoteListItem;
+  showFolder: boolean;
+  now: Date;
+}) {
+  return (
+    <>
+      <p className="truncate text-[13px] leading-[17px] font-bold">
+        {noteDisplayTitle(note.title)}
+      </p>
       <p className="flex gap-1.5 text-[12px] leading-[16px]">
         <span className="shrink-0">{formatListDate(new Date(note.updatedAt), now)}</span>
         <span className="truncate text-mac-text-secondary">{noteSnippet(note.body)}</span>
       </p>
-      {showFolder && folderName && (
+      {showFolder && note.folderName && (
         <p className="mt-0.5 flex items-center gap-1 text-[12px] leading-[16px] text-mac-text-secondary">
           <Folder className="size-3 shrink-0" />
-          <span className="truncate">{folderName}</span>
+          <span className="truncate">{note.folderName}</span>
         </p>
       )}
-    </Link>
+    </>
   );
 }

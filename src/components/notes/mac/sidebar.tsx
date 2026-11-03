@@ -1,11 +1,22 @@
 import { Link } from "@tanstack/react-router";
-import { ChartColumn, ChevronRight, Folder, PanelLeft, Trash } from "lucide-react";
+import { ChartColumn, ChevronRight, Folder, Pencil, PanelLeft, Trash } from "lucide-react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
-import { useAccount, useFolders, useNoteCounts } from "@/data/notes-data";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { useAccount, useFolders, useNoteCounts } from "@/db/queries";
+import type { Folder as FolderRecord } from "@/db/schema";
+import { reportAction } from "@/lib/app-actions";
+import { isSmartFolderId } from "@/lib/notes/folder-views";
 
 import { AccountAvatar, QuickNotesIcon, SharedIcon } from "../icons";
 import { useNotesLayout } from "../notes-layout";
+import { canRenameFolder, RenameFolderDialog } from "../rename-folder-dialog";
 import { MacCircleButton, MacColumnHeader } from "./controls";
 
 export function SidebarToggle() {
@@ -25,6 +36,7 @@ export function MacSidebar() {
   const folders = useFolders();
   const counts = useNoteCounts();
   const account = useAccount();
+  const [renaming, setRenaming] = useState<FolderRecord | null>(null);
 
   const quickNotes = folders.find((folder) => folder.role === "quick-notes");
   const iCloudFolders = folders.filter((folder) => folder.role !== "quick-notes");
@@ -58,6 +70,7 @@ export function MacSidebar() {
             icon={<FolderIcon />}
             label={folder.name}
             count={counts[folder.id]}
+            onRename={canRenameFolder(folder) ? () => setRenaming(folder) : undefined}
           />
         ))}
         <SidebarLink
@@ -70,20 +83,24 @@ export function MacSidebar() {
         <SidebarGroupLabel collapsed>Tags</SidebarGroupLabel>
       </div>
 
+      <RenameFolderDialog folder={renaming} onOpenChange={(open) => !open && setRenaming(null)} />
+
       <div className="space-y-0.5 border-t border-mac-column-border px-2.5 py-2">
         <Link to="/analytics" className={rowClassName}>
           <ChartColumn className="size-[17px] stroke-[1.5] text-mac-icon" />
           <span className="flex-1 truncate">Analytics</span>
         </Link>
-        <Link to="/settings" className={`${rowClassName} h-auto py-1.5`}>
-          <AccountAvatar name={account.name} />
-          <span className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate font-medium">{account.name}</span>
-            <span className="block truncate text-[11px] text-mac-text-secondary">
-              {account.email}
+        {account && (
+          <Link to="/settings" className={`${rowClassName} h-auto py-1.5`}>
+            <AccountAvatar name={account.name} />
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block truncate font-medium">{account.name}</span>
+              <span className="block truncate text-[11px] text-mac-text-secondary">
+                {account.email}
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+        )}
       </div>
     </nav>
   );
@@ -97,18 +114,43 @@ function SidebarLink({
   icon,
   label,
   count,
+  onRename,
 }: {
   folderId: string;
   icon: ReactNode;
   label: string;
   count: number | undefined;
+  /** Renamable folders: double-click or right-click → Rename Folder. */
+  onRename?: () => void;
 }) {
-  return (
-    <Link to="/folders/$folderId" params={{ folderId }} className={rowClassName}>
+  const link = (
+    <Link
+      to="/folders/$folderId"
+      params={{ folderId }}
+      onClick={() =>
+        reportAction({ type: "folder.opened", folderId, smart: isSmartFolderId(folderId) })
+      }
+      onDoubleClick={onRename}
+      className={`${rowClassName} data-[state=open]:ring-2 data-[state=open]:ring-notes-accent/60`}
+    >
       {icon}
       <span className="flex-1 truncate">{label}</span>
       <span className="text-[12px] text-mac-text-secondary tabular-nums">{count ?? 0}</span>
     </Link>
+  );
+  if (!onRename) return link;
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>{link}</ContextMenuTrigger>
+      {/* Don't hand focus back to the row: the rename dialog takes it. */}
+      <ContextMenuContent className="min-w-44" onCloseAutoFocus={(event) => event.preventDefault()}>
+        <ContextMenuItem onSelect={onRename}>
+          <Pencil />
+          Rename Folder…
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
