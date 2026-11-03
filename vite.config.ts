@@ -8,20 +8,32 @@ import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 
 const config = defineConfig({
-  fmt: {},
+  fmt: {
+    ignorePatterns: ["src/routeTree.gen.ts", ".intent/**", ".claude/**", ".codex/**"],
+  },
   lint: {
+    ignorePatterns: ["src/routeTree.gen.ts", ".intent/**", ".claude/**", ".codex/**"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },
   },
   resolve: { tsconfigPaths: true },
-  plugins: lazyPlugins(() => [
-    devtools(),
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
-    tailwindcss(),
-    tanstackStart(),
-    viteReact(),
-  ]),
+  test: {
+    include: ["src/**/*.test.{ts,tsx}"],
+  },
+  plugins: lazyPlugins(() =>
+    // Unit tests only cover plain TypeScript; they don't need the app's build plugins
+    // (the Cloudflare plugin in particular can't run inside Vitest).
+    process.env.VITEST
+      ? []
+      : [
+          devtools(),
+          cloudflare({ viteEnvironment: { name: "ssr" } }),
+          tailwindcss(),
+          tanstackStart(),
+          viteReact(),
+        ],
+  ),
 });
 
 export default config;

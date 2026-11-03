@@ -12,6 +12,9 @@ export function getRouter() {
     routeTree,
     context,
     scrollRestoration: true,
+    // Scroll containers inside the fake app start at the top on each new page
+    // (back/forward still restores their position).
+    scrollToTopSelectors: ["[data-page-scroll]"],
     defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
   });
