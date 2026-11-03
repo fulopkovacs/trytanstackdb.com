@@ -15,8 +15,8 @@ import { logRequestEnd, logRequestStart } from "./request-log";
 export async function fakeFetch(url: string, init: RequestInit = {}): Promise<Response> {
   const method = (init.method ?? "GET").toUpperCase();
   const { pathname, search } = new URL(url, "https://notes.example");
-  const requestBody = typeof init.body === "string" ? JSON.parse(init.body) : undefined;
-  const logId = logRequestStart({ method, url: pathname + search, requestBody });
+  const body = parseJsonBody(init.body);
+  const logId = logRequestStart({ method, url: pathname + search, requestBody: body.value });
 
   try {
     await delay(getNetworkConfig().latencyMs, init.signal);
@@ -31,21 +31,35 @@ export async function fakeFetch(url: string, init: RequestInit = {}): Promise<Re
   }
 
   const injectedFailure = takeInjectedFailure();
-  const { status, body } = injectedFailure
+  const response = injectedFailure
     ? { status: 500, body: errorBody("injected_failure", "The server failed (on purpose).") }
-    : server.handle({ method, path: pathname, body: requestBody });
+    : !body.ok
+      ? { status: 400, body: errorBody("invalid_json", "The request body isn't valid JSON.") }
+      : server.handle({ method, path: pathname, body: body.value });
 
   logRequestEnd(logId, {
     state: "done",
-    status,
-    responseBody: body ?? null,
+    status: response.status,
+    responseBody: response.body ?? null,
     injectedFailure,
   });
 
-  return new Response(body === undefined ? null : JSON.stringify(body), {
-    status,
-    headers: body === undefined ? undefined : { "Content-Type": "application/json" },
+  return new Response(response.body === undefined ? null : JSON.stringify(response.body), {
+    status: response.status,
+    headers: response.body === undefined ? undefined : { "Content-Type": "application/json" },
   });
+}
+
+/** The request body as JSON; a body that isn't (`ok: false`) is logged as sent and gets a 400. */
+function parseJsonBody(body: RequestInit["body"]): { ok: boolean; value: unknown } {
+  if (body === undefined || body === null) return { ok: true, value: undefined };
+  // Only JSON strings are supported; anything else (FormData, Blob…) is a bad request.
+  if (typeof body !== "string") return { ok: false, value: Object.prototype.toString.call(body) };
+  try {
+    return { ok: true, value: JSON.parse(body) };
+  } catch {
+    return { ok: false, value: body };
+  }
 }
 
 let server = createFakeServer(createSeedData());

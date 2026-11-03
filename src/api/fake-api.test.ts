@@ -211,6 +211,17 @@ describe("request log", () => {
     });
   });
 
+  it("records malformed JSON and answers it with a 400", async () => {
+    const response = await fakeFetch("/api/notes", { method: "POST", body: "{broken" });
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: { code: "invalid_json", message: "The request body isn't valid JSON." },
+    });
+    expect(requestLogStore.get()).toMatchObject([
+      { method: "POST", url: "/api/notes", state: "done", status: 400, requestBody: "{broken" },
+    ]);
+  });
+
   it("marks injected failures", async () => {
     setNetworkConfig({ failNextRequest: true });
     await fakeFetch("/api/notes");
