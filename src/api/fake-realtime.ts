@@ -41,21 +41,37 @@ export function useStreamLog(): readonly StreamLogEntry[] {
   return useStore(streamLogStore);
 }
 
-/** Subscribes to every note. Returns a function that ends the subscription. */
+/**
+ * Subscribes to every note. Messages arrive in the order they were sent,
+ * like on one WebSocket: a message is never delivered before an earlier
+ * one, even if the delay changes in between. Returns a function that ends
+ * the subscription.
+ */
 export function subscribeToLiveNotes(onMessage: (message: LiveNotesMessage) => void): () => void {
   let active = true;
-  const timers = new Set<ReturnType<typeof setTimeout>>();
+  const queue: { message: LiveNotesMessage; dueAt: number }[] = [];
+  let timer: ReturnType<typeof setTimeout> | undefined;
 
   function deliver(message: LiveNotesMessage) {
-    const timer = setTimeout(() => {
-      timers.delete(timer);
-      if (!active) return;
+    const dueAt = Math.max(Date.now() + streamDelayMs, queue.at(-1)?.dueAt ?? 0);
+    queue.push({ message, dueAt });
+    if (queue.length === 1) scheduleNext();
+  }
+
+  function scheduleNext() {
+    const next = queue[0];
+    if (next) timer = setTimeout(flush, Math.max(0, next.dueAt - Date.now()));
+  }
+
+  function flush() {
+    while (active && queue[0] && queue[0].dueAt <= Date.now()) {
+      const { message } = queue.shift()!;
       streamLogStore.set((log) =>
         [...log, { id: nextLogId++, receivedAt: Date.now(), message }].slice(-50),
       );
       onMessage(message);
-    }, streamDelayMs);
-    timers.add(timer);
+    }
+    if (active) scheduleNext();
   }
 
   // Changes committed from now on follow the snapshot, in commit order.
@@ -65,6 +81,6 @@ export function subscribeToLiveNotes(onMessage: (message: LiveNotesMessage) => v
   return () => {
     active = false;
     unsubscribe();
-    for (const timer of timers) clearTimeout(timer);
+    clearTimeout(timer);
   };
 }

@@ -130,6 +130,46 @@ describe("simulated Neon Realtime collection", () => {
     await realtimeNotesCollection.preload();
     expect(realtimeNotesCollection.get("note-06")?.title).toBe("Never streamed");
   });
+
+  it("delivers transactions in commit order, even when the stream delay changes", async () => {
+    setStreamDelay(250);
+    const a = realtimeNotesCollection.update("note-07", (draft) => {
+      draft.title = "late stream A";
+    });
+    await vi.waitFor(() =>
+      expect(
+        requestLogStore
+          .get()
+          .some((entry) => entry.url === "/api/live/notes/note-07" && entry.state === "done"),
+      ).toBe(true),
+    );
+    const { txid: txidA } = requestLogStore
+      .get()
+      .filter((entry) => entry.url === "/api/live/notes/note-07")
+      .at(-1)!.responseBody as {
+      txid: string;
+    };
+    let deliveredWhenASettled: boolean | undefined;
+    const aSettled = a.when("settled").then(() => {
+      deliveredWhenASettled = streamDelivered(txidA);
+    });
+
+    setStreamDelay(0);
+    const b = realtimeNotesCollection.update("note-08", (draft) => {
+      draft.title = "quick stream B";
+    });
+    await Promise.all([aSettled, b.when("settled")]);
+
+    // A can't be confirmed before its own batch arrives.
+    expect(deliveredWhenASettled).toBe(true);
+    const order = streamLogStore
+      .get()
+      .flatMap(({ message }) => (message.type === "changes" ? [message.txid] : []));
+    const txidB = String(Number(txidA) + 1);
+    expect(order.indexOf(txidA)).toBeGreaterThanOrEqual(0);
+    expect(order.indexOf(txidA)).toBeLessThan(order.indexOf(txidB));
+    expect(realtimeNotesCollection.get("note-07")?.title).toBe("late stream A");
+  });
 });
 
 describe("txid tracker", () => {
