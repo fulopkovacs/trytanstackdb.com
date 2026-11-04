@@ -1,4 +1,4 @@
-import { createLiveQueryCollection } from "@tanstack/react-db";
+import { createLiveQueryCollection, createTransaction } from "@tanstack/react-db";
 import type { Context, InitialQueryBuilder, QueryBuilder } from "@tanstack/react-db";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
 
@@ -6,7 +6,14 @@ import { setNetworkConfig } from "@/api/network-config";
 
 import { accountCollection, foldersCollection, notesCollection } from "./collections";
 import { moveNote, renameFolder, setNotePinned } from "./mutations";
-import { noteCountQuery, noteCountsQuery, noteListQuery } from "./queries";
+import {
+  countWords,
+  editsPerDayQuery,
+  folderStatsQuery,
+  noteCountQuery,
+  noteCountsQuery,
+  noteListQuery,
+} from "./queries";
 
 beforeAll(async () => {
   setNetworkConfig({ latencyMs: 0 });
@@ -115,5 +122,44 @@ describe("optimistic changes", () => {
     await expect(tx.when("settled")).rejects.toMatchObject({ status: 409 });
     expect(foldersCollection.get("recipes")?.name).toBe("Recipes");
     expect(tx.state).toBe("failed");
+  });
+});
+
+describe("analytics", () => {
+  it("adds up notes and words per folder", async () => {
+    const perFolder = await liveQuery(folderStatsQuery);
+    const active = notesCollection.toArray.filter((note) => note.deletedAt === null);
+    const work = active.filter((note) => note.folderId === "work");
+    const row = perFolder.toArray.find((row) => row.folderId === "work");
+    expect(row).toMatchObject({
+      notes: work.length,
+      words: work.reduce((sum, note) => sum + countWords(note), 0),
+    });
+    expect(perFolder.toArray.reduce((sum, row) => sum + row.notes, 0)).toBe(active.length);
+  });
+
+  it("counts notes by the day they were last edited, newest first", async () => {
+    const perDay = await liveQuery(editsPerDayQuery);
+    const days = perDay.toArray.map((row) => row.day);
+    expect(days).toEqual([...days].sort().reverse());
+    const active = notesCollection.toArray.filter((note) => note.deletedAt === null);
+    expect(perDay.toArray.reduce((sum, row) => sum + row.notes, 0)).toBe(active.length);
+  });
+
+  it("updates the word count as a note changes", async () => {
+    const perFolder = await liveQuery(folderStatsQuery);
+    const note = notesCollection.toArray.find(
+      (note) => note.folderId === "recipes" && note.deletedAt === null,
+    )!;
+    const before = perFolder.toArray.find((row) => row.folderId === "recipes")!.words!;
+    // A transaction that's never committed: optimistic only, nothing is sent.
+    const tx = createTransaction({ autoCommit: false, mutationFn: async () => {} });
+    tx.mutate(() =>
+      notesCollection.update(note.id, (draft) => {
+        draft.body = `${draft.body} three more words`;
+      }),
+    );
+    expect(perFolder.toArray.find((row) => row.folderId === "recipes")!.words).toBe(before + 3);
+    tx.rollback();
   });
 });

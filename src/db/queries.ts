@@ -1,4 +1,14 @@
-import { and, count, eq, isNull, lower, not, useLiveQuery } from "@tanstack/react-db";
+import {
+  and,
+  count,
+  createLiveQueryCollection,
+  eq,
+  isNull,
+  lower,
+  not,
+  sum,
+  useLiveQuery,
+} from "@tanstack/react-db";
 import type { InitialQueryBuilder, Ref } from "@tanstack/react-db";
 import { useEffect, useSyncExternalStore } from "react";
 
@@ -165,6 +175,68 @@ export function useAccount(): Account | undefined {
     query: (q) => q.from({ account: accountCollection }).findOne(),
   });
   return account;
+}
+
+/* Analytics */
+
+/** Words in a note, title included. */
+export function countWords(note: Pick<Note, "title" | "body">): number {
+  return `${note.title} ${note.body}`.split(/\s+/).filter(Boolean).length;
+}
+
+/** The local calendar day of a timestamp, as `YYYY-MM-DD`. */
+export function localDay(timestamp: string): string {
+  const date = new Date(timestamp);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/**
+ * One row per note with the numbers the analytics page adds up. The query
+ * builder has no "count words" function, so `fn.select` runs plain
+ * JavaScript, once per note and again only when that note changes. A live
+ * query is a collection too, so the queries below group this one.
+ */
+export const noteStatsCollection = createLiveQueryCollection((q) =>
+  q
+    .from({ note: notesCollection })
+    .where(({ note }) => isNull(note.deletedAt))
+    .fn.select(({ note }) => ({
+      id: note.id,
+      folderId: note.folderId,
+      words: countWords(note),
+      lastEditedOn: localDay(note.updatedAt),
+    })),
+);
+
+/** Notes and words per folder (Recently Deleted not included). */
+export function folderStatsQuery(q: InitialQueryBuilder) {
+  return q
+    .from({ stats: noteStatsCollection })
+    .groupBy(({ stats }) => stats.folderId)
+    .select(({ stats }) => ({
+      folderId: stats.folderId,
+      notes: count(stats.id),
+      words: sum(stats.words),
+    }));
+}
+
+/** How many notes were last edited on each day, newest day first. */
+export function editsPerDayQuery(q: InitialQueryBuilder) {
+  return q
+    .from({ stats: noteStatsCollection })
+    .groupBy(({ stats }) => stats.lastEditedOn)
+    .select(({ stats }) => ({ day: stats.lastEditedOn, notes: count(stats.id) }))
+    .orderBy(({ $selected }) => $selected.day, "desc");
+}
+
+export function useFolderStats() {
+  return useLiveQuery({ query: folderStatsQuery }).data;
+}
+
+export function useEditsPerDay() {
+  return useLiveQuery({ query: editsPerDayQuery }).data;
 }
 
 /* Loading */
