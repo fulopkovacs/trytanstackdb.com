@@ -1,4 +1,6 @@
-import { localDay } from "@/db/queries";
+import { useMemo } from "react";
+
+import { localDay, useEditsPerDay, useFolderStats, useFolders } from "@/db/queries";
 import type { Folder } from "@/db/schema";
 
 /*
@@ -68,3 +70,24 @@ export function recentDayRows(
   const earlier = perDay.filter((row) => row.day < first).reduce((sum, row) => sum + row.notes, 0);
   return { rows, earlier };
 }
+
+/**
+ * The live analytics rows: notes and words per folder, and notes by day of
+ * last edit. Both come from `groupBy` live queries, so they change as you
+ * type.
+ */
+export function useAnalyticsRows() {
+  const folders = useFolders();
+  const perFolder = useFolderStats();
+  const perDay = useEditsPerDay();
+  const folderRows = useMemo(() => folderChartRows(folders, perFolder), [folders, perFolder]);
+  const days = useMemo(() => recentDayRows(perDay, localDay(new Date().toISOString())), [perDay]);
+  return { folderRows, days };
+}
+
+/** Chart heights, shared by the charts and their loading placeholders. */
+export function folderChartHeight(rowCount: number): number {
+  return rowCount * 30 + 12;
+}
+
+export const DAY_CHART_HEIGHT = 180;
