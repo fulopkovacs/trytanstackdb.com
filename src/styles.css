@@ -426,3 +426,14 @@
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/* Charts (TanStack Charts inherits `color`; bars use its palette tokens)      */
+/* -------------------------------------------------------------------------- */
+
+.analytics-chart {
+  /* A darker Notes yellow in light mode, so bars keep 3:1 contrast on white. */
+  --ts-chart-1: #b58900;
+}
+.dark .analytics-chart {
+  --ts-chart-1: var(--notes-accent);
+}
