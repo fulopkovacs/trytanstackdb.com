@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { isNull, useLiveQuery } from "@tanstack/react-db";
+import type { InitialQueryBuilder } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { Check, CircleDashed, LoaderCircle, X } from "lucide-react";
 import { useState } from "react";
@@ -10,11 +11,25 @@ import { Input } from "@/components/ui/input";
 import { useStreamLog } from "@/api/fake-realtime";
 import { useRequestLog } from "@/api/request-log";
 import { realtimeNotesCollection } from "@/db/realtime-notes";
+import { noteDisplayTitle } from "@/lib/notes/note-body";
 import { cn } from "@/lib/utils";
 
-const NOTE_ID = "note-01";
+/**
+ * The note the demo renames: the oldest one that isn't deleted. It's shared
+ * with the Notes app (same fake API), so it can be deleted there; then the
+ * demo moves on to the next one.
+ */
+export function demoNoteQuery(q: InitialQueryBuilder) {
+  return q
+    .from({ note: realtimeNotesCollection })
+    .where(({ note }) => isNull(note.deletedAt))
+    .orderBy(({ note }) => note.createdAt, "asc")
+    .orderBy(({ note }) => note.id, "asc")
+    .findOne();
+}
 
 interface Run {
+  noteId: string;
   tx: Transaction;
   startedAt: number;
   title: string;
@@ -28,13 +43,7 @@ interface Run {
  * hand-off to synced data.
  */
 export function RealtimeDemo() {
-  const { data: note } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ note: realtimeNotesCollection })
-        .where(({ note }) => eq(note.id, NOTE_ID))
-        .findOne(),
-  });
+  const { data: note, isReady } = useLiveQuery({ query: demoNoteQuery });
   const [run, setRun] = useState<Run | null>(null);
   const requests = useRequestLog();
   const stream = useStreamLog();
@@ -47,7 +56,13 @@ export function RealtimeDemo() {
       const tx = realtimeNotesCollection.update(note.id, (draft) => {
         draft.title = title;
       });
-      const started: Run = { tx, startedAt: Date.now(), title, outcome: "pending" };
+      const started: Run = {
+        noteId: note.id,
+        tx,
+        startedAt: Date.now(),
+        title,
+        outcome: "pending",
+      };
       setRun(started);
       formApi.reset();
       tx.when("settled").then(
@@ -74,7 +89,7 @@ export function RealtimeDemo() {
         .reverse()
         .find(
           (entry) =>
-            entry.url === `/api/live/notes/${NOTE_ID}` && entry.startedAt >= run.startedAt - 5,
+            entry.url === `/api/live/notes/${run.noteId}` && entry.startedAt >= run.startedAt - 5,
         )
     : undefined;
   const txid = (patch?.responseBody as { txid?: string } | null)?.txid;
@@ -90,12 +105,12 @@ export function RealtimeDemo() {
         {
           label: txid ? (
             <>
-              <code>PATCH /api/live/notes/{NOTE_ID}</code> answered{" "}
+              <code>PATCH /api/live/notes/{run.noteId}</code> answered{" "}
               <code>{`{ txid: "${txid}" }`}</code>
             </>
           ) : (
             <>
-              <code>onUpdate</code> sends <code>PATCH /api/live/notes/{NOTE_ID}</code>
+              <code>onUpdate</code> sends <code>PATCH /api/live/notes/{run.noteId}</code>
             </>
           ),
           state: txid ? "done" : failed ? "failed" : "active",
@@ -129,43 +144,53 @@ export function RealtimeDemo() {
         <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
           Simulation · not @neon/realtime-tanstack
         </p>
-        <p>
-          Note title:{" "}
-          <strong className={cn(run?.outcome === "pending" && "text-guide-accent")}>
-            {note?.title ?? "Loading…"}
-          </strong>
-          {run?.outcome === "pending" && (
-            <span className="ml-2 text-xs text-muted-foreground">(optimistic)</span>
-          )}
-        </p>
-        <form
-          className="flex gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void form.handleSubmit();
-          }}
-        >
-          <form.Field name="title">
-            {(field) => (
-              <>
-                <label htmlFor="realtime-demo-title" className="sr-only">
-                  New title
-                </label>
-                <Input
-                  id="realtime-demo-title"
-                  placeholder="New title"
-                  autoComplete="off"
-                  value={field.state.value}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                  className="bg-background"
-                />
-              </>
-            )}
-          </form.Field>
-          <Button type="submit" disabled={!note}>
-            Rename
-          </Button>
-        </form>
+        {!isReady ? (
+          <p className="text-muted-foreground" role="status">
+            Loading notes…
+          </p>
+        ) : !note ? (
+          <p className="text-muted-foreground" role="status">
+            There are no notes left to rename. Create a note in the Notes app, then come back here.
+          </p>
+        ) : (
+          <>
+            <p>
+              Note title:{" "}
+              <strong className={cn(run?.outcome === "pending" && "text-guide-accent")}>
+                {noteDisplayTitle(note.title)}
+              </strong>
+              {run?.outcome === "pending" && (
+                <span className="ml-2 text-xs text-muted-foreground">(optimistic)</span>
+              )}
+            </p>
+            <form
+              className="flex gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void form.handleSubmit();
+              }}
+            >
+              <form.Field name="title">
+                {(field) => (
+                  <>
+                    <label htmlFor="realtime-demo-title" className="sr-only">
+                      New title
+                    </label>
+                    <Input
+                      id="realtime-demo-title"
+                      placeholder="New title"
+                      autoComplete="off"
+                      value={field.state.value}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      className="bg-background"
+                    />
+                  </>
+                )}
+              </form.Field>
+              <Button type="submit">Rename</Button>
+            </form>
+          </>
+        )}
       </div>
       <ol className="my-0 list-none space-y-2 p-3 pl-3">
         {steps.length === 0 ? (
