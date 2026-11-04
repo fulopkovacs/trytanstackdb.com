@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { BrowserFrame } from "@/components/browser/browser-frame";
+import { useAppSheetView, useIsAppSheetOpen } from "@/components/app-sheet/app-sheet-store";
 import { GuidePanel } from "@/components/guide/guide-panel";
+import { useSectionHighlighting } from "@/components/guide/use-section-highlighting";
+import { useIsInspectorOpen } from "@/components/network/inspector-store";
 import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
@@ -33,6 +36,13 @@ export function Workspace({ app }: { app: ReactNode }) {
     return host;
   });
   const appSlot = <AppSlot host={appHost} />;
+
+  // The request inspector: a drawer under the app, or the sheet's Network view on phones.
+  const inspectorOpen = useIsInspectorOpen();
+  const sheetOpen = useIsAppSheetOpen();
+  const sheetView = useAppSheetView();
+  const inspectorShown = isSplit ? inspectorOpen : sheetOpen && sheetView === "network";
+  useSectionHighlighting(inspectorShown ? "inspector" : null);
 
   return (
     <>

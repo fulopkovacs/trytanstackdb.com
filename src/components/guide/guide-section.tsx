@@ -1,6 +1,5 @@
 import type { LinkOptions } from "@tanstack/react-router";
 import { Check } from "lucide-react";
-import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -21,15 +20,9 @@ interface GuideSectionProps {
 export function GuideSection({ id, eyebrow, title, tryIt, children }: GuideSectionProps) {
   const isActive = useActiveSection() === id;
   const isDone = useIsSectionDone(id);
-  const ref = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (isActive) ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [isActive]);
 
   return (
     <section
-      ref={ref}
       id={id}
       data-scroll-anchor
       data-active={isActive || undefined}

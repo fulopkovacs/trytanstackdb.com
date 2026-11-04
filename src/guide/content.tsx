@@ -1,7 +1,8 @@
 /**
  * The guide: one section per idea, each with something to do in the app.
- * Section ids are stable: phase 4 maps app state to them (`appStates`), and
- * the dev menu, the mobile header chip and section progress refer to them.
+ * Section ids are stable: the app's state maps to them (`appStates`, see
+ * `lib/app-state.ts`), and the dev menu, the mobile header chip and section
+ * progress refer to them.
  *
  * Code snippets come from `snippets.ts`, which quotes the app's own source.
  * Copy has to work in both layouts: the app beside the guide (wide screens)
@@ -28,8 +29,8 @@ export interface GuideSectionContent {
   /** Label for the active-section chip in the mobile header. Keep it short: it's never truncated. */
   shortTitle: string;
   /**
-   * The app states this section explains (phase 4 highlights the section
-   * when the app is in one of them). Empty when no app state matches it.
+   * The app states this section explains: the section lights up when the
+   * app is in one of them. Empty when no app state matches it.
    */
   appStates: AppState[];
   /**
@@ -183,6 +184,7 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
       { lastAction: { type: "note.deleted" } },
       { lastAction: { type: "note.restored" } },
       { lastAction: { type: "folder.renamed", status: "applied" } },
+      { lastAction: { type: "network.latency-set" } },
     ],
     tryIt: linkOptions({ to: "/folders/$folderId", params: { folderId: "work" } }),
     doneWhen: [{ type: "note.edited" }, { type: "folder.renamed", status: "confirmed" }],
@@ -234,7 +236,10 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
     eyebrow: "Step 4",
     title: "Rollbacks",
     shortTitle: "Rollbacks",
-    appStates: [{ lastAction: { status: "rolled-back" } }],
+    appStates: [
+      { lastAction: { status: "rolled-back" } },
+      { lastAction: { type: "network.fail-next-set", failNext: true } },
+    ],
     tryIt: linkOptions({ to: "/" }),
     doneWhen: [{ status: "rolled-back" }],
     content: (
@@ -272,7 +277,7 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
     eyebrow: "Step 5",
     title: "How collections sync",
     shortTitle: "Syncing",
-    appStates: [{ lastAction: { status: "confirmed" } }],
+    appStates: [{ lastAction: { status: "confirmed" } }, { panel: "inspector" }],
     content: (
       <>
         <p>

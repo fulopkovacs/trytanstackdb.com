@@ -14,8 +14,8 @@ import { TanStackDbMark } from "./tanstack-db-mark";
 /**
  * Compact header for the full-screen guide: the logo, a chip naming the
  * current section, and one theme button. The chip shows the active section
- * (phase 4: the one matching what you did in the app), otherwise the one
- * you're reading; tapping it scrolls there.
+ * (the one matching what you did in the app), otherwise the one you're
+ * reading; tapping it scrolls there.
  */
 export function MobileGuideHeader({ scrollRef }: { scrollRef: RefObject<HTMLElement | null> }) {
   const activeSectionId = useActiveSection();

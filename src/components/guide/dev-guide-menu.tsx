@@ -25,8 +25,9 @@ import {
 const NONE = "__none__";
 
 /**
- * Dev-only: drive the guide's state by hand until phase 4 wires it to the app.
- * Highlight any section, or mark sections done.
+ * Dev-only: drive the guide's state by hand. Highlight any section (the app
+ * moves the highlight again as soon as it matches another), or mark
+ * sections done.
  */
 export function DevGuideMenu() {
   const activeSectionId = useActiveSection();

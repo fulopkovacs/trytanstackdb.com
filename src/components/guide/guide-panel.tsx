@@ -5,12 +5,14 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { DevGuideMenu } from "./dev-guide-menu";
 import { GuideDocument } from "./guide-document";
 import { TanStackDbMark } from "./tanstack-db-mark";
+import { useFollowActiveSection } from "./use-follow-active-section";
 import { useReadingPosition } from "./use-reading-position";
 
 /** The guide as a framed panel next to the app (desktop). */
 export function GuidePanel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   useReadingPosition(scrollRef);
+  useFollowActiveSection(scrollRef);
 
   return (
     <div className="@container/guide flex h-full min-h-0 flex-col">

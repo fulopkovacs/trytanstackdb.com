@@ -1,8 +1,8 @@
 /**
  * Things the reader does in the Notes app, as typed events. The guide
  * listens to them: a section is marked done when its hands-on action happens
- * (see `doneWhen` in `guide/content.tsx`), and phase 4 highlights sections
- * from them.
+ * (see `doneWhen` in `guide/content.tsx`), and the section that matches the
+ * last one lights up (see `lib/app-state.ts`).
  *
  * Mutations report up to three times: `applied` when the optimistic change
  * shows up, then `confirmed` when the server accepted it or `rolled-back`
@@ -18,7 +18,9 @@ export type AppAction =
   | { type: "note.deleted"; noteId: string; permanently: boolean }
   | { type: "note.restored"; noteId: string }
   | { type: "folder.renamed"; folderId: string; name: string }
-  | { type: "account.updated" };
+  | { type: "account.updated" }
+  | { type: "network.latency-set"; latencyMs: number }
+  | { type: "network.fail-next-set"; failNext: boolean };
 
 export type AppActionType = AppAction["type"];
 

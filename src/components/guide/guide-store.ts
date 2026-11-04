@@ -4,8 +4,8 @@ import { useSyncExternalStore } from "react";
  * Guide state that lives outside React, so the app and the guide can both
  * reach it:
  *
- * - the "active" (highlighted) section. Phase 4 sets it from app state; for
- *   now it can be set from the dev menu in the guide header.
+ * - the "active" (highlighted) section, set from app state (see
+ *   `use-section-highlighting.ts`), or by hand from the dev menu.
  * - which sections the reader has done (did the section's hands-on step).
  *   `guide/section-progress.ts` marks a section done when the app reports
  *   the section's action (its `doneWhen` in `guide/content.tsx`).
