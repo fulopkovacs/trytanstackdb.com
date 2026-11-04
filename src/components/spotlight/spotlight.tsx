@@ -97,17 +97,27 @@ export function SpotlightOverlay() {
     if (!spotlight) return;
     const startedAt = performance.now();
     let frame = 0;
+    let lastTop = Number.NaN;
     const track = () => {
       const element = findSpotlightElement(spotlight.target);
       if (!element) {
         setBox(null);
         if (performance.now() - startedAt > FIND_TIMEOUT_MS) return dismissSpotlight();
       } else {
-        if (scrolledFor.current !== spotlight.id) {
-          scrolledFor.current = spotlight.id;
-          element.scrollIntoView({ block: "nearest", inline: "nearest" });
-        }
         const rect = element.getBoundingClientRect();
+        // Bring it on screen once, and only if none of it shows. Wait until
+        // it stops moving: the sheet may still be sliding up.
+        const settled = rect.top === lastTop;
+        lastTop = rect.top;
+        if (settled && scrolledFor.current !== spotlight.id) {
+          scrolledFor.current = spotlight.id;
+          const offScreen =
+            rect.bottom <= 0 ||
+            rect.top >= window.innerHeight ||
+            rect.right <= 0 ||
+            rect.left >= window.innerWidth;
+          if (offScreen) element.scrollIntoView({ block: "nearest", inline: "nearest" });
+        }
         // Clip to the viewport, so a long list's ring stays on screen.
         const top = Math.max(rect.top, 0) - PADDING;
         const bottom = Math.min(rect.bottom, window.innerHeight) + PADDING;
