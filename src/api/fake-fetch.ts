@@ -87,7 +87,7 @@ export function subscribeToNoteCommits(listener: (commit: NotesCommit) => void):
 }
 
 export function snapshotNotes() {
-  return server.notes();
+  return server.notesSnapshot();
 }
 
 function delay(ms: number, signal: AbortSignal | null | undefined): Promise<void> {

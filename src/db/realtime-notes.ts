@@ -3,6 +3,7 @@ import { createCollection } from "@tanstack/react-db";
 import { api } from "@/api/client";
 import { subscribeToLiveNotes } from "@/api/fake-realtime";
 
+import { inOrder, saveEach } from "./write-queue";
 import type { Note } from "./schema";
 
 /**
@@ -16,42 +17,83 @@ import type { Note } from "./schema";
  * The Notes app doesn't use this collection.
  */
 
-// #region await-txid
-/** Transaction ids the stream has delivered, and handlers waiting for one. */
-const arrivedTxids = new Set<string>();
-const txidWaiters = new Map<string, Set<() => void>>();
-
-function txidArrived(txid: string) {
-  arrivedTxids.add(txid);
-  for (const resolve of txidWaiters.get(txid) ?? []) resolve();
-  txidWaiters.delete(txid);
+// #region txid-tracker
+interface TxidWaiter {
+  txid: bigint;
+  resolve: (seen: true) => void;
+  reject: (error: Error) => void;
+  timer?: ReturnType<typeof setTimeout>;
 }
 
 /**
- * Resolves once the stream has delivered `txid`, like the package's
- * `collection.utils.awaitTxId(txid, timeout?)`. It also works when the
- * change arrived before the API's answer did.
+ * The transactions one sync run has seen, and the writes waiting for one.
+ * The stream delivers transactions in commit order, so "seen" is a single
+ * high-water mark: the last transaction id it delivered.
  */
-function awaitTxId(txid: string, timeout?: number): Promise<boolean> {
-  if (arrivedTxids.has(txid)) return Promise.resolve(true);
-  return new Promise((resolve, reject) => {
-    const waiters = txidWaiters.get(txid) ?? new Set();
-    txidWaiters.set(txid, waiters);
-    const timer =
-      timeout === undefined
-        ? undefined
-        : setTimeout(() => {
-            waiters.delete(done);
-            reject(new Error(`Timed out waiting for transaction ${txid}`));
+export function createTxidTracker() {
+  let seenUpTo = -1n;
+  const waiters = new Set<TxidWaiter>();
+
+  function settle(waiter: TxidWaiter) {
+    clearTimeout(waiter.timer);
+    waiters.delete(waiter);
+  }
+
+  return {
+    /** The stream has delivered everything up to and including `txid`. */
+    seen(txid: string) {
+      if (BigInt(txid) > seenUpTo) seenUpTo = BigInt(txid);
+      for (const waiter of waiters) {
+        if (waiter.txid > seenUpTo) continue;
+        settle(waiter);
+        waiter.resolve(true);
+      }
+    },
+
+    /** Resolves once `txid` has been delivered, even if it already was. */
+    wait(txid: string, timeout?: number): Promise<true> {
+      if (BigInt(txid) <= seenUpTo) return Promise.resolve(true);
+      return new Promise((resolve, reject) => {
+        const waiter: TxidWaiter = { txid: BigInt(txid), resolve, reject };
+        if (timeout !== undefined) {
+          waiter.timer = setTimeout(() => {
+            settle(waiter);
+            reject(new Error(`Timed out waiting for transaction ${txid}.`));
           }, timeout);
-    function done() {
-      clearTimeout(timer);
-      resolve(true);
-    }
-    waiters.add(done);
-  });
+        }
+        waiters.add(waiter);
+      });
+    },
+
+    /** Ends the run: every write still waiting fails. */
+    close(reason: Error) {
+      for (const waiter of waiters) {
+        settle(waiter);
+        waiter.reject(reason);
+      }
+    },
+
+    get waiting(): number {
+      return waiters.size;
+    },
+  };
 }
-// #endregion await-txid
+
+type TxidTracker = ReturnType<typeof createTxidTracker>;
+
+/** The running sync's tracker; there's none before sync starts or after cleanup. */
+let activeTracker: TxidTracker | undefined;
+
+/**
+ * Like the package's `collection.utils.awaitTxId(txid, timeout?)`: resolves
+ * once the stream has delivered `txid`, also when it arrived before the
+ * API's answer did. Rejects on timeout and when the collection is cleaned up.
+ */
+function awaitTxId(txid: string, timeout?: number): Promise<true> {
+  if (!activeTracker) return Promise.reject(new Error("The collection isn't syncing."));
+  return activeTracker.wait(txid, timeout);
+}
+// #endregion txid-tracker
 
 // #region realtime-notes-collection
 export const realtimeNotesCollection = createCollection<
@@ -66,8 +108,11 @@ export const realtimeNotesCollection = createCollection<
     // Each message carries whole rows.
     rowUpdateMode: "full",
     sync: ({ begin, write, commit, markReady }) => {
+      const tracker = createTxidTracker();
+      activeTracker = tracker;
       const keys = new Set<string>();
-      return subscribeToLiveNotes((message) => {
+
+      const unsubscribe = subscribeToLiveNotes((message) => {
         if (message.type === "rows") {
           // The query's complete result: replaces whatever was there.
           begin({ snapshot: true });
@@ -78,32 +123,41 @@ export const realtimeNotesCollection = createCollection<
           }
           void commit();
           markReady();
-          return;
-        }
-        // One committed database transaction: apply it as one sync transaction.
-        begin();
-        for (const change of message.changes) {
-          if (change.type === "delete") {
-            keys.delete(change.key);
-            write({ type: "delete", key: change.key });
-          } else {
-            write({ type: keys.has(change.row.id) ? "update" : "insert", value: change.row });
-            keys.add(change.row.id);
+        } else {
+          // One committed database transaction: apply it as one sync transaction.
+          begin();
+          for (const change of message.changes) {
+            if (change.type === "delete") {
+              keys.delete(change.key);
+              write({ type: "delete", key: change.key });
+            } else {
+              write({ type: keys.has(change.row.id) ? "update" : "insert", value: change.row });
+              keys.add(change.row.id);
+            }
           }
+          // Accepted now; it shows up together with the end of the optimistic
+          // state it confirms. So a write waiting for this txid can finish.
+          void commit();
         }
-        // Accepted now; it shows up together with the end of the optimistic
-        // state it confirms. So a handler waiting for this txid can return.
-        void commit();
-        txidArrived(message.txid);
+        tracker.seen(message.txid);
       });
+
+      return () => {
+        unsubscribe();
+        tracker.close(new Error("The collection was cleaned up."));
+        if (activeTracker === tracker) activeTracker = undefined;
+      };
     },
   },
-  onUpdate: async ({ transaction, collection }) => {
-    const { key, changes } = transaction.mutations[0];
-    // The API saves the change and answers with its transaction id…
-    const { txid } = await api.patch<{ txid: string }>(`/api/live/notes/${key}`, changes);
-    // …and the optimistic change stays on screen until the stream delivers it.
-    await collection.utils.awaitTxId(txid);
-  },
+  onUpdate: ({ transaction, collection }) =>
+    saveEach(transaction.mutations, ({ key, changes }) =>
+      // One save at a time per note, so an older change can't land last.
+      inOrder(`/api/live/notes/${key}`, async () => {
+        // The API saves the change and answers with its transaction id…
+        const { txid } = await api.patch<{ txid: string }>(`/api/live/notes/${key}`, changes);
+        // …and the optimistic change stays on screen until the stream delivers it.
+        await collection.utils.awaitTxId(txid);
+      }),
+    ),
 });
 // #endregion realtime-notes-collection

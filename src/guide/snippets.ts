@@ -58,7 +58,7 @@ export const SNIPPETS = {
   onDemandCollection: quote("src/db/on-demand-notes.ts", "on-demand-collection"),
   folderNotesQuery: quote("src/db/on-demand-notes.ts", "folder-notes-query"),
   realtimeNotesCollection: quote("src/db/realtime-notes.ts", "realtime-notes-collection"),
-  awaitTxId: quote("src/db/realtime-notes.ts", "await-txid"),
+  txidTracker: quote("src/db/realtime-notes.ts", "txid-tracker"),
   livePatchNote: quote("src/api/fake-server.ts", "live-patch-note"),
 } satisfies Record<string, SourceRegionSnippet>;
 

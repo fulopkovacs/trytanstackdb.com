@@ -8,13 +8,16 @@ import type { NoteRowChange } from "./fake-server";
  * SIMULATION of a Neon Realtime live query over the notes table, for the
  * Neon deep dive. Not the real protocol: like Neon's raw subscription, it
  * sends the query's complete result first, then one batch of row changes per
- * committed database transaction, tagged with that transaction's id. Here
+ * committed database transaction, tagged with that transaction's id, in
+ * commit order (so ids only go up). Here
  * the "database" is the fake API's in-memory server, and the "WebSocket" is
  * a timer.
  */
 
 export type LiveNotesMessage =
-  | { type: "rows"; rows: Note[] }
+  /** The complete result, as of transaction `txid`. */
+  | { type: "rows"; rows: Note[]; txid: string }
+  /** The rows one committed transaction changed. */
   | { type: "changes"; txid: string; changes: NoteRowChange[] };
 
 /** How long a message takes to arrive. Longer than the API's answer, so the wait is visible. */
@@ -57,7 +60,7 @@ export function subscribeToLiveNotes(onMessage: (message: LiveNotesMessage) => v
 
   // Changes committed from now on follow the snapshot, in commit order.
   const unsubscribe = subscribeToNoteCommits((commit) => deliver({ type: "changes", ...commit }));
-  deliver({ type: "rows", rows: snapshotNotes() });
+  deliver({ type: "rows", ...snapshotNotes() });
 
   return () => {
     active = false;

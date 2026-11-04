@@ -50,8 +50,8 @@ export interface ApiErrorBody {
 
 export interface FakeServer {
   handle: (request: ServerRequest) => ServerResponse;
-  /** Every note, as stored now (copies). */
-  notes: () => Note[];
+  /** Every note as stored now (copies), and the last transaction they include. */
+  notesSnapshot: () => { rows: Note[]; txid: string };
 }
 
 /** A committed write to the notes table: its transaction id and the rows it changed. */
@@ -240,7 +240,7 @@ export function createFakeServer(
   ];
 
   return {
-    notes: () => structuredClone([...notes.values()]),
+    notesSnapshot: () => ({ rows: structuredClone([...notes.values()]), txid: String(lastTxid) }),
     handle({ method, path, body, query = new URLSearchParams() }) {
       try {
         const matches = routes

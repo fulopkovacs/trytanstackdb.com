@@ -97,16 +97,20 @@ function NeonRealtimePage() {
       <p>
         The stand-in collection applies the stream's rows as synced data with <code>begin</code>,{" "}
         <code>write</code> and <code>commit</code>. Its <code>onUpdate</code> handler has the same
-        shape as the README's: send the change, then wait for its txid.
+        shape as the README's: send the change, then wait for its txid. Like the Notes app's
+        collections, it saves one change per note at a time, so an older rename can't land after a
+        newer one.
       </p>
       <SourceSnippet snippet={SNIPPETS.realtimeNotesCollection} />
       <p>
         A stream batch is accepted as soon as it's committed. While the handler's transaction is
         still running, TanStack DB holds the batch back and shows it together with dropping the
         optimistic copy, so the title never flickers. That's why the handler can stop waiting once
-        the batch is committed. Waiting for a txid is a small piece of bookkeeping:
+        the batch is committed. The waiting is a little bookkeeping that belongs to one sync run.
+        Batches arrive in commit order, so it only keeps the last txid it saw, and cleaning up the
+        collection fails every write that's still waiting:
       </p>
-      <SourceSnippet snippet={SNIPPETS.awaitTxId} />
+      <SourceSnippet snippet={SNIPPETS.txidTracker} />
       <p>
         This collection is only used on this page. The rename is saved on the same fake API as the
         Notes app; the app's own notes collection sees it the next time it loads notes.
