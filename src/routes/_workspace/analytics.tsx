@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AnalyticsTables } from "@/components/notes/analytics-tables";
+import { AnalyticsCharts } from "@/components/notes/analytics-charts";
 import { IosPageScreen } from "@/components/notes/ios/page-screen";
 import { MacPagePane } from "@/components/notes/mac/page-pane";
 import { ByLayout } from "@/components/notes/notes-layout";
@@ -14,12 +14,12 @@ function AnalyticsPage() {
     <ByLayout
       mac={
         <MacPagePane title="Analytics">
-          <AnalyticsTables variant="mac" />
+          <AnalyticsCharts variant="mac" />
         </MacPagePane>
       }
       ios={
         <IosPageScreen title="Analytics">
-          <AnalyticsTables variant="ios" />
+          <AnalyticsCharts variant="ios" />
         </IosPageScreen>
       }
     />

@@ -181,12 +181,47 @@ describe("latency and failure injection", () => {
     expect((await api.get<{ name: string }>("/api/folders/work")).name).toBe("Work");
   });
 
+  it("fails the next request sent, not one already in flight", async () => {
+    vi.useFakeTimers();
+    setNetworkConfig({ latencyMs: 5000 });
+    const inFlight = fakeFetch("/api/folders/work", { method: "PATCH", ...json({ name: "Job" }) });
+    await vi.advanceTimersByTimeAsync(1000);
+    // Turned on while the PATCH is pending: it doesn't apply to it.
+    setNetworkConfig({ failNextRequest: true });
+    await vi.advanceTimersByTimeAsync(4000);
+    expect((await inFlight).status).toBe(200);
+    expect(getNetworkConfig().failNextRequest).toBe(true);
+
+    // The next request sent takes it, and still fails only after the latency.
+    let settled = false;
+    const next = fakeFetch("/api/account").then((response) => {
+      settled = true;
+      return response;
+    });
+    expect(getNetworkConfig().failNextRequest).toBe(false);
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    expect((await next).status).toBe(500);
+    expect(requestLogStore.get().at(-1)).toMatchObject({ status: 500, injectedFailure: true });
+  });
+
   it("fails a share of requests at random", () => {
     setNetworkConfig({ failureRate: 0.25 });
     expect(takeInjectedFailure(() => 0.1)).toBe(true);
     expect(takeInjectedFailure(() => 0.9)).toBe(false);
     setNetworkConfig({ failureRate: 0 });
     expect(takeInjectedFailure(() => 0)).toBe(false);
+  });
+
+  it("keeps fail next armed when the request that took it is aborted", async () => {
+    setNetworkConfig({ latencyMs: 1000, failNextRequest: true });
+    const controller = new AbortController();
+    const request = fakeFetch("/api/notes", { signal: controller.signal });
+    expect(getNetworkConfig().failNextRequest).toBe(false);
+    controller.abort();
+    await expect(request).rejects.toBeDefined();
+    expect(getNetworkConfig().failNextRequest).toBe(true);
   });
 
   it("can be aborted while waiting", async () => {

@@ -10,17 +10,20 @@ interface BrowserFrameProps {
   title: string;
   /** Path part of the fake URL, e.g. `/folders/work`. */
   path: string;
-  /** Reserved for latency and failure controls (phase 4). */
+  /** Latency and failure controls, at the end of the toolbar. */
   controls?: ReactNode;
+  /** A panel under the page, like the request inspector. */
+  drawer?: ReactNode;
   children: ReactNode;
 }
 
-export function BrowserFrame({ title, path, controls, children }: BrowserFrameProps) {
+export function BrowserFrame({ title, path, controls, drawer, children }: BrowserFrameProps) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-browser-frame">
       <TabStrip title={title} />
       <Toolbar path={path} controls={controls} />
       <div className="relative min-h-0 flex-1 overflow-hidden">{children}</div>
+      {drawer}
     </div>
   );
 }
@@ -47,7 +50,7 @@ function Toolbar({ path, controls }: { path: string; controls?: ReactNode }) {
   const { canGoBack, canGoForward, back, forward, reload } = useBrowserHistory();
 
   return (
-    <div className="flex h-11 shrink-0 items-center gap-1 border-b bg-browser-toolbar px-2">
+    <div className="@container/toolbar flex h-11 shrink-0 items-center gap-1 border-b bg-browser-toolbar px-2">
       <ToolbarButton label="Back" onClick={back} disabled={!canGoBack}>
         <ArrowLeft />
       </ToolbarButton>
@@ -58,7 +61,7 @@ function Toolbar({ path, controls }: { path: string; controls?: ReactNode }) {
         <RotateCw />
       </ToolbarButton>
       <AddressBar path={path} />
-      <div data-slot="browser-controls" className="flex min-w-0 items-center gap-1 empty:hidden">
+      <div data-slot="browser-controls" className="flex shrink-0 items-center gap-1.5 empty:hidden">
         {controls}
       </div>
     </div>

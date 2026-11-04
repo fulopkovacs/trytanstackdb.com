@@ -11,6 +11,7 @@ import {
 import { GuideDocument } from "@/components/guide/guide-document";
 import { MobileGuideHeader } from "@/components/guide/mobile-guide-header";
 import { TryItProvider } from "@/components/guide/try-it";
+import { useFollowActiveSection } from "@/components/guide/use-follow-active-section";
 import { useReadingPosition } from "@/components/guide/use-reading-position";
 import { captureScrollAnchor, restoreScrollAnchor } from "@/lib/scroll-anchor";
 import { setRecordSheetState } from "@/lib/sheet-aware-history";
@@ -49,6 +50,10 @@ export function MobileWorkspace({ appSlot }: { appSlot: ReactNode }) {
       savedScroll.current = null;
     }
   }, [open]);
+
+  // The highlighted section can change while the sheet covers the guide: it
+  // lights up now, and the guide scrolls to it once the sheet closes.
+  useFollowActiveSection(scrollRef, open);
 
   // Where the app was, so the next "Try it" for this screen picks up there.
   useEffect(() => {

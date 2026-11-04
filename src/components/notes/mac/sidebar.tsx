@@ -50,7 +50,10 @@ export function MacSidebar() {
         <SidebarToggle />
       </MacColumnHeader>
 
-      <div className="notes-scroll min-h-0 flex-1 overflow-y-auto px-2.5 pb-3">
+      <div
+        data-spotlight="folder-counts"
+        className="notes-scroll min-h-0 flex-1 overflow-y-auto px-2.5 pb-3"
+      >
         {quickNotes && (
           <SidebarLink
             folderId={quickNotes.id}

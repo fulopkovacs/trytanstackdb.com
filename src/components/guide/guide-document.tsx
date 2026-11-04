@@ -11,8 +11,8 @@ export function GuideDocument() {
           Learn TanStack DB by poking at a notes app
         </h1>
         <p className="mt-3 text-[15px] leading-7 text-foreground/75">
-          Read a section, then do what it says in the app. Every snippet is quoted from the app's
-          own source.
+          Read a section, then do what it says in the app. The section that matches what you're
+          doing in the app lights up, and every snippet is quoted from the app's own source.
         </p>
       </header>
       {GUIDE_SECTIONS.map((section) => (

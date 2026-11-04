@@ -2,11 +2,12 @@ import { Gauge } from "lucide-react";
 import { useId } from "react";
 import type { ReactNode } from "react";
 
+import { clearRequestLog, useRequestLog } from "@/api/request-log";
 import {
-  ComingSoonBadge,
   FailNextRequestControl,
   LatencyControl,
   RequestLog,
+  usePendingRequestCount,
 } from "@/components/network/network-controls";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,7 @@ export function AppSheet({ app }: { app: ReactNode }) {
           >
             <Gauge className="size-4" aria-hidden />
             Network
+            <PendingBadge />
           </button>
           <button
             type="button"
@@ -73,7 +75,19 @@ export function AppSheet({ app }: { app: ReactNode }) {
   );
 }
 
+function PendingBadge() {
+  const pending = usePendingRequestCount();
+  if (pending === 0) return null;
+  return (
+    <span className="grid h-4 min-w-4 place-items-center rounded-full bg-guide-accent px-1 text-[10px] font-semibold text-white tabular-nums">
+      {pending}
+      <span className="sr-only"> pending</span>
+    </span>
+  );
+}
+
 function NetworkPanel({ id, open }: { id: string; open: boolean }) {
+  const count = useRequestLog().length;
   return (
     <section
       id={id}
@@ -87,30 +101,38 @@ function NetworkPanel({ id, open }: { id: string; open: boolean }) {
       )}
     >
       <div className="space-y-5 px-4 pt-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-        <header className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-base font-semibold">Network</h2>
-            <p className="mt-0.5 text-[13px] leading-snug text-muted-foreground">
-              Slow the fake API down or make it fail, and watch every request the app makes.
-            </p>
-          </div>
-          <ComingSoonBadge />
+        <header>
+          <h2 className="text-base font-semibold">Network</h2>
+          <p className="mt-0.5 text-[13px] leading-snug text-muted-foreground">
+            Slow the fake API down or make it fail, and watch every request the app makes.
+          </p>
         </header>
 
-        <div className="space-y-2">
-          <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Latency
-          </h3>
-          <LatencyControl className="w-full" />
+        <div data-spotlight="network-controls" className="space-y-3">
+          <div className="space-y-2">
+            <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              Latency
+            </h3>
+            <LatencyControl className="w-full" size="default" />
+          </div>
+          <FailNextRequestControl className="rounded-xl border px-3 py-2.5" />
         </div>
 
-        <FailNextRequestControl className="rounded-xl border px-3 py-2.5" />
-
-        <div className="space-y-2">
-          <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Requests
-          </h3>
-          <RequestLog className="rounded-xl border" />
+        <div data-spotlight="request-inspector" className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              Requests
+            </h3>
+            <button
+              type="button"
+              onClick={clearRequestLog}
+              disabled={count === 0}
+              className="text-[13px] font-medium text-guide-accent disabled:opacity-40"
+            >
+              Clear
+            </button>
+          </div>
+          <RequestLog className="overflow-hidden rounded-xl border" />
         </div>
       </div>
     </section>

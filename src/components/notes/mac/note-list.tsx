@@ -30,6 +30,7 @@ export function MacNoteList({ folderId }: { folderId: string }) {
   return (
     <section
       aria-label="Notes"
+      data-spotlight="note-list"
       className="flex w-[216px] shrink-0 flex-col border-r border-mac-column-border bg-mac-content"
     >
       <MacColumnHeader>

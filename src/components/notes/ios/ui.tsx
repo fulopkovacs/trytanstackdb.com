@@ -207,9 +207,15 @@ export function SectionHeader({
 }
 
 /** A rounded, inset grouped list card. */
-export function InsetCard({ className, children }: { className?: string; children: ReactNode }) {
+export function InsetCard({
+  className,
+  children,
+  ...props
+}: { className?: string; children: ReactNode } & { "data-spotlight"?: string }) {
   return (
-    <ul className={cn("overflow-hidden rounded-[26px] bg-ios-card", className)}>{children}</ul>
+    <ul className={cn("overflow-hidden rounded-[26px] bg-ios-card", className)} {...props}>
+      {children}
+    </ul>
   );
 }
 

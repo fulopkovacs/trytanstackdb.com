@@ -4,8 +4,8 @@ import { getNetworkConfig, setNetworkConfig } from "./network-config";
 import { clearRequestLog, requestLogStore } from "./request-log";
 
 /**
- * Dev only: the fake API's knobs on `window.__fakeApi`, until phase 4 puts
- * them in the browser toolbar.
+ * Dev only: the fake API's knobs on `window.__fakeApi`, for scripts and
+ * debugging (readers use the browser toolbar's controls).
  *
  *   __fakeApi.setNetworkConfig({ latencyMs: 2000 })
  *   __fakeApi.setNetworkConfig({ failNextRequest: true })

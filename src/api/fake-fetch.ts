@@ -2,13 +2,16 @@ import { createSeedData } from "@/fixtures";
 import type { SeedData } from "@/fixtures";
 
 import { createFakeServer, errorBody } from "./fake-server";
-import { getNetworkConfig, takeInjectedFailure } from "./network-config";
+import { getNetworkConfig, setNetworkConfig, takeInjectedFailure } from "./network-config";
 import { logRequestEnd, logRequestStart } from "./request-log";
 
 /**
  * `fetch`, but the "network" is a function call into the in-memory server.
  * Every request waits for the configured latency, may fail on purpose, and
- * is recorded in the request log. The app only ever talks to the API
+ * is recorded in the request log. Whether it fails on purpose is decided
+ * when it's sent: turning on "fail next request" doesn't touch a request
+ * that's already in flight, and the one it does catch still takes the
+ * latency to fail. The app only ever talks to the API
  * through this, so swapping it for `window.fetch` would be the only change
  * needed against a real backend.
  */
@@ -16,11 +19,20 @@ export async function fakeFetch(url: string, init: RequestInit = {}): Promise<Re
   const method = (init.method ?? "GET").toUpperCase();
   const { pathname, search, searchParams } = new URL(url, "https://notes.example");
   const body = parseJsonBody(init.body);
-  const logId = logRequestStart({ method, url: pathname + search, requestBody: body.value });
+  const { latencyMs, failNextRequest } = getNetworkConfig();
+  const injectedFailure = takeInjectedFailure();
+  const logId = logRequestStart({
+    method,
+    url: pathname + search,
+    requestBody: body.value,
+    latencyMs,
+  });
 
   try {
-    await delay(getNetworkConfig().latencyMs, init.signal);
+    await delay(latencyMs, init.signal);
   } catch (error) {
+    // Never answered: "fail next request" is still waiting for a request to fail.
+    if (injectedFailure && failNextRequest) setNetworkConfig({ failNextRequest: true });
     logRequestEnd(logId, {
       state: "aborted",
       status: null,
@@ -30,7 +42,6 @@ export async function fakeFetch(url: string, init: RequestInit = {}): Promise<Re
     throw error;
   }
 
-  const injectedFailure = takeInjectedFailure();
   const response = injectedFailure
     ? { status: 500, body: errorBody("injected_failure", "The server failed (on purpose).") }
     : !body.ok

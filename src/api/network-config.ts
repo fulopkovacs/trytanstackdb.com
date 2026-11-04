@@ -1,14 +1,14 @@
 import { createStore, useStore } from "@/lib/store";
 
 /**
- * How the fake network behaves. Phase 4 binds the browser toolbar's latency
- * and failure controls to this store; for now, change it from the console in
- * dev: `__fakeApi.setNetworkConfig({ latencyMs: 2000 })`.
+ * How the fake network behaves. The browser toolbar's latency and failure
+ * controls (the app sheet's Network view on phones) write to this store; in
+ * dev it's also on the console: `__fakeApi.setNetworkConfig({ latencyMs: 2000 })`.
  */
 export interface NetworkConfig {
   /** How long every request takes, in milliseconds. */
   latencyMs: number;
-  /** Fail the next request with a 500, then switch back off. */
+  /** Fail the next request sent with a 500, then switch back off. Requests already in flight aren't affected. */
   failNextRequest: boolean;
   /** Share of requests (0 to 1) that fail at random. */
   failureRate: number;

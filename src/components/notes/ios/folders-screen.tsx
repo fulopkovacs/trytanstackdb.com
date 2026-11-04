@@ -3,6 +3,7 @@ import { ChartColumn, Folder, FolderPlus, Pencil, Trash } from "lucide-react";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
+import { useRevealForSpotlight } from "@/components/spotlight/spotlight-reveal";
 import { useAccount, useFolders, useNoteCounts } from "@/db/queries";
 import type { Folder as FolderRecord } from "@/db/schema";
 import { reportAction } from "@/lib/app-actions";
@@ -29,6 +30,7 @@ export function IosFoldersScreen() {
   const counts = useNoteCounts();
   const account = useAccount();
   const [iCloudOpen, setICloudOpen] = useState(true);
+  useRevealForSpotlight("folder-counts", () => setICloudOpen(true));
   const [editing, setEditing] = useState(false);
   const [renaming, setRenaming] = useState<FolderRecord | null>(null);
   const composeNote = useComposeNote();
@@ -84,7 +86,7 @@ export function IosFoldersScreen() {
         iCloud
       </SectionHeader>
       {iCloudOpen && (
-        <InsetCard>
+        <InsetCard data-spotlight="folder-counts">
           <InsetRow first separatorInset={58}>
             <FolderRow folderId="all" icon={<FolderGlyph />} name="All iCloud" count={counts.all} />
           </InsetRow>

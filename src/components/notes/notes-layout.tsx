@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
+import { useRevealForSpotlight } from "@/components/spotlight/spotlight-reveal";
 import { useElementWidth } from "@/hooks/use-element-width";
 
 /**
@@ -39,6 +40,8 @@ export function NotesLayoutProvider({ children }: { children: ReactNode }) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const fixedLayout = useContext(FixedLayoutContext);
+  // The guide's "Show me the folder counts" brings the sidebar back.
+  useRevealForSpotlight("folder-counts", () => setSidebarVisible(true));
 
   const value = useMemo<NotesLayoutContextValue | null>(
     () =>

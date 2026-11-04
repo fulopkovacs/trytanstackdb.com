@@ -12,8 +12,7 @@ import { isOnScreen } from "@/lib/app-screen";
  *
  * - which view the sheet shows: the app, or the latency controls and request
  *   inspector over it,
- * - the guide section it was last opened from (phase 4 watches for that
- *   section's action),
+ * - the guide section it was last opened from,
  * - where the app was when the sheet last closed, so "Try it" can pick up
  *   there instead of starting over.
  */
@@ -99,4 +98,30 @@ export function useCloseAppSheet() {
       });
     }
   }, [router]);
+}
+
+/**
+ * Shows something in the app sheet, for the guide's "show me" buttons: opens
+ * the sheet if it's closed, on `target` (or wherever the app is, if `null`),
+ * with `view` on top.
+ */
+export function useShowInAppSheet() {
+  const router = useRouter();
+  return useCallback(
+    (target: LinkOptions | null, view: AppSheetView) => {
+      const { location } = router.history;
+      const alreadyOpen = isSheetOpen(location.state, router.state.location.pathname);
+      update({ ...state, view });
+      if (alreadyOpen) {
+        // Links inside the open sheet keep it open.
+        if (target) void router.navigate(target);
+        return;
+      }
+      void router.navigate({
+        ...(target ?? { href: location.href }),
+        state: (previous) => ({ ...previous, ...openSheetState(location.state.__TSR_index) }),
+      });
+    },
+    [router],
+  );
 }

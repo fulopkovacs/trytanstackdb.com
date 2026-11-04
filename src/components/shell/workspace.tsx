@@ -4,7 +4,11 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { BrowserFrame } from "@/components/browser/browser-frame";
+import { NetworkToolbarControls } from "@/components/browser/network-toolbar";
 import { GuidePanel } from "@/components/guide/guide-panel";
+import { useWorkspaceSectionHighlighting } from "@/components/guide/use-section-highlighting";
+import { RequestInspectorDrawer } from "@/components/network/request-inspector";
+import { SpotlightOverlay } from "@/components/spotlight/spotlight";
 import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
@@ -33,10 +37,12 @@ export function Workspace({ app }: { app: ReactNode }) {
     return host;
   });
   const appSlot = <AppSlot host={appHost} />;
+  useWorkspaceSectionHighlighting(isSplit);
 
   return (
     <>
       {isSplit ? <SplitWorkspace appSlot={appSlot} /> : <MobileWorkspace appSlot={appSlot} />}
+      <SpotlightOverlay />
       {createPortal(
         <FixedNotesLayout layout={isSplit ? null : "ios"}>{app}</FixedNotesLayout>,
         appHost,
@@ -68,7 +74,12 @@ function SplitWorkspace({ appSlot }: { appSlot: ReactNode }) {
         <GapHandle />
         <ResizablePanel id="app" defaultSize={isWide ? "66%" : "58%"} minSize={isWide ? 720 : 360}>
           <Frame>
-            <BrowserFrame title={title} path={path}>
+            <BrowserFrame
+              title={title}
+              path={path}
+              controls={<NetworkToolbarControls />}
+              drawer={<RequestInspectorDrawer />}
+            >
               {appSlot}
             </BrowserFrame>
           </Frame>

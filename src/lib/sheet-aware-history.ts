@@ -22,10 +22,12 @@ export function isRecordingSheetState(): boolean {
  * Browser history where every new entry records whether the app sheet is
  * open, inheriting it from the current entry unless the navigation says
  * otherwise. Links inside the app don't need to know the sheet exists.
- * See `app-sheet-history.ts` for the whole contract.
+ * See `app-sheet-history.ts` for the whole contract. Tests pass a memory
+ * history as `history`.
  */
-export function createSheetAwareHistory(): RouterHistory {
-  const history = createBrowserHistory();
+export function createSheetAwareHistory(
+  history: RouterHistory = createBrowserHistory(),
+): RouterHistory {
   const { push, replace } = history;
   const withState = (state: object | undefined) =>
     recordSheetState ? withSheetState(history.location, state) : state;

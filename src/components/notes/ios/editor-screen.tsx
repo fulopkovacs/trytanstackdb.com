@@ -102,6 +102,7 @@ export function IosEditorScreen({ folderId, note }: { folderId: string; note: No
       }
     >
       <div
+        data-spotlight={note ? "editor" : undefined}
         className="px-2 pt-1"
         onFocus={() => setEditing(true)}
         onBlur={(event) => {
