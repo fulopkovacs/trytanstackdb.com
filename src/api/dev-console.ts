@@ -1,3 +1,5 @@
+import { setEditorSaveDelay } from "@/lib/dev-config";
+
 import { getNetworkConfig, setNetworkConfig } from "./network-config";
 import { clearRequestLog, requestLogStore } from "./request-log";
 
@@ -10,7 +12,8 @@ import { clearRequestLog, requestLogStore } from "./request-log";
  *   console.table(__fakeApi.requests())
  *
  * For scripted browsers that can't run JS, the page URL can set them too,
- * once on load: `?latency=3000` (ms) and `?failNext=1`, also on deep links
+ * once on load: `?latency=3000` (ms), `?failNext=1` and `?saveDelay=4000`
+ * (the editor's wait before saving, in ms), also on deep links
  * like `/folders/work/notes/note-07?latency=3000`.
  */
 export function exposeFakeApiOnWindow() {
@@ -37,4 +40,8 @@ if (import.meta.env.DEV && typeof window !== "undefined") {
     setNetworkConfig({ latencyMs: latency });
   }
   if (params.get("failNext") === "1") setNetworkConfig({ failNextRequest: true });
+  const saveDelay = Number(params.get("saveDelay"));
+  if (params.has("saveDelay") && Number.isFinite(saveDelay) && saveDelay >= 0) {
+    setEditorSaveDelay(saveDelay);
+  }
 }

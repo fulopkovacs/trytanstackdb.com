@@ -2,6 +2,7 @@ import { createPacedMutations, debounceStrategy, safeRandomUUID } from "@tanstac
 
 import { reportMutation } from "@/lib/app-actions";
 import type { AppAction } from "@/lib/app-actions";
+import { editorSaveDelayMs } from "@/lib/dev-config";
 
 import {
   accountCollection,
@@ -64,7 +65,7 @@ const noteChanges = pacedPerRecord((noteId) =>
       });
     },
     mutationFn: ({ transaction }) => saveNoteUpdates(transaction),
-    strategy: debounceStrategy({ wait: 500 }),
+    strategy: debounceStrategy({ wait: editorSaveDelayMs }),
   }),
 );
 
