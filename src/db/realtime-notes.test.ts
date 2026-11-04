@@ -212,6 +212,24 @@ describe("simulated Neon Realtime collection", () => {
     expect(order.indexOf(txidA)).toBeLessThan(order.indexOf(txidB));
     expect(realtimeNotesCollection.get("note-07")?.title).toBe("late stream A");
   });
+  it("leaves no unhandled rejection when cleaned up right after a change", async () => {
+    const unhandled: unknown[] = [];
+    const onUnhandled = (reason: unknown) => unhandled.push(reason);
+    process.on("unhandledRejection", onUnhandled);
+    try {
+      const tx = realtimeNotesCollection.update("note-10", (draft) => {
+        draft.title = "Cleaned up at once";
+      });
+      const settled = tx.when("settled").catch((error: unknown) => error);
+      await realtimeNotesCollection.cleanup();
+      expect(await settled).toBeInstanceOf(Error);
+      await sleep(20);
+      expect(unhandled).toEqual([]);
+    } finally {
+      process.off("unhandledRejection", onUnhandled);
+      await realtimeNotesCollection.preload();
+    }
+  });
 });
 
 describe("sync run", () => {
@@ -243,5 +261,12 @@ describe("sync run", () => {
     // The timeout's timer was cleared too.
     expect(vi.getTimerCount()).toBe(0);
     vi.useRealTimers();
+  });
+  it("doesn't start a request once the run has ended", async () => {
+    const run = createSyncRun();
+    run.close(new Error("cleaned up"));
+    const start = vi.fn(() => Promise.resolve("never"));
+    await expect(run.during(start)).rejects.toThrow("cleaned up");
+    expect(start).not.toHaveBeenCalled();
   });
 });

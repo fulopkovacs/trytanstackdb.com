@@ -73,12 +73,15 @@ export function createSyncRun() {
       });
     },
 
-    /** Settles like `promise`, unless the run ends first: then it fails. */
-    during<T>(promise: Promise<T>): Promise<T> {
+    /**
+     * Starts `request` if the run is still going, and settles like it,
+     * unless the run ends first: then it fails.
+     */
+    during<T>(request: () => Promise<T>): Promise<T> {
       if (signal.aborted) return Promise.reject(signal.reason);
       return new Promise((resolve, reject) => {
         signal.addEventListener("abort", () => reject(signal.reason), { once: true });
-        promise.then(resolve, reject);
+        request().then(resolve, reject);
       });
     },
 
@@ -175,7 +178,7 @@ export const realtimeNotesCollection = createCollection<
       // One save at a time per note, so an older change can't land last.
       inOrder(`/api/live/notes/${key}`, async () => {
         // The API saves the change and answers with its transaction id…
-        const { txid } = await run.during(
+        const { txid } = await run.during(() =>
           api.patch<{ txid: string }>(`/api/live/notes/${key}`, changes, { signal: run.signal }),
         );
         // …and the optimistic change stays on screen until the stream delivers it.
