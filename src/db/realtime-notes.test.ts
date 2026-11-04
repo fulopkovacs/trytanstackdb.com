@@ -6,7 +6,7 @@ import { setNetworkConfig } from "@/api/network-config";
 import { requestLogStore } from "@/api/request-log";
 import type { Note } from "@/db/schema";
 
-import { createTxidTracker, realtimeNotesCollection } from "./realtime-notes";
+import { createSyncRun, realtimeNotesCollection } from "./realtime-notes";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -130,6 +130,48 @@ describe("simulated Neon Realtime collection", () => {
     await realtimeNotesCollection.preload();
     expect(realtimeNotesCollection.get("note-06")?.title).toBe("Never streamed");
   });
+  it("abandons a write when its sync run is cleaned up, without blocking the next one", async () => {
+    // The server commits rename A, but its answer is held back.
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    let hold = true;
+    const patch = api.patch;
+    const spy = vi.spyOn(api, "patch").mockImplementation((async (
+      ...args: Parameters<typeof api.patch>
+    ) => {
+      const result = await patch(...args);
+      if (hold) {
+        hold = false;
+        await gate;
+      }
+      return result;
+    }) as typeof api.patch);
+
+    const a = realtimeNotesCollection.update("note-09", (draft) => {
+      draft.title = "Abandoned A";
+    });
+    await vi.waitFor(async () =>
+      expect((await api.get<Note>("/api/notes/note-09")).title).toBe("Abandoned A"),
+    );
+
+    await realtimeNotesCollection.cleanup();
+    await expect(a.when("settled")).rejects.toThrow(/cleaned up/);
+
+    await realtimeNotesCollection.preload();
+    const b = realtimeNotesCollection.update("note-09", (draft) => {
+      draft.title = "Written B";
+    });
+    await b.when("settled");
+    expect(spy).toHaveBeenCalledTimes(2);
+
+    // A's late answer changes nothing.
+    release();
+    await sleep(10);
+    expect(a.state).toBe("failed");
+    expect(b.state).toBe("completed");
+    expect((await api.get<Note>("/api/notes/note-09")).title).toBe("Written B");
+    expect(realtimeNotesCollection.get("note-09")?.title).toBe("Written B");
+  });
 
   it("delivers transactions in commit order, even when the stream delay changes", async () => {
     setStreamDelay(250);
@@ -172,9 +214,9 @@ describe("simulated Neon Realtime collection", () => {
   });
 });
 
-describe("txid tracker", () => {
+describe("sync run", () => {
   it("resolves waits up to the last delivered txid, before or after delivery", async () => {
-    const tracker = createTxidTracker();
+    const tracker = createSyncRun();
     const later = tracker.wait("1005");
     tracker.seen("1004");
     expect(tracker.waiting).toBe(1);
@@ -186,14 +228,14 @@ describe("txid tracker", () => {
   });
 
   it("drops a wait that times out", async () => {
-    const tracker = createTxidTracker();
+    const tracker = createSyncRun();
     await expect(tracker.wait("2000", 10)).rejects.toThrow(/Timed out/);
     expect(tracker.waiting).toBe(0);
   });
 
   it("rejects every wait when closed", async () => {
     vi.useFakeTimers();
-    const tracker = createTxidTracker();
+    const tracker = createSyncRun();
     const waits = [tracker.wait("1"), tracker.wait("2", 60_000)];
     tracker.close(new Error("cleaned up"));
     await expect(Promise.all(waits)).rejects.toThrow("cleaned up");

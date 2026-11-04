@@ -107,10 +107,11 @@ function NeonRealtimePage() {
         still running, TanStack DB holds the batch back and shows it together with dropping the
         optimistic copy, so the title never flickers. That's why the handler can stop waiting once
         the batch is committed. The waiting is a little bookkeeping that belongs to one sync run.
-        Batches arrive in commit order, so it only keeps the last txid it saw, and cleaning up the
-        collection fails every write that's still waiting:
+        Batches arrive in commit order, so it only keeps the last txid it saw. Each write belongs to
+        the run it started in, and cleaning up the collection fails every write still in progress,
+        including one still waiting for the API's answer:
       </p>
-      <SourceSnippet snippet={SNIPPETS.txidTracker} />
+      <SourceSnippet snippet={SNIPPETS.syncRun} />
       <p>
         This collection is only used on this page. The rename is saved on the same fake API as the
         Notes app; the app's own notes collection sees it the next time it loads notes.

@@ -17,20 +17,24 @@ import type { Note } from "./schema";
  * The Notes app doesn't use this collection.
  */
 
-// #region txid-tracker
+// #region sync-run
 interface TxidWaiter {
   txid: bigint;
   resolve: (seen: true) => void;
-  reject: (error: Error) => void;
+  reject: (error: unknown) => void;
   timer?: ReturnType<typeof setTimeout>;
 }
 
 /**
- * The transactions one sync run has seen, and the writes waiting for one.
- * The stream delivers transactions in commit order, so "seen" is a single
- * high-water mark: the last transaction id it delivered.
+ * One run of the collection's sync, from subscribing to cleanup: the
+ * transactions it has seen, and the writes that started during it. The
+ * stream delivers transactions in commit order, so "seen" is a single
+ * high-water mark: the last transaction id it delivered. Cleanup ends the
+ * run, and every write still in progress in it fails.
  */
-export function createTxidTracker() {
+export function createSyncRun() {
+  const controller = new AbortController();
+  const { signal } = controller;
   let seenUpTo = -1n;
   const waiters = new Set<TxidWaiter>();
 
@@ -40,6 +44,9 @@ export function createTxidTracker() {
   }
 
   return {
+    /** Aborts requests made during the run when it ends. */
+    signal,
+
     /** The stream has delivered everything up to and including `txid`. */
     seen(txid: string) {
       if (BigInt(txid) > seenUpTo) seenUpTo = BigInt(txid);
@@ -52,6 +59,7 @@ export function createTxidTracker() {
 
     /** Resolves once `txid` has been delivered, even if it already was. */
     wait(txid: string, timeout?: number): Promise<true> {
+      if (signal.aborted) return Promise.reject(signal.reason);
       if (BigInt(txid) <= seenUpTo) return Promise.resolve(true);
       return new Promise((resolve, reject) => {
         const waiter: TxidWaiter = { txid: BigInt(txid), resolve, reject };
@@ -65,8 +73,18 @@ export function createTxidTracker() {
       });
     },
 
-    /** Ends the run: every write still waiting fails. */
+    /** Settles like `promise`, unless the run ends first: then it fails. */
+    during<T>(promise: Promise<T>): Promise<T> {
+      if (signal.aborted) return Promise.reject(signal.reason);
+      return new Promise((resolve, reject) => {
+        signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+        promise.then(resolve, reject);
+      });
+    },
+
+    /** Ends the run: requests are aborted, and every write still waiting fails. */
     close(reason: Error) {
+      controller.abort(reason);
       for (const waiter of waiters) {
         settle(waiter);
         waiter.reject(reason);
@@ -79,10 +97,10 @@ export function createTxidTracker() {
   };
 }
 
-type TxidTracker = ReturnType<typeof createTxidTracker>;
+type SyncRun = ReturnType<typeof createSyncRun>;
 
-/** The running sync's tracker; there's none before sync starts or after cleanup. */
-let activeTracker: TxidTracker | undefined;
+/** The current sync run; there's none before sync starts or after cleanup. */
+let activeRun: SyncRun | undefined;
 
 /**
  * Like the package's `collection.utils.awaitTxId(txid, timeout?)`: resolves
@@ -90,10 +108,10 @@ let activeTracker: TxidTracker | undefined;
  * API's answer did. Rejects on timeout and when the collection is cleaned up.
  */
 function awaitTxId(txid: string, timeout?: number): Promise<true> {
-  if (!activeTracker) return Promise.reject(new Error("The collection isn't syncing."));
-  return activeTracker.wait(txid, timeout);
+  if (!activeRun) return Promise.reject(new Error("The collection isn't syncing."));
+  return activeRun.wait(txid, timeout);
 }
-// #endregion txid-tracker
+// #endregion sync-run
 
 // #region realtime-notes-collection
 export const realtimeNotesCollection = createCollection<
@@ -108,8 +126,8 @@ export const realtimeNotesCollection = createCollection<
     // Each message carries whole rows.
     rowUpdateMode: "full",
     sync: ({ begin, write, commit, markReady }) => {
-      const tracker = createTxidTracker();
-      activeTracker = tracker;
+      const run = createSyncRun();
+      activeRun = run;
       const keys = new Set<string>();
 
       const unsubscribe = subscribeToLiveNotes((message) => {
@@ -139,25 +157,31 @@ export const realtimeNotesCollection = createCollection<
           // state it confirms. So a write waiting for this txid can finish.
           void commit();
         }
-        tracker.seen(message.txid);
+        run.seen(message.txid);
       });
 
       return () => {
         unsubscribe();
-        tracker.close(new Error("The collection was cleaned up."));
-        if (activeTracker === tracker) activeTracker = undefined;
+        run.close(new Error("The collection was cleaned up."));
+        if (activeRun === run) activeRun = undefined;
       };
     },
   },
-  onUpdate: ({ transaction, collection }) =>
-    saveEach(transaction.mutations, ({ key, changes }) =>
+  onUpdate: async ({ transaction }) => {
+    // A write belongs to the sync run it starts in, and fails if that run ends.
+    const run = activeRun;
+    if (!run) throw new Error("The collection isn't syncing.");
+    await saveEach(transaction.mutations, ({ key, changes }) =>
       // One save at a time per note, so an older change can't land last.
       inOrder(`/api/live/notes/${key}`, async () => {
         // The API saves the change and answers with its transaction id…
-        const { txid } = await api.patch<{ txid: string }>(`/api/live/notes/${key}`, changes);
+        const { txid } = await run.during(
+          api.patch<{ txid: string }>(`/api/live/notes/${key}`, changes, { signal: run.signal }),
+        );
         // …and the optimistic change stays on screen until the stream delivers it.
-        await collection.utils.awaitTxId(txid);
+        await run.wait(txid);
       }),
-    ),
+    );
+  },
 });
 // #endregion realtime-notes-collection
