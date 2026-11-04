@@ -14,6 +14,7 @@ import { useEffect, useSyncExternalStore } from "react";
 
 import { isSmartFolderId, resolveFolderView } from "@/lib/notes/folder-views";
 import type { FolderView, SmartFolderId } from "@/lib/notes/folder-views";
+import { countWords } from "@/lib/notes/note-body";
 import type { NoteListOptions } from "@/lib/notes/note-list";
 
 import { accountCollection, foldersCollection, notesCollection } from "./collections";
@@ -184,11 +185,6 @@ export function useAccount(): Account | undefined {
 }
 
 /* Analytics */
-
-/** Words in a note, title included. */
-export function countWords(note: Pick<Note, "title" | "body">): number {
-  return `${note.title} ${note.body}`.split(/\s+/).filter(Boolean).length;
-}
 
 /** The local calendar day of a timestamp, as `YYYY-MM-DD`. */
 export function localDay(timestamp: string): string {

@@ -49,6 +49,21 @@ export function serializeBody(blocks: NoteBlock[]): string {
   return blocks.map(serializeBlock).join("\n");
 }
 
+function wordsIn(text: string): number {
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * Words in a note as the editor shows it: the title, then each block's text.
+ * Block markers (`# `, `- `, `[ ] `, `[x] `) aren't words.
+ */
+export function countWords(note: { title: string; body: string }): number {
+  return parseNoteBody(note.body).reduce(
+    (total, block) => total + wordsIn(block.text),
+    wordsIn(note.title),
+  );
+}
+
 /** The grey preview text shown under a note's title in the list. */
 export function noteSnippet(body: string): string {
   const [first] = parseNoteBody(body);

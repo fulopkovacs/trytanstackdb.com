@@ -7,7 +7,6 @@ import { setNetworkConfig } from "@/api/network-config";
 import { accountCollection, foldersCollection, notesCollection } from "./collections";
 import { moveNote, renameFolder, setNotePinned } from "./mutations";
 import {
-  countWords,
   editsPerDayQuery,
   folderStatsQuery,
   noteCountQuery,
@@ -129,13 +128,39 @@ describe("analytics", () => {
   it("adds up notes and words per folder", async () => {
     const perFolder = await liveQuery(folderStatsQuery);
     const active = notesCollection.toArray.filter((note) => note.deletedAt === null);
-    const work = active.filter((note) => note.folderId === "work");
-    const row = perFolder.toArray.find((row) => row.folderId === "work");
-    expect(row).toMatchObject({
-      notes: work.length,
-      words: work.reduce((sum, note) => sum + countWords(note), 0),
-    });
     expect(perFolder.toArray.reduce((sum, row) => sum + row.notes, 0)).toBe(active.length);
+
+    // Notes with known word counts, in a folder of their own. Optimistic
+    // only: the transaction is never committed, so nothing is sent.
+    const now = new Date().toISOString();
+    const note = (id: string, title: string, body: string, deletedAt: string | null = null) => ({
+      id,
+      folderId: "word-count-test",
+      title,
+      body,
+      pinned: false,
+      shared: false,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt,
+    });
+    const tx = createTransaction({ autoCommit: false, mutationFn: async () => {} });
+    tx.mutate(() =>
+      notesCollection.insert([
+        // 2 (title) + Buy, milk, Call, Sam, Plans, Bread = 8
+        note("wc-1", "Weekend shopping", "[ ] Buy milk\n[x] Call Sam\n# Plans\n- Bread"),
+        // 0
+        note("wc-2", "", ""),
+        // Deleted: not counted at all
+        note("wc-3", "Old", "gone for good", now),
+      ]),
+    );
+    expect(perFolder.toArray.find((row) => row.folderId === "word-count-test")).toMatchObject({
+      folderId: "word-count-test",
+      notes: 2,
+      words: 8,
+    });
+    tx.rollback();
   });
 
   it("counts notes by the day they were last edited, newest first", async () => {
