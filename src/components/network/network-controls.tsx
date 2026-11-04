@@ -54,7 +54,7 @@ export function LatencyControl({
           key={ms}
           value={String(ms)}
           aria-label={`${formatLatency(ms)} latency`}
-          className="flex-1 tabular-nums data-[state=on]:bg-foreground data-[state=on]:text-background"
+          className="flex-auto tabular-nums group-data-[spacing=0]/toggle-group:px-2.5 data-[state=on]:bg-foreground data-[state=on]:text-background"
         >
           {formatLatency(ms)}
         </ToggleGroupItem>

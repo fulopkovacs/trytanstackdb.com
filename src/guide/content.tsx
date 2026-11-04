@@ -14,6 +14,8 @@ import type { LinkOptions } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { Callout } from "@/components/guide/callout";
+import { LiveWordsChart } from "@/components/guide/live-words-chart";
+import { ShowMe } from "@/components/guide/show-me";
 import { SourceSnippet } from "@/components/guide/source-snippet";
 import { ByGuideLayout } from "@/components/guide/try-it";
 import { NOTE_TITLE_MAX_LENGTH } from "@/api/fake-server";
@@ -88,6 +90,16 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
           request takes half a second, and some changes get rejected, like on a real backend. Each
           section tells you what to do in the app and what to look for.
         </p>
+        <p>
+          You can slow the API down or make it fail with the{" "}
+          <ShowMe target="network-controls">network controls</ShowMe>
+          <ByGuideLayout
+            beside=" in the browser's toolbar"
+            inSheet=" (Network, at the top of the app)"
+          />
+          , and watch every request in the{" "}
+          <ShowMe target="request-inspector">request inspector</ShowMe>.
+        </p>
         <Callout variant="tip">
           Look around first: open a folder, pick a note, and open Settings from the account at the
           bottom of the folder list.
@@ -121,8 +133,11 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
         </p>
         <SourceSnippet snippet={SNIPPETS.notesCollection} />
         <p>
-          The note list, the editor and the folder counts all read from this one collection. There's
-          only one copy of each note, so when it changes, every view that shows it changes with it.
+          The <ShowMe target="note-list">note list</ShowMe>, the{" "}
+          <ShowMe target="editor">editor</ShowMe> and the{" "}
+          <ShowMe target="folder-counts">folder counts</ShowMe> all read from this one collection.
+          There's only one copy of each note, so when it changes, every view that shows it changes
+          with it.
         </p>
         <Callout variant="tip">
           Open a folder and edit a note's title. The note's row in the list shows the new title as
@@ -228,6 +243,12 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
           its right-click (or long-press) menu: both folders' counts change at once, before the
           server has answered.
         </Callout>
+        <Callout variant="tip">
+          Set the latency to 5 s in the <ShowMe target="network-controls">network controls</ShowMe>{" "}
+          and do it again. The app is just as fast; only the{" "}
+          <ShowMe target="request-inspector">request inspector</ShowMe> shows each save waiting five
+          seconds for the server.
+        </Callout>
       </>
     ),
   },
@@ -269,6 +290,12 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
           Work. The new name shows up, then switches back, and a message tells you why. A note title
           longer than {NOTE_TITLE_MAX_LENGTH} characters gets rejected too.
         </Callout>
+        <Callout variant="tip">
+          Any change can fail. Turn on "Fail next" in the{" "}
+          <ShowMe target="network-controls">network controls</ShowMe>, then pin a note or edit one:
+          the server answers that request with a 500, and your change rolls back. Set the latency to
+          2 s first to watch the change sit on screen while the request is pending.
+        </Callout>
       </>
     ),
   },
@@ -297,7 +324,9 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
         <p>
           <code>inOrder</code> sends one note's requests one at a time, so an older save can't
           arrive after a newer one. <code>saveEach</code> saves every record in the transaction,
-          even if one of them fails.
+          even if one of them fails. Open the{" "}
+          <ShowMe target="request-inspector">request inspector</ShowMe> and type in a note: each
+          pause sends one <code>PATCH</code>, and its response is the note the collection now holds.
         </p>
         <p>
           Query collections work with any REST or RPC API. Other collection types change how data
@@ -343,11 +372,17 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
         <SourceSnippet snippet={SNIPPETS.folderStatsQuery} />
         <p>
           Like every live query, these update step by step. When you type in a note, only that
-          note's numbers are worked out again, and only its folder's total changes.
+          note's numbers are worked out again, and only its folder's total changes. This chart reads
+          the same query:
         </p>
+        <LiveWordsChart />
         <Callout variant="tip">
-          Open Analytics and note a folder's word count. Add a few words to one of its notes, then
-          go back to Analytics: the count has gone up.
+          <ByGuideLayout
+            beside="Type a few words in a note and watch its folder's bar grow. Then open "
+            inSheet="Add a few words to a note, then come back here: its folder's bar has grown. Then open "
+          />
+          <ShowMe target="analytics">Analytics</ShowMe>: the same queries, drawn with TanStack
+          Charts, as notes per folder, words per folder and notes by day of last edit.
         </Callout>
       </>
     ),
