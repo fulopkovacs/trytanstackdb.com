@@ -62,10 +62,25 @@ export function startAppNotifications(
   };
 }
 
+/** Clears the iPhone layout's bottom bar (`--ios-bottom-bar`: 4rem plus the home indicator), with a gap. */
+const SMALL_SCREEN_TOAST_OFFSET = { bottom: "calc(4.5rem + env(safe-area-inset-bottom))" };
+
 /** Mounted once, in the root route, so every page (workspace and deep dives) shares it. */
 export function AppNotifications() {
   const isSplit = useMediaQuery(`(min-width: ${SPLIT_LAYOUT_MIN_WIDTH}px)`);
   useEffect(() => startAppNotifications(), []);
   useEffect(() => exposeFakeApiOnWindow(), []);
-  return <Toaster position={isSplit ? "bottom-right" : "top-center"} closeButton />;
+  return isSplit ? (
+    <Toaster position="bottom-right" closeButton />
+  ) : (
+    // Small screens: at the bottom, just above the iPhone app's floating
+    // bars (search, the editor's toolbar). At the top they covered the app
+    // sheet's Close and Network buttons.
+    <Toaster
+      position="bottom-center"
+      offset={SMALL_SCREEN_TOAST_OFFSET}
+      mobileOffset={SMALL_SCREEN_TOAST_OFFSET}
+      closeButton
+    />
+  );
 }
