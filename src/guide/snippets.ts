@@ -10,6 +10,7 @@ import collectionsSource from "@/db/collections.ts?raw";
 import mutationsSource from "@/db/mutations.ts?raw";
 import onDemandNotesSource from "@/db/on-demand-notes.ts?raw";
 import queriesSource from "@/db/queries.ts?raw";
+import realtimeNotesSource from "@/db/realtime-notes.ts?raw";
 
 import { extractCodeFence, extractRegion } from "./source-regions";
 import neonReadme from "./vendor/neon-realtime-tanstack-0.1.1-README.md?raw";
@@ -22,6 +23,7 @@ export const QUOTED_SOURCES = {
   "src/db/mutations.ts": mutationsSource,
   "src/db/on-demand-notes.ts": onDemandNotesSource,
   "src/db/queries.ts": queriesSource,
+  "src/db/realtime-notes.ts": realtimeNotesSource,
 } as const;
 
 export type QuotedSourcePath = keyof typeof QUOTED_SOURCES;
@@ -55,11 +57,15 @@ export const SNIPPETS = {
   duplicateName: quote("src/api/fake-server.ts", "duplicate-name"),
   onDemandCollection: quote("src/db/on-demand-notes.ts", "on-demand-collection"),
   folderNotesQuery: quote("src/db/on-demand-notes.ts", "folder-notes-query"),
+  realtimeNotesCollection: quote("src/db/realtime-notes.ts", "realtime-notes-collection"),
+  awaitTxId: quote("src/db/realtime-notes.ts", "await-txid"),
+  livePatchNote: quote("src/api/fake-server.ts", "live-patch-note"),
 } satisfies Record<string, SourceRegionSnippet>;
 
 /**
  * The Neon Realtime deep dive quotes the package's own README (a copy of the
- * one published with `@neon/realtime-tanstack` 0.1.1, in `vendor/`): the
+ * one published with `@neon/realtime-tanstack` 0.1.1, in `vendor/`) for the
+ * real API, and `db/realtime-notes.ts` for the simulation it demos: the
  * package isn't installed here (see that page).
  */
 export const NEON_README_SNIPPETS = {

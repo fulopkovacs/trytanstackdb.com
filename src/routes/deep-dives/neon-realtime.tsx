@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 
 import { Callout } from "@/components/guide/callout";
 import { DeepDivePage } from "@/components/guide/deep-dive-page";
+import { RealtimeDemo } from "@/components/guide/realtime-demo";
 import { SourceSnippet } from "@/components/guide/source-snippet";
-import { NEON_README_SNIPPETS } from "@/guide/snippets";
+import { NEON_README_SNIPPETS, SNIPPETS } from "@/guide/snippets";
 
 export const Route = createFileRoute("/deep-dives/neon-realtime")({
   head: () => ({ meta: [{ title: "Neon Realtime sync — Try TanStack DB" }] }),
@@ -72,12 +73,44 @@ function NeonRealtimePage() {
         <li>It also works when the change arrives in the stream before the HTTP response does.</li>
       </ul>
 
-      <Callout variant="note" title="TODO: a demo">
-        This page has no live demo yet. <code>@neon/realtime-tanstack</code>{" "}
-        {NEON_REALTIME_TANSTACK_VERSION} needs TanStack DB 0.9 (peer dependency{" "}
-        <code>@tanstack/db@^0.9.0</code>), and this app runs <code>1.0.0-rc.1.2</code>, so the
-        package isn't installed here, and there's no simulated stream yet.
+      <h3>Try it: a simulation</h3>
+      <Callout variant="warning" title="A simulation, not the package">
+        <code>@neon/realtime-tanstack</code> {NEON_REALTIME_TANSTACK_VERSION} needs TanStack DB 0.9
+        (peer dependency <code>@tanstack/db@^0.9.0</code>), and this app runs{" "}
+        <code>1.0.0-rc.1.2</code>, so the package isn't installed here. The demo below follows the
+        same flow with a stand-in collection built from TanStack DB's own sync primitives, and a
+        simulated stream from the fake API instead of a Neon WebSocket.
       </Callout>
+      <p>
+        Rename the note. Each step shows up as it happens. The simulated stream takes a second and a
+        half to deliver a change, longer than the API takes to answer, so you can see the handler
+        wait.
+      </p>
+      <ClientOnly fallback={<div className="my-5 h-56 rounded-xl border bg-muted/40" />}>
+        <RealtimeDemo />
+      </ClientOnly>
+      <p>
+        On the server side, the write endpoint saves the change and answers with the id of the
+        database transaction that saved it:
+      </p>
+      <SourceSnippet snippet={SNIPPETS.livePatchNote} />
+      <p>
+        The stand-in collection applies the stream's rows as synced data with <code>begin</code>,{" "}
+        <code>write</code> and <code>commit</code>. Its <code>onUpdate</code> handler has the same
+        shape as the README's: send the change, then wait for its txid.
+      </p>
+      <SourceSnippet snippet={SNIPPETS.realtimeNotesCollection} />
+      <p>
+        A stream batch is accepted as soon as it's committed. While the handler's transaction is
+        still running, TanStack DB holds the batch back and shows it together with dropping the
+        optimistic copy, so the title never flickers. That's why the handler can stop waiting once
+        the batch is committed. Waiting for a txid is a small piece of bookkeeping:
+      </p>
+      <SourceSnippet snippet={SNIPPETS.awaitTxId} />
+      <p>
+        This collection is only used on this page. The rename is saved on the same fake API as the
+        Notes app; the app's own notes collection sees it the next time it loads notes.
+      </p>
     </DeepDivePage>
   );
 }
