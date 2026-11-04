@@ -1,5 +1,5 @@
 import { useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 
@@ -8,16 +8,11 @@ import { GuidePanel } from "@/components/guide/guide-panel";
 import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Toaster } from "@/components/ui/sonner";
-import { exposeFakeApiOnWindow } from "@/api/dev-console";
-import { trackSectionProgress } from "@/guide/section-progress";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { SPLIT_LAYOUT_MIN_WIDTH } from "@/lib/layout";
 
 import { AppSlot } from "./app-slot";
 import { MobileWorkspace } from "./mobile-workspace";
-
-/** At this width and up, the guide and the app sit side by side. Below it, the guide comes first. */
-export const SPLIT_LAYOUT_MIN_WIDTH = 768;
 
 /**
  * The page. Wide screens: the guide and the app (in a fake browser) as two
@@ -39,14 +34,9 @@ export function Workspace({ app }: { app: ReactNode }) {
   });
   const appSlot = <AppSlot host={appHost} />;
 
-  // Doing a section's step in the app ticks it off in the guide.
-  useEffect(() => trackSectionProgress(), []);
-  useEffect(() => exposeFakeApiOnWindow(), []);
-
   return (
     <>
       {isSplit ? <SplitWorkspace appSlot={appSlot} /> : <MobileWorkspace appSlot={appSlot} />}
-      <Toaster position={isSplit ? "bottom-right" : "top-center"} closeButton />
       {createPortal(
         <FixedNotesLayout layout={isSplit ? null : "ios"}>{app}</FixedNotesLayout>,
         appHost,

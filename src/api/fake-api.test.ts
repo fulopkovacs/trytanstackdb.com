@@ -49,6 +49,14 @@ describe("routing", () => {
     expect((await fakeFetch("/api/folders", { method: "DELETE" })).status).toBe(405);
   });
 
+  it("filters notes by folder", async () => {
+    const all = await api.get<{ folderId: string }[]>("/api/notes");
+    const work = await api.get<{ folderId: string }[]>("/api/notes?folderId=work");
+    expect(work.length).toBeGreaterThan(0);
+    expect(work.every((note) => note.folderId === "work")).toBe(true);
+    expect(work).toHaveLength(all.filter((note) => note.folderId === "work").length);
+  });
+
   it("matches path patterns", () => {
     expect(matchPath("/api/notes/:id", "/api/notes/a%20b")).toEqual({ id: "a b" });
     expect(matchPath("/api/notes/:id", "/api/notes")).toBeNull();

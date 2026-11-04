@@ -6,7 +6,6 @@ import { useAppData } from "@/db/queries";
 
 import { MacSidebar } from "./mac/sidebar";
 import { NotesLayoutProvider, useNotesLayout } from "./notes-layout";
-import { useRollbackToasts } from "./use-rollback-toasts";
 
 /**
  * Root of the Notes clone. On macOS the sidebar stays mounted while routes
@@ -14,7 +13,6 @@ import { useRollbackToasts } from "./use-rollback-toasts";
  * screens render once the collections have loaded from the API.
  */
 export function NotesApp({ children }: { children: ReactNode }) {
-  useRollbackToasts();
   return (
     <NotesLayoutProvider>
       <NotesAppFrame>{children}</NotesAppFrame>

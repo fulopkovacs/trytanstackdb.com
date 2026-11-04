@@ -48,6 +48,7 @@ export type NoteChange = Partial<
 >;
 export type NoteEdit = Pick<NoteChange, "title" | "body">;
 
+// #region note-changes
 /**
  * Every change to an existing note (typing, pinning, moving, deleting) goes
  * through one paced mutation per note. Each change shows up at once; they're
@@ -79,6 +80,7 @@ function changeNote(action: AppAction, noteId: string, change: NoteChange) {
 export function editNote(noteId: string, edit: NoteEdit) {
   return changeNote({ type: "note.edited", noteId }, noteId, edit);
 }
+// #endregion note-changes
 
 export function setNotePinned(noteId: string, pinned: boolean) {
   return changeNote({ type: "note.pinned", noteId, pinned }, noteId, { pinned });
@@ -113,6 +115,7 @@ export function deleteNotePermanently(noteId: string) {
   return tx;
 }
 
+// #region rename-folder
 export function renameFolder(folderId: string, name: string) {
   const tx = foldersCollection.update(folderId, (draft) => {
     draft.name = name;
@@ -120,6 +123,7 @@ export function renameFolder(folderId: string, name: string) {
   reportMutation({ type: "folder.renamed", folderId, name }, tx);
   return tx;
 }
+// #endregion rename-folder
 
 export type AccountSettings = Pick<
   Account,

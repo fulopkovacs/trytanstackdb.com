@@ -1,9 +1,20 @@
-import { and, count, eq, isNull, lower, not, useLiveQuery } from "@tanstack/react-db";
+import {
+  and,
+  count,
+  createLiveQueryCollection,
+  eq,
+  isNull,
+  lower,
+  not,
+  sum,
+  useLiveQuery,
+} from "@tanstack/react-db";
 import type { InitialQueryBuilder, Ref } from "@tanstack/react-db";
 import { useEffect, useSyncExternalStore } from "react";
 
 import { isSmartFolderId, resolveFolderView } from "@/lib/notes/folder-views";
 import type { FolderView, SmartFolderId } from "@/lib/notes/folder-views";
+import { countWords } from "@/lib/notes/note-body";
 import type { NoteListOptions } from "@/lib/notes/note-list";
 
 import { accountCollection, foldersCollection, notesCollection } from "./collections";
@@ -16,6 +27,7 @@ import type { Account, Folder, Note, SortNotesBy } from "./schema";
  * list, the editor, the folder counts and the tab title.
  */
 
+// #region in-folder
 /** Which notes a folder shows. Smart folders aren't stored anywhere: they're just filters. */
 export function inFolder(note: Ref<Note>, folderId: string) {
   const notDeleted = isNull(note.deletedAt);
@@ -30,6 +42,7 @@ export function inFolder(note: Ref<Note>, folderId: string) {
       return and(notDeleted, eq(note.folderId, folderId));
   }
 }
+// #endregion in-folder
 
 export function useFolders(): Folder[] {
   const { data: folders } = useLiveQuery({
@@ -67,6 +80,7 @@ export const SORT_DATE_FIELD = {
   title: null,
 } as const satisfies Record<SortNotesBy, keyof Note | null>;
 
+// #region note-list-query
 /** A folder's notes: pinned first, then in the order picked in Settings. */
 export function noteListQuery(folderId: string, sortNotesBy: SortNotesBy) {
   return (q: InitialQueryBuilder) =>
@@ -86,6 +100,7 @@ export function noteListQuery(folderId: string, sortNotesBy: SortNotesBy) {
       )
       .select(({ note, folder }) => ({ ...note, folderName: folder?.name }));
 }
+// #endregion note-list-query
 
 export function useNoteList(folderId: string): {
   notes: NoteListItem[];
@@ -120,6 +135,7 @@ export function useNoteInFolder(
   return { note, isReady };
 }
 
+// #region note-counts-query
 /** Notes per folder (Recently Deleted not included). */
 export function noteCountsQuery(q: InitialQueryBuilder) {
   return q
@@ -128,6 +144,7 @@ export function noteCountsQuery(q: InitialQueryBuilder) {
     .groupBy(({ note }) => note.folderId)
     .select(({ note }) => ({ folderId: note.folderId, count: count(note.id) }));
 }
+// #endregion note-counts-query
 
 /** How many notes a (smart) folder shows: one row, or none when it's empty. */
 export function noteCountQuery(folderId: string) {
@@ -165,6 +182,67 @@ export function useAccount(): Account | undefined {
     query: (q) => q.from({ account: accountCollection }).findOne(),
   });
   return account;
+}
+
+/* Analytics */
+
+/** The local calendar day of a timestamp, as `YYYY-MM-DD`. */
+export function localDay(timestamp: string): string {
+  const date = new Date(timestamp);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+// #region note-stats-collection
+/**
+ * One row per note with the numbers the analytics page adds up. The query
+ * builder has no "count words" function, so `fn.select` runs plain
+ * JavaScript, once per note and again only when that note changes. A live
+ * query is a collection too, so the queries below group this one.
+ */
+export const noteStatsCollection = createLiveQueryCollection((q) =>
+  q
+    .from({ note: notesCollection })
+    .where(({ note }) => isNull(note.deletedAt))
+    .fn.select(({ note }) => ({
+      id: note.id,
+      folderId: note.folderId,
+      words: countWords(note),
+      lastEditedOn: localDay(note.updatedAt),
+    })),
+);
+// #endregion note-stats-collection
+
+// #region folder-stats-query
+/** Notes and words per folder (Recently Deleted not included). */
+export function folderStatsQuery(q: InitialQueryBuilder) {
+  return q
+    .from({ stats: noteStatsCollection })
+    .groupBy(({ stats }) => stats.folderId)
+    .select(({ stats }) => ({
+      folderId: stats.folderId,
+      notes: count(stats.id),
+      words: sum(stats.words),
+    }));
+}
+// #endregion folder-stats-query
+
+/** How many notes were last edited on each day, newest day first. */
+export function editsPerDayQuery(q: InitialQueryBuilder) {
+  return q
+    .from({ stats: noteStatsCollection })
+    .groupBy(({ stats }) => stats.lastEditedOn)
+    .select(({ stats }) => ({ day: stats.lastEditedOn, notes: count(stats.id) }))
+    .orderBy(({ $selected }) => $selected.day, "desc");
+}
+
+export function useFolderStats() {
+  return useLiveQuery({ query: folderStatsQuery }).data;
+}
+
+export function useEditsPerDay() {
+  return useLiveQuery({ query: editsPerDayQuery }).data;
 }
 
 /* Loading */

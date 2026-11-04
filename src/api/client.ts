@@ -24,10 +24,12 @@ async function request<T>(
     headers: body === undefined ? undefined : { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
+  // #region throw-on-error
   if (!response.ok) {
     const { error } = (await response.json()) as ApiErrorBody;
     throw new ApiError(response.status, error.code, error.message);
   }
+  // #endregion throw-on-error
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 

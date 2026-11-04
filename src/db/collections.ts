@@ -40,6 +40,7 @@ export const foldersCollection = createCollection(
   }),
 );
 
+// #region notes-collection
 export const notesCollection = createCollection(
   queryCollectionOptions({
     id: "notes",
@@ -48,33 +49,43 @@ export const notesCollection = createCollection(
     queryClient,
     schema: noteSchema,
     getKey: (note) => note.id,
-    onInsert: ({ transaction, collection }) =>
-      saveEach(transaction.mutations, ({ key, modified }) =>
-        inOrder(`/api/notes/${key}`, async () => {
-          const note = await api.post<Note>("/api/notes", modified);
-          await collection.utils.writeUpsert(note);
-        }),
-      ),
+    onInsert: ({ transaction }) => saveNewNotes(transaction),
     onUpdate: ({ transaction }) => saveNoteUpdates(transaction),
-    onDelete: ({ transaction, collection }) =>
-      saveEach(transaction.mutations, ({ key }) =>
-        inOrder(`/api/notes/${key}`, async () => {
-          await api.delete(`/api/notes/${key}`);
-          await collection.utils.writeDelete(key);
-        }),
-      ),
+    onDelete: ({ transaction }) => deleteNotes(transaction),
   }),
 );
+// #endregion notes-collection
 
+function saveNewNotes(transaction: Transaction<Note>) {
+  return saveEach(transaction.mutations, ({ key, modified }) =>
+    inOrder(`/api/notes/${key}`, async () => {
+      const note = await api.post<Note>("/api/notes", modified);
+      await notesCollection.utils.writeUpsert(note);
+    }),
+  );
+}
+
+// #region save-note-updates
 /**
  * Sends a transaction's note updates and writes back the saved notes. Also
- * the save step of the editor's paced mutations (`editNote`).
+ * the save step of the paced mutation every note change goes through
+ * (`changeNote` in `mutations.ts`).
  */
 export function saveNoteUpdates(transaction: Transaction<Note>) {
   return saveEach(transaction.mutations, ({ key, changes }) =>
     inOrder(`/api/notes/${key}`, async () => {
       const note = await api.patch<Note>(`/api/notes/${key}`, changes);
       await notesCollection.utils.writeUpdate(note);
+    }),
+  );
+}
+// #endregion save-note-updates
+
+function deleteNotes(transaction: Transaction<Note>) {
+  return saveEach(transaction.mutations, ({ key }) =>
+    inOrder(`/api/notes/${key}`, async () => {
+      await api.delete(`/api/notes/${key}`);
+      await notesCollection.utils.writeDelete(key);
     }),
   );
 }

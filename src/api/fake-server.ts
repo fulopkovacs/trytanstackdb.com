@@ -13,6 +13,7 @@ import type { SeedData } from "@/fixtures";
  *
  *   GET    /api/folders          PATCH  /api/folders/:id
  *   GET    /api/notes            POST   /api/notes
+ *   GET    /api/notes?folderId=… (one folder's notes)
  *   GET    /api/notes/:id        PATCH  /api/notes/:id    DELETE /api/notes/:id
  *   GET    /api/account          PATCH  /api/account
  */
@@ -24,6 +25,8 @@ export interface ServerRequest {
   method: string;
   /** Path only, e.g. `/api/notes/note-01`. */
   path: string;
+  /** The query string's parameters, e.g. `folderId=work`. */
+  query?: URLSearchParams;
   /** Parsed JSON body, if any. */
   body: unknown;
 }
@@ -133,12 +136,14 @@ export function createFakeServer(seed: SeedData): FakeServer {
         `Folder names can be at most ${FOLDER_NAME_MAX_LENGTH} characters.`,
       );
     }
+    // #region duplicate-name
     const taken = [...folders.values()].some(
       (other) => other.id !== folder.id && other.name.toLowerCase() === name.toLowerCase(),
     );
     if (taken) {
       throw new HttpError(409, "duplicate_name", `There's already a folder named “${name}”.`);
     }
+    // #endregion duplicate-name
     folder.name = name;
   }
 
@@ -154,7 +159,11 @@ export function createFakeServer(seed: SeedData): FakeServer {
       return ok(folder);
     }),
 
-    route("GET", "/api/notes", () => ok([...notes.values()])),
+    route("GET", "/api/notes", (_params, _body, query) => {
+      const folderId = query.get("folderId");
+      const all = [...notes.values()];
+      return ok(folderId === null ? all : all.filter((note) => note.folderId === folderId));
+    }),
     route("GET", "/api/notes/:id", ({ id }) => ok(findNote(id))),
     route("POST", "/api/notes", (_params, body) => {
       const note = parse(noteSchema, body);
@@ -191,7 +200,7 @@ export function createFakeServer(seed: SeedData): FakeServer {
   ];
 
   return {
-    handle({ method, path, body }) {
+    handle({ method, path, body, query = new URLSearchParams() }) {
       try {
         const matches = routes
           .map((candidate) => ({ candidate, params: matchPath(candidate.pattern, path) }))
@@ -200,7 +209,7 @@ export function createFakeServer(seed: SeedData): FakeServer {
         const match = matches.find(({ candidate }) => candidate.method === method);
         if (!match)
           throw new HttpError(405, "method_not_allowed", `${method} ${path} isn't allowed.`);
-        const response = match.candidate.handler(match.params!, body);
+        const response = match.candidate.handler(match.params!, body, query);
         // Responses are snapshots too.
         return { ...response, body: structuredClone(response.body) };
       } catch (error) {
@@ -222,7 +231,7 @@ type Params = Record<string, string>;
 interface Route {
   method: string;
   pattern: string;
-  handler: (params: Params, body: unknown) => ServerResponse;
+  handler: (params: Params, body: unknown, query: URLSearchParams) => ServerResponse;
 }
 
 function route(method: string, pattern: string, handler: Route["handler"]): Route {
