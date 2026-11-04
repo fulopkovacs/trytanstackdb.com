@@ -22,7 +22,6 @@ import type { Account, Folder, Note } from "./schema";
  *   older save can never land after a newer one.
  */
 
-// #region folders-collection
 export const foldersCollection = createCollection(
   queryCollectionOptions({
     id: "folders",
@@ -40,7 +39,6 @@ export const foldersCollection = createCollection(
       ),
   }),
 );
-// #endregion folders-collection
 
 // #region notes-collection
 export const notesCollection = createCollection(

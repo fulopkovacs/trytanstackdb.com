@@ -232,7 +232,6 @@ export function folderStatsQuery(q: InitialQueryBuilder) {
 }
 // #endregion folder-stats-query
 
-// #region edits-per-day-query
 /** How many notes were last edited on each day, newest day first. */
 export function editsPerDayQuery(q: InitialQueryBuilder) {
   return q
@@ -241,7 +240,6 @@ export function editsPerDayQuery(q: InitialQueryBuilder) {
     .select(({ stats }) => ({ day: stats.lastEditedOn, notes: count(stats.id) }))
     .orderBy(({ $selected }) => $selected.day, "desc");
 }
-// #endregion edits-per-day-query
 
 export function useFolderStats() {
   return useLiveQuery({ query: folderStatsQuery }).data;

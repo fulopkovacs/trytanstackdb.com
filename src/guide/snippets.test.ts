@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { extractRegion, listRegions } from "./source-regions";
-import { QUOTED_SOURCES, SNIPPETS } from "./snippets";
+import { extractCodeFence, extractRegion, listRegions } from "./source-regions";
+import { NEON_README_SNIPPETS, QUOTED_SOURCES, SNIPPETS } from "./snippets";
 
 const allSources = import.meta.glob<string>(["/src/**/*.{ts,tsx}", "!/src/**/*.test.*"], {
   query: "?raw",
@@ -65,5 +65,20 @@ describe("guide snippets", () => {
         expect(quoted.has(`${path.slice(1)}#${region}`), `${path} #region ${region}`).toBe(true);
       }
     }
+  });
+});
+
+describe("Neon README snippets", () => {
+  it("are the README's usage and mutation examples", () => {
+    expect(NEON_README_SNIPPETS.collection.code).toContain("realtimeCollectionOptions({");
+    expect(NEON_README_SNIPPETS.awaitTxId.code).toContain(
+      "await collection.utils.awaitTxId(txid);",
+    );
+  });
+
+  it("extractCodeFence picks blocks by language", () => {
+    const markdown = "```bash\nnpm i\n```\n\ntext\n\n```ts\nconst a = 1;\n```\n";
+    expect(extractCodeFence(markdown, "ts", 0)).toBe("const a = 1;");
+    expect(() => extractCodeFence(markdown, "ts", 1)).toThrow();
   });
 });

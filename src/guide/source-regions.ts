@@ -56,3 +56,13 @@ export function extractRegion(source: string, name: string): string {
     .join("\n")
     .trim();
 }
+
+/** The `index`th fenced code block in `language` in a Markdown file. */
+export function extractCodeFence(markdown: string, language: string, index: number): string {
+  const fences = [...markdown.matchAll(/^```(\S*)\n([\s\S]*?)^```$/gm)]
+    .filter((match) => match[1] === language)
+    .map((match) => match[2]!.trim());
+  const fence = fences[index];
+  if (fence === undefined) throw new Error(`No ${language} code block #${index}.`);
+  return fence;
+}

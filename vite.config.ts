@@ -9,7 +9,14 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 
 const config = defineConfig({
   fmt: {
-    ignorePatterns: ["src/routeTree.gen.ts", ".intent/**", ".claude/**", ".codex/**"],
+    ignorePatterns: [
+      "src/routeTree.gen.ts",
+      // Copied verbatim from a package; the guide quotes it.
+      "src/guide/vendor/**",
+      ".intent/**",
+      ".claude/**",
+      ".codex/**",
+    ],
   },
   lint: {
     ignorePatterns: ["src/routeTree.gen.ts", ".intent/**", ".claude/**", ".codex/**"],
