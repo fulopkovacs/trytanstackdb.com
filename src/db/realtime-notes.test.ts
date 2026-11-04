@@ -262,6 +262,22 @@ describe("sync run", () => {
     expect(vi.getTimerCount()).toBe(0);
     vi.useRealTimers();
   });
+  it("removes its abort listener once a request settles, either way", async () => {
+    const run = createSyncRun();
+    const added = vi.spyOn(run.signal, "addEventListener");
+    const removed = vi.spyOn(run.signal, "removeEventListener");
+    const ok = Array.from({ length: 20 }, () => run.during(() => Promise.resolve("ok")));
+    const failed = Array.from({ length: 5 }, () =>
+      run.during(() => Promise.reject(new Error("nope"))).catch(() => "failed"),
+    );
+    await Promise.all([...ok, ...failed]);
+    expect(added).toHaveBeenCalledTimes(25);
+    expect(removed).toHaveBeenCalledTimes(25);
+    for (const [index, call] of added.mock.calls.entries()) {
+      expect(removed.mock.calls[index]?.[1]).toBe(call[1]);
+    }
+  });
+
   it("doesn't start a request once the run has ended", async () => {
     const run = createSyncRun();
     run.close(new Error("cleaned up"));

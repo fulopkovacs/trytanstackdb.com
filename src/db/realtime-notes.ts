@@ -79,9 +79,12 @@ export function createSyncRun() {
      */
     during<T>(request: () => Promise<T>): Promise<T> {
       if (signal.aborted) return Promise.reject(signal.reason);
-      return new Promise((resolve, reject) => {
-        signal.addEventListener("abort", () => reject(signal.reason), { once: true });
-        request().then(resolve, reject);
+      return new Promise<T>((resolve, reject) => {
+        const onAbort = () => reject(signal.reason);
+        signal.addEventListener("abort", onAbort, { once: true });
+        request()
+          .then(resolve, reject)
+          .finally(() => signal.removeEventListener("abort", onAbort));
       });
     },
 
