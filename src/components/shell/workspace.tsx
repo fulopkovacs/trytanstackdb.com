@@ -5,10 +5,8 @@ import { createPortal } from "react-dom";
 
 import { BrowserFrame } from "@/components/browser/browser-frame";
 import { NetworkToolbarControls } from "@/components/browser/network-toolbar";
-import { useAppSheetView, useIsAppSheetOpen } from "@/components/app-sheet/app-sheet-store";
 import { GuidePanel } from "@/components/guide/guide-panel";
-import { useSectionHighlighting } from "@/components/guide/use-section-highlighting";
-import { useIsInspectorOpen } from "@/components/network/inspector-store";
+import { useWorkspaceSectionHighlighting } from "@/components/guide/use-section-highlighting";
 import { RequestInspectorDrawer } from "@/components/network/request-inspector";
 import { SpotlightOverlay } from "@/components/spotlight/spotlight";
 import { FixedNotesLayout } from "@/components/notes/notes-layout";
@@ -39,13 +37,7 @@ export function Workspace({ app }: { app: ReactNode }) {
     return host;
   });
   const appSlot = <AppSlot host={appHost} />;
-
-  // The request inspector: a drawer under the app, or the sheet's Network view on phones.
-  const inspectorOpen = useIsInspectorOpen();
-  const sheetOpen = useIsAppSheetOpen();
-  const sheetView = useAppSheetView();
-  const inspectorShown = isSplit ? inspectorOpen : sheetOpen && sheetView === "network";
-  useSectionHighlighting(inspectorShown ? "inspector" : null);
+  useWorkspaceSectionHighlighting(isSplit);
 
   return (
     <>

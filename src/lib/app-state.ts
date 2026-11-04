@@ -123,6 +123,15 @@ export function nextAppSnapshot(snapshot: AppSnapshot, input: AppStateInput): Ap
   }
 }
 
+/**
+ * Whether something that happened is news the guide should follow. A panel
+ * closing isn't: the reader is done looking at it, not doing something new,
+ * so the highlight stays where it was.
+ */
+export function isNews(input: AppStateInput): boolean {
+  return !(input.kind === "panel" && input.panel === null);
+}
+
 /** Whether the app is in `state` right now. */
 export function matchesAppState(state: AppState, snapshot: AppSnapshot): boolean {
   if (state.screen !== undefined && state.screen !== snapshot.screen) return false;
