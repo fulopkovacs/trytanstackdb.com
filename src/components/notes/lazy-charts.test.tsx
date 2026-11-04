@@ -8,7 +8,6 @@ import { setNetworkConfig } from "@/api/network-config";
 import { accountCollection, foldersCollection, notesCollection } from "@/db/collections";
 
 import { AnalyticsCharts } from "./analytics-charts";
-import { moduleUrlFrom } from "./lazy-charts";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -104,25 +103,5 @@ describe("when the chart library fails to load", () => {
       ),
     ).toEqual(["notes", "words", "days"]);
     expect(container.querySelectorAll("table")).toHaveLength(3);
-  });
-});
-
-describe("moduleUrlFrom", () => {
-  it("finds the chunk a failed import named, to retry it under a new URL", () => {
-    expect(
-      moduleUrlFrom(
-        new TypeError(
-          "Failed to fetch dynamically imported module: https://trytanstackdb.com/assets/charts-DadIuOen.js",
-        ),
-      ),
-    ).toBe("https://trytanstackdb.com/assets/charts-DadIuOen.js");
-    expect(
-      moduleUrlFrom(
-        new TypeError(
-          "error loading dynamically imported module: http://pop-os:3014/assets/charts-x.js",
-        ),
-      ),
-    ).toBe("http://pop-os:3014/assets/charts-x.js");
-    expect(moduleUrlFrom(new TypeError("Importing a module script failed."))).toBeNull();
   });
 });

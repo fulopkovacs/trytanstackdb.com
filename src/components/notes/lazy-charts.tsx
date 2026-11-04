@@ -5,6 +5,7 @@ import type { ComponentProps, ComponentType, ErrorInfo, ReactNode } from "react"
 import { createStore, useStore } from "@/lib/store";
 
 import { DAY_CHART_HEIGHT, folderChartHeight } from "./analytics-data";
+import { chartChunkUrlFrom, createChartsLoader } from "./charts-loader";
 import type { DayBarChart, FolderBarChart } from "./charts";
 
 /*
@@ -20,36 +21,12 @@ import type { DayBarChart, FolderBarChart } from "./charts";
 
 type ChartsModule = typeof import("./charts");
 
-let chartsModule: Promise<ChartsModule> | null = null;
-/** The chunk's URL, once an import of it has failed. */
-let failedUrl: string | null = null;
-let retries = 0;
-
-/**
- * The chart module, imported once. A failed import is forgotten so a retry
- * fetches it again. Browsers remember a failed module URL and fail every
- * later import of it at once, so a retry asks for the same chunk under a new
- * URL (a `?retry=` query). Chromium and Firefox name the URL in the error;
- * where it doesn't, the retry imports the module the normal way.
- */
-function loadCharts(): Promise<ChartsModule> {
-  chartsModule ??= (
-    failedUrl
-      ? (import(/* @vite-ignore */ `${failedUrl}?retry=${++retries}`) as Promise<ChartsModule>)
-      : import("./charts")
-  ).catch((error: unknown) => {
-    chartsModule = null;
-    failedUrl ??= moduleUrlFrom(error);
-    throw error;
-  });
-  return chartsModule;
-}
-
-/** "Failed to fetch dynamically imported module: https://…/charts-abc.js" → the URL. */
-export function moduleUrlFrom(error: unknown): string | null {
-  const message = error instanceof Error ? error.message : String(error);
-  return /(https?:\/\/\S+?\.js)\b/.exec(message)?.[1] ?? null;
-}
+/** The chart module, imported once, and again on "Try again" (see `charts-loader.ts`). */
+const loadCharts = createChartsLoader<ChartsModule>({
+  importModule: () => import("./charts"),
+  importUrl: (url) => import(/* @vite-ignore */ url) as Promise<ChartsModule>,
+  chunkUrlFrom: (error) => chartChunkUrlFrom(error, import.meta.url, window.location.origin),
+});
 
 /** Bumped by "Try again": every chart makes a fresh lazy component and clears its error. */
 const attemptStore = createStore(0);
