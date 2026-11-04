@@ -16,6 +16,12 @@ import type { SeedData } from "@/fixtures";
  *   GET    /api/notes?folderId=… (one folder's notes)
  *   GET    /api/notes/:id        PATCH  /api/notes/:id    DELETE /api/notes/:id
  *   GET    /api/account          PATCH  /api/account
+ *
+ *   PATCH  /api/live/notes/:id   (the Neon Realtime simulation: answers `{ txid }`)
+ *
+ * Every write to a note is a database transaction with an id (`txid`). The
+ * server reports each one to `onCommit` with the rows it changed, which is
+ * what the simulated Realtime stream (`fake-realtime.ts`) sends to clients.
  */
 
 export const NOTE_TITLE_MAX_LENGTH = 100;
@@ -44,7 +50,18 @@ export interface ApiErrorBody {
 
 export interface FakeServer {
   handle: (request: ServerRequest) => ServerResponse;
+  /** Every note, as stored now (copies). */
+  notes: () => Note[];
 }
+
+/** A committed write to the notes table: its transaction id and the rows it changed. */
+export interface NotesCommit {
+  /** Like a PostgreSQL transaction id: a decimal string. */
+  txid: string;
+  changes: NoteRowChange[];
+}
+
+export type NoteRowChange = { type: "upsert"; row: Note } | { type: "delete"; key: string };
 
 const folderPatchSchema = z.object({ name: z.string() }).partial();
 
@@ -90,11 +107,32 @@ function parse<T>(schema: z.ZodType<T>, body: unknown): T {
   return result.data;
 }
 
-export function createFakeServer(seed: SeedData): FakeServer {
+export function createFakeServer(
+  seed: SeedData,
+  { onCommit }: { onCommit?: (commit: NotesCommit) => void } = {},
+): FakeServer {
   // Structured clones, so nothing the app holds can change "server" data.
   const folders = new Map(seed.folders.map((folder) => [folder.id, structuredClone(folder)]));
   const notes = new Map(seed.notes.map((note) => [note.id, structuredClone(note)]));
   let account = structuredClone(seed.account);
+  let lastTxid = 1000;
+
+  /** Ends a note write: gives it a transaction id and reports the changed rows. */
+  function commitNotes(changes: NoteRowChange[]): string {
+    const txid = String(++lastTxid);
+    onCommit?.(structuredClone({ txid, changes }));
+    return txid;
+  }
+
+  function patchNote(id: string, body: unknown): { note: Note; txid: string } {
+    const note = findNote(id);
+    const changes = parse(notePatchSchema, body);
+    if (changes.folderId !== undefined) assertFolderExists(changes.folderId);
+    if (changes.title !== undefined) validateTitle(changes.title);
+    const edited = changes.title !== undefined || changes.body !== undefined;
+    Object.assign(note, changes, edited ? { updatedAt: new Date().toISOString() } : {});
+    return { note, txid: commitNotes([{ type: "upsert", row: note }]) };
+  }
 
   function findFolder(id: string): Folder {
     const folder = folders.get(id);
@@ -173,22 +211,24 @@ export function createFakeServer(seed: SeedData): FakeServer {
       assertFolderExists(note.folderId);
       validateTitle(note.title);
       notes.set(note.id, note);
+      commitNotes([{ type: "upsert", row: note }]);
       return ok(note, 201);
     }),
-    route("PATCH", "/api/notes/:id", ({ id }, body) => {
-      const note = findNote(id);
-      const changes = parse(notePatchSchema, body);
-      if (changes.folderId !== undefined) assertFolderExists(changes.folderId);
-      if (changes.title !== undefined) validateTitle(changes.title);
-      const edited = changes.title !== undefined || changes.body !== undefined;
-      Object.assign(note, changes, edited ? { updatedAt: new Date().toISOString() } : {});
-      return ok(note);
-    }),
+    route("PATCH", "/api/notes/:id", ({ id }, body) => ok(patchNote(id, body).note)),
     route("DELETE", "/api/notes/:id", ({ id }) => {
       findNote(id);
       notes.delete(id);
+      commitNotes([{ type: "delete", key: id }]);
       return noContent();
     }),
+    // #region live-patch-note
+    // Like an endpoint in a Neon Realtime app: it saves the change and
+    // answers with the id of the database transaction that saved it.
+    route("PATCH", "/api/live/notes/:id", ({ id }, body) => {
+      const { txid } = patchNote(id, body);
+      return ok({ txid });
+    }),
+    // #endregion live-patch-note
 
     route("GET", "/api/account", () => ok(account)),
     route("PATCH", "/api/account", (_params, body) => {
@@ -200,6 +240,7 @@ export function createFakeServer(seed: SeedData): FakeServer {
   ];
 
   return {
+    notes: () => structuredClone([...notes.values()]),
     handle({ method, path, body, query = new URLSearchParams() }) {
       try {
         const matches = routes
