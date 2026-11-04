@@ -372,3 +372,57 @@
     @apply font-semibold text-foreground;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Spotlight (the guide pointing at part of the app)                          */
+/* -------------------------------------------------------------------------- */
+
+@layer components {
+  /* A ring around the target; its huge spread dims everything else. */
+  .spotlight-ring {
+    box-shadow:
+      0 0 0 3px var(--guide-accent),
+      0 0 0 9999px rgb(0 0 0 / 0.3);
+  }
+  .dark .spotlight-ring {
+    box-shadow:
+      0 0 0 3px var(--guide-accent),
+      0 0 0 9999px rgb(0 0 0 / 0.55);
+  }
+
+  /* Motion only when the reader is fine with it: fade in, then pulse three times. */
+  @media (prefers-reduced-motion: no-preference) {
+    .spotlight-ring {
+      animation: spotlight-in 220ms ease-out;
+    }
+    .spotlight-ring::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      border: 3px solid var(--guide-accent);
+      animation: spotlight-pulse 1.2s ease-out 220ms 3 both;
+    }
+    .spotlight-label {
+      animation: spotlight-in 220ms ease-out;
+    }
+  }
+}
+
+@keyframes spotlight-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes spotlight-pulse {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+

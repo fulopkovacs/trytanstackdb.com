@@ -61,7 +61,7 @@ function Toolbar({ path, controls }: { path: string; controls?: ReactNode }) {
         <RotateCw />
       </ToolbarButton>
       <AddressBar path={path} />
-      <div data-slot="browser-controls" className="flex min-w-0 items-center gap-1.5 empty:hidden">
+      <div data-slot="browser-controls" className="flex shrink-0 items-center gap-1.5 empty:hidden">
         {controls}
       </div>
     </div>

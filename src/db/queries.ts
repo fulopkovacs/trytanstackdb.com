@@ -120,6 +120,17 @@ export function useNoteList(folderId: string): {
   return { notes, isReady, listOptions };
 }
 
+/** The most recently edited note a (smart) folder shows: one row, or none. */
+export function newestNoteQuery(folderId: string) {
+  return (q: InitialQueryBuilder) =>
+    q
+      .from({ note: notesCollection })
+      .where(({ note }) => inFolder(note, folderId))
+      .orderBy(({ note }) => note.updatedAt, "desc")
+      .limit(1)
+      .select(({ note }) => ({ id: note.id }));
+}
+
 /** A note, but only if it's in the folder (or smart folder) that's open. */
 export function useNoteInFolder(
   folderId: string,

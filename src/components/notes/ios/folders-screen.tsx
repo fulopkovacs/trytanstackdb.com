@@ -84,7 +84,7 @@ export function IosFoldersScreen() {
         iCloud
       </SectionHeader>
       {iCloudOpen && (
-        <InsetCard>
+        <InsetCard data-spotlight="folder-counts">
           <InsetRow first separatorInset={58}>
             <FolderRow folderId="all" icon={<FolderGlyph />} name="All iCloud" count={counts.all} />
           </InsetRow>

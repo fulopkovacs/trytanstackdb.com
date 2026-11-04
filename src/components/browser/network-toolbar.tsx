@@ -23,7 +23,7 @@ export function NetworkToolbarControls() {
     <>
       <div
         data-spotlight="network-controls"
-        className="hidden items-center gap-1.5 @3xl/toolbar:flex"
+        className="hidden shrink-0 items-center gap-1.5 @3xl/toolbar:flex"
         role="group"
         aria-label="Network"
       >

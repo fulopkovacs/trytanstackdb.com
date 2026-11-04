@@ -59,23 +59,29 @@ export function IosNoteListScreen({ folderId }: { folderId: string }) {
         <p className="pt-16 text-center text-[17px] text-ios-secondary">No Notes</p>
       )}
 
-      {pinned.length > 0 && (
-        <>
-          <SectionHeader chevron open={pinnedOpen} onToggle={() => setPinnedOpen((open) => !open)}>
-            Pinned
-          </SectionHeader>
-          {pinnedOpen && (
-            <NoteCard notes={pinned} folderId={folderId} showFolder={showFolder} now={now} />
-          )}
-        </>
-      )}
+      <div data-spotlight="note-list">
+        {pinned.length > 0 && (
+          <>
+            <SectionHeader
+              chevron
+              open={pinnedOpen}
+              onToggle={() => setPinnedOpen((open) => !open)}
+            >
+              Pinned
+            </SectionHeader>
+            {pinnedOpen && (
+              <NoteCard notes={pinned} folderId={folderId} showFolder={showFolder} now={now} />
+            )}
+          </>
+        )}
 
-      {groups.map((group) => (
-        <div key={group.label}>
-          {group.label ? <SectionHeader>{group.label}</SectionHeader> : <div className="h-5" />}
-          <NoteCard notes={group.items} folderId={folderId} showFolder={showFolder} now={now} />
-        </div>
-      ))}
+        {groups.map((group) => (
+          <div key={group.label}>
+            {group.label ? <SectionHeader>{group.label}</SectionHeader> : <div className="h-5" />}
+            <NoteCard notes={group.items} folderId={folderId} showFolder={showFolder} now={now} />
+          </div>
+        ))}
+      </div>
     </IosScreen>
   );
 }

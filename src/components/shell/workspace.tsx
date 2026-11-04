@@ -10,6 +10,7 @@ import { GuidePanel } from "@/components/guide/guide-panel";
 import { useSectionHighlighting } from "@/components/guide/use-section-highlighting";
 import { useIsInspectorOpen } from "@/components/network/inspector-store";
 import { RequestInspectorDrawer } from "@/components/network/request-inspector";
+import { SpotlightOverlay } from "@/components/spotlight/spotlight";
 import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
@@ -49,6 +50,7 @@ export function Workspace({ app }: { app: ReactNode }) {
   return (
     <>
       {isSplit ? <SplitWorkspace appSlot={appSlot} /> : <MobileWorkspace appSlot={appSlot} />}
+      <SpotlightOverlay />
       {createPortal(
         <FixedNotesLayout layout={isSplit ? null : "ios"}>{app}</FixedNotesLayout>,
         appHost,

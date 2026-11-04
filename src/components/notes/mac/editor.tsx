@@ -14,7 +14,11 @@ export function MacEditor({ note }: { note: Note | undefined }) {
   const deleted = note?.deletedAt != null;
 
   return (
-    <section aria-label="Editor" className="flex min-w-0 flex-1 flex-col bg-mac-content">
+    <section
+      aria-label="Editor"
+      data-spotlight={note ? "editor" : undefined}
+      className="flex min-w-0 flex-1 flex-col bg-mac-content"
+    >
       <EditorToolbar
         note={note}
         onToggleChecklist={
