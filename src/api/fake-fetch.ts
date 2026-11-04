@@ -16,10 +16,16 @@ export async function fakeFetch(url: string, init: RequestInit = {}): Promise<Re
   const method = (init.method ?? "GET").toUpperCase();
   const { pathname, search, searchParams } = new URL(url, "https://notes.example");
   const body = parseJsonBody(init.body);
-  const logId = logRequestStart({ method, url: pathname + search, requestBody: body.value });
+  const { latencyMs } = getNetworkConfig();
+  const logId = logRequestStart({
+    method,
+    url: pathname + search,
+    requestBody: body.value,
+    latencyMs,
+  });
 
   try {
-    await delay(getNetworkConfig().latencyMs, init.signal);
+    await delay(latencyMs, init.signal);
   } catch (error) {
     logRequestEnd(logId, {
       state: "aborted",

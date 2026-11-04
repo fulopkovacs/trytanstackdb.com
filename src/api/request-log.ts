@@ -1,7 +1,7 @@
 import { createStore, useStore } from "@/lib/store";
 
 /**
- * Every call to the fake API, for the request inspector (phase 4). An entry
+ * Every call to the fake API, for the request inspector. An entry
  * is added when the request starts (`pending`) and completed when it settles,
  * so slow requests show up while they're in flight.
  */
@@ -19,6 +19,8 @@ export interface RequestLogEntry {
   responseBody: unknown;
   /** The failure came from failure injection, not from the server's own rules. */
   injectedFailure: boolean;
+  /** The latency the fake network gave this request, in milliseconds. */
+  latencyMs: number;
   /** Epoch milliseconds. */
   startedAt: number;
   endedAt: number | null;
@@ -33,7 +35,7 @@ export const requestLogStore = createStore<readonly RequestLogEntry[]>([]);
 let nextId = 1;
 
 export function logRequestStart(
-  request: Pick<RequestLogEntry, "method" | "url" | "requestBody">,
+  request: Pick<RequestLogEntry, "method" | "url" | "requestBody" | "latencyMs">,
   now = Date.now(),
 ): number {
   const id = nextId++;

@@ -4,10 +4,12 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { BrowserFrame } from "@/components/browser/browser-frame";
+import { NetworkToolbarControls } from "@/components/browser/network-toolbar";
 import { useAppSheetView, useIsAppSheetOpen } from "@/components/app-sheet/app-sheet-store";
 import { GuidePanel } from "@/components/guide/guide-panel";
 import { useSectionHighlighting } from "@/components/guide/use-section-highlighting";
 import { useIsInspectorOpen } from "@/components/network/inspector-store";
+import { RequestInspectorDrawer } from "@/components/network/request-inspector";
 import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
@@ -78,7 +80,12 @@ function SplitWorkspace({ appSlot }: { appSlot: ReactNode }) {
         <GapHandle />
         <ResizablePanel id="app" defaultSize={isWide ? "66%" : "58%"} minSize={isWide ? 720 : 360}>
           <Frame>
-            <BrowserFrame title={title} path={path}>
+            <BrowserFrame
+              title={title}
+              path={path}
+              controls={<NetworkToolbarControls />}
+              drawer={<RequestInspectorDrawer />}
+            >
               {appSlot}
             </BrowserFrame>
           </Frame>
