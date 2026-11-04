@@ -26,6 +26,7 @@ import type { Account, Folder, Note, SortNotesBy } from "./schema";
  * list, the editor, the folder counts and the tab title.
  */
 
+// #region in-folder
 /** Which notes a folder shows. Smart folders aren't stored anywhere: they're just filters. */
 export function inFolder(note: Ref<Note>, folderId: string) {
   const notDeleted = isNull(note.deletedAt);
@@ -40,6 +41,7 @@ export function inFolder(note: Ref<Note>, folderId: string) {
       return and(notDeleted, eq(note.folderId, folderId));
   }
 }
+// #endregion in-folder
 
 export function useFolders(): Folder[] {
   const { data: folders } = useLiveQuery({
@@ -77,6 +79,7 @@ export const SORT_DATE_FIELD = {
   title: null,
 } as const satisfies Record<SortNotesBy, keyof Note | null>;
 
+// #region note-list-query
 /** A folder's notes: pinned first, then in the order picked in Settings. */
 export function noteListQuery(folderId: string, sortNotesBy: SortNotesBy) {
   return (q: InitialQueryBuilder) =>
@@ -96,6 +99,7 @@ export function noteListQuery(folderId: string, sortNotesBy: SortNotesBy) {
       )
       .select(({ note, folder }) => ({ ...note, folderName: folder?.name }));
 }
+// #endregion note-list-query
 
 export function useNoteList(folderId: string): {
   notes: NoteListItem[];
@@ -130,6 +134,7 @@ export function useNoteInFolder(
   return { note, isReady };
 }
 
+// #region note-counts-query
 /** Notes per folder (Recently Deleted not included). */
 export function noteCountsQuery(q: InitialQueryBuilder) {
   return q
@@ -138,6 +143,7 @@ export function noteCountsQuery(q: InitialQueryBuilder) {
     .groupBy(({ note }) => note.folderId)
     .select(({ note }) => ({ folderId: note.folderId, count: count(note.id) }));
 }
+// #endregion note-counts-query
 
 /** How many notes a (smart) folder shows: one row, or none when it's empty. */
 export function noteCountQuery(folderId: string) {
@@ -192,6 +198,7 @@ export function localDay(timestamp: string): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
+// #region note-stats-collection
 /**
  * One row per note with the numbers the analytics page adds up. The query
  * builder has no "count words" function, so `fn.select` runs plain
@@ -209,7 +216,9 @@ export const noteStatsCollection = createLiveQueryCollection((q) =>
       lastEditedOn: localDay(note.updatedAt),
     })),
 );
+// #endregion note-stats-collection
 
+// #region folder-stats-query
 /** Notes and words per folder (Recently Deleted not included). */
 export function folderStatsQuery(q: InitialQueryBuilder) {
   return q
@@ -221,7 +230,9 @@ export function folderStatsQuery(q: InitialQueryBuilder) {
       words: sum(stats.words),
     }));
 }
+// #endregion folder-stats-query
 
+// #region edits-per-day-query
 /** How many notes were last edited on each day, newest day first. */
 export function editsPerDayQuery(q: InitialQueryBuilder) {
   return q
@@ -230,6 +241,7 @@ export function editsPerDayQuery(q: InitialQueryBuilder) {
     .select(({ stats }) => ({ day: stats.lastEditedOn, notes: count(stats.id) }))
     .orderBy(({ $selected }) => $selected.day, "desc");
 }
+// #endregion edits-per-day-query
 
 export function useFolderStats() {
   return useLiveQuery({ query: folderStatsQuery }).data;

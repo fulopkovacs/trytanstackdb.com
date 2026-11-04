@@ -136,12 +136,14 @@ export function createFakeServer(seed: SeedData): FakeServer {
         `Folder names can be at most ${FOLDER_NAME_MAX_LENGTH} characters.`,
       );
     }
+    // #region duplicate-name
     const taken = [...folders.values()].some(
       (other) => other.id !== folder.id && other.name.toLowerCase() === name.toLowerCase(),
     );
     if (taken) {
       throw new HttpError(409, "duplicate_name", `There's already a folder named “${name}”.`);
     }
+    // #endregion duplicate-name
     folder.name = name;
   }
 
