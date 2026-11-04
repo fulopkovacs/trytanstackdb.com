@@ -112,9 +112,11 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
           your backend. This app has three: folders, notes and your account.
         </p>
         <p>
-          Here's the notes collection. <code>queryFn</code> loads every note from the API, the{" "}
-          <code>schema</code> checks each one, and <code>getKey</code> tells them apart. The three
-          handlers send your changes to the server; we'll get to them.
+          Here's the notes collection. <code>queryFn</code> loads every note from the API, and{" "}
+          <code>getKey</code> tells them apart. The <code>schema</code> checks the notes you create
+          and change in the app, before anything is sent. (Notes loaded by <code>queryFn</code> skip
+          it: this app trusts its own API.) The three handlers send your changes to the server;
+          we'll get to them.
         </p>
         <SourceSnippet snippet={SNIPPETS.notesCollection} />
         <p>
