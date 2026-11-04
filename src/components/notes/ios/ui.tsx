@@ -24,10 +24,30 @@ export function GlassCircle({ className, ...props }: ComponentProps<"button">) {
   );
 }
 
-function BackAnchor({ className, href, onClick, ...props }: ComponentProps<"a">) {
+/**
+ * Goes up the iPhone navigation stack to `href`: pops history when the parent
+ * screen is the previous entry, like a real navigation stack (so history
+ * doesn't grow and the parent's scroll is restored). Returns `false` when it
+ * can't, and the caller should navigate instead.
+ */
+export function usePopTo(): (href: string) => boolean {
   const router = useRouter();
   const previous = usePreviousEntry();
   const sheetOpen = useCurrentEntrySheetOpen();
+
+  return (href) => {
+    // Not if that entry is from before the app sheet opened: popping it would close the sheet.
+    const parentIsPrevious =
+      previous?.pathname === new URL(href, window.location.href).pathname &&
+      (!isRecordingSheetState() || previous.sheetOpen === sheetOpen);
+    if (!parentIsPrevious) return false;
+    router.history.back();
+    return true;
+  };
+}
+
+function BackAnchor({ className, href, onClick, ...props }: ComponentProps<"a">) {
+  const popTo = usePopTo();
 
   return (
     <a
@@ -35,16 +55,8 @@ function BackAnchor({ className, href, onClick, ...props }: ComponentProps<"a">)
       href={href}
       onClick={(event) => {
         const plainClick = !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
-        // Came here from the parent screen: pop back to it, like a real navigation
-        // stack, so history doesn't grow and the parent's scroll is restored.
-        // Not if that entry is from before the app sheet opened: popping it would close the sheet.
-        const parentIsPrevious =
-          href !== undefined &&
-          previous?.pathname === new URL(href, window.location.href).pathname &&
-          (!isRecordingSheetState() || previous.sheetOpen === sheetOpen);
-        if (plainClick && parentIsPrevious) {
+        if (plainClick && href !== undefined && popTo(href)) {
           event.preventDefault();
-          router.history.back();
           return;
         }
         // Opened directly (or from elsewhere): go to the parent screen.
@@ -233,7 +245,7 @@ export function RowChevron() {
 }
 
 /** Bottom bar of list screens: search capsule + round compose button. */
-export function SearchAndCompose() {
+export function SearchAndCompose({ onCompose }: { onCompose: (() => void) | undefined }) {
   return (
     <>
       <label className={cn(glass, "flex h-12 min-w-0 flex-1 items-center gap-2 rounded-full px-4")}>
@@ -245,14 +257,19 @@ export function SearchAndCompose() {
         />
         <Mic className="size-5 shrink-0 text-ios-text" />
       </label>
-      <ComposeButton />
+      <ComposeButton onCompose={onCompose} />
     </>
   );
 }
 
-export function ComposeButton() {
+export function ComposeButton({ onCompose }: { onCompose: (() => void) | undefined }) {
   return (
-    <GlassCircle aria-label="New note" className="size-12">
+    <GlassCircle
+      aria-label="New note"
+      className="size-12 disabled:opacity-40"
+      disabled={!onCompose}
+      onClick={onCompose}
+    >
       <SquarePen />
     </GlassCircle>
   );

@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 
 import { Callout } from "@/components/guide/callout";
 import { CodeBlock } from "@/components/guide/code-block";
+import type { AppActionMatcher } from "@/lib/app-actions";
 
 export interface GuideSectionContent {
   id: string;
@@ -21,6 +22,11 @@ export interface GuideSectionContent {
    * get a "Try it" button on mobile that opens the app there.
    */
   tryIt?: LinkOptions;
+  /**
+   * The app actions that count as doing this section's hands-on step; the
+   * first one that happens marks the section done (see `section-progress.ts`).
+   */
+  doneWhen?: AppActionMatcher[];
   content: ReactNode;
 }
 
@@ -31,6 +37,7 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
     title: "A notes app where every view is a query",
     shortTitle: "Intro",
     tryIt: linkOptions({ to: "/" }),
+    doneWhen: [{ type: "note.opened" }],
     content: (
       <>
         <p>
@@ -55,6 +62,7 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
     title: "What are collections?",
     shortTitle: "Collections",
     tryIt: linkOptions({ to: "/" }),
+    doneWhen: [{ type: "folder.opened", smart: false }],
     content: (
       <>
         <p>
@@ -94,6 +102,7 @@ export const notesCollection = createCollection(
     title: "Live queries",
     shortTitle: "Live queries",
     tryIt: linkOptions({ to: "/folders/$folderId", params: { folderId: "all" } }),
+    doneWhen: [{ type: "folder.opened", smart: true }, { type: "note.pinned" }],
     content: (
       <>
         <p>
@@ -125,6 +134,7 @@ const { data: notes } = useLiveQuery({
     title: "Optimistic updates",
     shortTitle: "Optimistic updates",
     tryIt: linkOptions({ to: "/folders/$folderId", params: { folderId: "work" } }),
+    doneWhen: [{ type: "note.edited" }, { type: "folder.renamed", status: "confirmed" }],
     content: (
       <>
         <p>
@@ -149,6 +159,7 @@ notesCollection.update(note.id, (draft) => {
     title: "Rollbacks",
     shortTitle: "Rollbacks",
     tryIt: linkOptions({ to: "/" }),
+    doneWhen: [{ status: "rolled-back" }],
     content: (
       <>
         <p>
@@ -170,8 +181,9 @@ notesCollection.update(note.id, (draft) => {
     content: (
       <>
         <p>
-          Query collections load data with a <code>queryFn</code> and refetch after writes. Data
-          flows one way: server → collection → live queries → components.
+          Query collections load data with a <code>queryFn</code>, and after each write they store
+          what the server sent back. Data flows one way: server → collection → live queries →
+          components.
         </p>
         <ul>
           <li>Query collections: any REST or RPC API</li>

@@ -11,10 +11,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { updateAccountSettings, useAccount, useFolders } from "@/data/notes-data";
-import type { AccountSettings } from "@/data/notes-data";
-import { accountSchema, newNoteStyleSchema, sortNotesBySchema } from "@/fixtures";
-import type { NewNoteStyle, SortNotesBy } from "@/fixtures";
+import { updateAccount } from "@/db/mutations";
+import type { AccountSettings } from "@/db/mutations";
+import { useAccount, useFolders } from "@/db/queries";
+import { accountSchema, newNoteStyleSchema, sortNotesBySchema } from "@/db/schema";
+import type { Account, NewNoteStyle, SortNotesBy } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
 import { AccountAvatar } from "./icons";
@@ -47,6 +48,16 @@ interface SettingsFormProps {
 
 export function SettingsForm({ variant }: SettingsFormProps) {
   const account = useAccount();
+  if (!account) return null;
+  return <AccountSettingsForm account={account} variant={variant} />;
+}
+
+/**
+ * The form edits a copy of the account; Save writes it to `accountCollection`
+ * as one optimistic update. The sidebar's account block changes right away,
+ * and the button waits for the server before the form counts as saved.
+ */
+function AccountSettingsForm({ account, variant }: SettingsFormProps & { account: Account }) {
   const folders = useFolders();
 
   const defaultValues: AccountSettings = {
@@ -62,8 +73,12 @@ export function SettingsForm({ variant }: SettingsFormProps) {
     defaultValues,
     validators: { onChange: accountSettingsSchema },
     onSubmit: async ({ value, formApi }) => {
-      await updateAccountSettings(value);
-      formApi.reset(value);
+      try {
+        await updateAccount(account.id, value).when("settled");
+        formApi.reset(value);
+      } catch {
+        // Rolled back: the error toast says why, and the form keeps the edits to retry.
+      }
     },
   });
 

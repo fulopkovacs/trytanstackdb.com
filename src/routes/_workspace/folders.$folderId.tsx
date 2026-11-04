@@ -4,7 +4,7 @@ import { MacNoteList } from "@/components/notes/mac/note-list";
 import { MacPagePane } from "@/components/notes/mac/page-pane";
 import { IosPageScreen } from "@/components/notes/ios/page-screen";
 import { ByLayout } from "@/components/notes/notes-layout";
-import { useFolderView } from "@/data/notes-data";
+import { useFolderView } from "@/db/queries";
 
 export const Route = createFileRoute("/_workspace/folders/$folderId")({
   component: FolderLayout,
@@ -13,9 +13,9 @@ export const Route = createFileRoute("/_workspace/folders/$folderId")({
 /** macOS: the note list column stays mounted while the editor column changes. */
 function FolderLayout() {
   const { folderId } = Route.useParams();
-  const folder = useFolderView(folderId);
+  const { view, isReady } = useFolderView(folderId);
 
-  if (!folder) return <FolderNotFound />;
+  if (isReady && !view) return <FolderNotFound />;
 
   return (
     <ByLayout

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 /**
- * Shapes of the seed data. Phase 2's fake API serves these exact records,
- * so the collections and the UI share one set of schemas and types.
+ * The records the API serves. The fixtures, the fake server and the
+ * collections all share these schemas, so there's one set of types.
  */
 
 /** Folders with a role get special treatment in the sidebar. */

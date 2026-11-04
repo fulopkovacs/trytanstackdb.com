@@ -1,5 +1,5 @@
 import { useLocation } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 
@@ -8,6 +8,9 @@ import { GuidePanel } from "@/components/guide/guide-panel";
 import { FixedNotesLayout } from "@/components/notes/notes-layout";
 import { usePageTitle } from "@/components/notes/use-page-title";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { Toaster } from "@/components/ui/sonner";
+import { exposeFakeApiOnWindow } from "@/api/dev-console";
+import { trackSectionProgress } from "@/guide/section-progress";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 import { AppSlot } from "./app-slot";
@@ -36,9 +39,14 @@ export function Workspace({ app }: { app: ReactNode }) {
   });
   const appSlot = <AppSlot host={appHost} />;
 
+  // Doing a section's step in the app ticks it off in the guide.
+  useEffect(() => trackSectionProgress(), []);
+  useEffect(() => exposeFakeApiOnWindow(), []);
+
   return (
     <>
       {isSplit ? <SplitWorkspace appSlot={appSlot} /> : <MobileWorkspace appSlot={appSlot} />}
+      <Toaster position={isSplit ? "bottom-right" : "top-center"} closeButton />
       {createPortal(
         <FixedNotesLayout layout={isSplit ? null : "ios"}>{app}</FixedNotesLayout>,
         appHost,

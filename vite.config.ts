@@ -18,6 +18,9 @@ const config = defineConfig({
     options: { typeAware: true, typeCheck: true },
   },
   resolve: { tsconfigPaths: true },
+  // The dev server is also opened from other devices over Tailscale, by
+  // machine name (`http://pop-os:3000`) or MagicDNS name (`*.ts.net`).
+  server: { allowedHosts: ["pop-os", ".ts.net"] },
   test: {
     include: ["src/**/*.test.{ts,tsx}"],
   },

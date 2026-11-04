@@ -1,26 +1,36 @@
-import type { Note } from "@/fixtures";
+import type { Note } from "@/db/schema";
 
 import { groupByDate } from "./dates";
 import type { DateGroup } from "./dates";
 
-export interface NoteListSections {
-  pinned: Note[];
-  groups: DateGroup<Note>[];
+export interface NoteListSections<T extends Note> {
+  pinned: T[];
+  /** Date groups ("Today", "Yesterday"…), or one group without a label. */
+  groups: DateGroup<T>[];
 }
 
-/** Splits a folder's notes (newest first) into the Pinned section and date groups. */
-export function noteListSections(notes: Note[], now: Date): NoteListSections {
+export interface NoteListOptions {
+  /** The date the list is sorted by, or `null` when it's sorted by title. */
+  dateField: "updatedAt" | "createdAt" | null;
+  groupByDate: boolean;
+}
+
+/**
+ * Splits a folder's notes (already sorted, pinned first) into the Pinned
+ * section and date groups, the way Notes shows them.
+ */
+export function noteListSections<T extends Note>(
+  notes: T[],
+  now: Date,
+  { dateField, groupByDate: grouped }: NoteListOptions,
+): NoteListSections<T> {
+  const pinned = notes.filter((note) => note.pinned);
+  const others = notes.filter((note) => !note.pinned);
+  if (!grouped || dateField === null) {
+    return { pinned, groups: others.length > 0 ? [{ label: "", items: others }] : [] };
+  }
   return {
-    pinned: notes.filter((note) => note.pinned),
-    groups: groupByDate(
-      notes.filter((note) => !note.pinned),
-      (note) => new Date(note.updatedAt),
-      now,
-    ),
+    pinned,
+    groups: groupByDate(others, (note) => new Date(note[dateField]), now),
   };
-}
-
-/** Notes in the order they appear on screen: pinned first, then by date. */
-export function notesInDisplayOrder(notes: Note[]): Note[] {
-  return [...notes.filter((note) => note.pinned), ...notes.filter((note) => !note.pinned)];
 }
