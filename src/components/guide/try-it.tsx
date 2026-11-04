@@ -24,6 +24,19 @@ export function TryItProvider({
   return <TryItContext value={onTryIt}>{children}</TryItContext>;
 }
 
+/** Whether the app is in a sheet (small screens) rather than beside the guide. */
+export function useIsAppInSheet(): boolean {
+  return useContext(TryItContext) !== null;
+}
+
+/**
+ * Copy that depends on where the app is. Most guide copy is the same in both
+ * layouts; use this only where it can't be.
+ */
+export function ByGuideLayout({ beside, inSheet }: { beside: ReactNode; inSheet: ReactNode }) {
+  return useIsAppInSheet() ? inSheet : beside;
+}
+
 export function TryItButton({ sectionId, target }: { sectionId: string; target: LinkOptions }) {
   const onTryIt = useContext(TryItContext);
   const done = useIsSectionDone(sectionId);
