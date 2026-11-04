@@ -1,5 +1,7 @@
 import { useRouter } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import { toast } from "sonner";
 
 import { useShowInAppSheet } from "@/components/app-sheet/app-sheet-store";
 import { useIsAppInSheet } from "@/components/guide/try-it";
@@ -8,6 +10,8 @@ import { queryOnce } from "@tanstack/react-db";
 
 import { newestNoteQuery } from "@/db/queries";
 import { createStore, useStore } from "@/lib/store";
+
+import { revealSpotlightTarget } from "./spotlight-reveal";
 
 import {
   SPOTLIGHT_TARGETS,
@@ -30,6 +34,17 @@ export function dismissSpotlight() {
   spotlightStore.set(null);
 }
 
+/** Spotlights `target` as soon as it's on screen (the caller brings it there). */
+export function startSpotlight(target: SpotlightTarget) {
+  spotlightStore.set({ target, id: nextId++ });
+}
+
+/** Says why nothing lit up, instead of failing silently. */
+function showMissingTarget(target: SpotlightTarget) {
+  const { label, hint } = SPOTLIGHT_TARGETS[target];
+  toast(`Couldn't show the ${label.toLowerCase()}`, { id: "spotlight-missing", description: hint });
+}
+
 /** A note to open for the editor: the newest in the folder you're in, or anywhere. */
 async function noteToOpen(pathname: string) {
   for (const folderId of new Set([folderIdFromPath(pathname), "all"])) {
@@ -50,6 +65,9 @@ export function useShowSpotlight() {
 
   return useCallback(
     async (target: SpotlightTarget) => {
+      // Un-hide it first (a hidden sidebar, a collapsed section), and render
+      // that now, so the check below sees it.
+      flushSync(() => revealSpotlightTarget(target));
       const { pathname } = router.state.location;
       const onScreen = document.querySelector(`[data-spotlight="${target}"]`) !== null;
       const route = onScreen
@@ -65,7 +83,7 @@ export function useShowSpotlight() {
         if (target === "request-inspector") setInspectorOpen(true);
         if (route) void router.navigate(route);
       }
-      spotlightStore.set({ target, id: nextId++ });
+      startSpotlight(target);
     },
     [router, inSheet, showInAppSheet],
   );
@@ -86,7 +104,14 @@ const PADDING = 6;
  * any click or tap, or a few seconds dismiss it. It follows the target while
  * it moves (the sheet sliding up, the page scrolling).
  */
-export function SpotlightOverlay() {
+export function SpotlightOverlay({
+  onMissing = showMissingTarget,
+}: {
+  /** The target didn't show up in time. */
+  onMissing?: (target: SpotlightTarget) => void;
+}) {
+  const onMissingRef = useRef(onMissing);
+  onMissingRef.current = onMissing;
   const spotlight = useStore(spotlightStore);
   const [box, setBox] = useState<Box | null>(null);
   const scrolledFor = useRef<number | null>(null);
@@ -95,15 +120,23 @@ export function SpotlightOverlay() {
   useEffect(() => {
     setBox(null);
     if (!spotlight) return;
-    const startedAt = performance.now();
+    let found = false;
     let frame = 0;
     let lastTop = Number.NaN;
+    // Nothing to point at in time: say so, instead of failing silently.
+    const missing = window.setTimeout(() => {
+      if (found) return;
+      dismissSpotlight();
+      onMissingRef.current(spotlight.target);
+    }, FIND_TIMEOUT_MS);
     const track = () => {
       const element = findSpotlightElement(spotlight.target);
       if (!element) {
         setBox(null);
-        if (performance.now() - startedAt > FIND_TIMEOUT_MS) return dismissSpotlight();
+        // It was there and went away (the reader navigated): just end.
+        if (found) return dismissSpotlight();
       } else {
+        found = true;
         const rect = element.getBoundingClientRect();
         // Bring it on screen once, and only if none of it shows. Wait until
         // it stops moving: the sheet may still be sliding up.
@@ -139,6 +172,7 @@ export function SpotlightOverlay() {
     const timeout = window.setTimeout(dismissSpotlight, SPOTLIGHT_DURATION_MS);
     return () => {
       cancelAnimationFrame(frame);
+      window.clearTimeout(missing);
       window.clearTimeout(timeout);
     };
   }, [spotlight]);

@@ -6,13 +6,19 @@ import type { LinkOptions } from "@tanstack/react-router";
  * layout.
  */
 export const SPOTLIGHT_TARGETS = {
-  "folder-counts": { label: "Folder counts" },
-  "note-list": { label: "Note list" },
-  editor: { label: "Editor" },
-  "network-controls": { label: "Network controls" },
-  "request-inspector": { label: "Request inspector" },
-  analytics: { label: "Analytics" },
-} as const satisfies Record<string, { label: string }>;
+  "folder-counts": { label: "Folder counts", hint: "They're next to each folder in the app." },
+  "note-list": { label: "Note list", hint: "Open a folder in the app to see it." },
+  editor: { label: "Editor", hint: "There are no notes to open. Create one in the app first." },
+  "network-controls": {
+    label: "Network controls",
+    hint: "They're in the browser toolbar, or under Network on a phone.",
+  },
+  "request-inspector": {
+    label: "Request inspector",
+    hint: "Open it with Requests in the browser toolbar, or under Network on a phone.",
+  },
+  analytics: { label: "Analytics", hint: "Open Analytics at the bottom of the folder list." },
+} as const satisfies Record<string, { label: string; hint: string }>;
 
 export type SpotlightTarget = keyof typeof SPOTLIGHT_TARGETS;
 
