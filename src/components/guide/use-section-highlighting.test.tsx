@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import {
+  Navigate,
   Outlet,
   RouterProvider,
   createMemoryHistory,
@@ -7,6 +8,7 @@ import {
   createRoute,
   createRouter,
   linkOptions,
+  useParams,
 } from "@tanstack/react-router";
 import type { LinkOptions } from "@tanstack/react-router";
 import { act } from "react";
@@ -19,6 +21,7 @@ import {
   useIsAppSheetOpen,
   useOpenAppSheet,
 } from "@/components/app-sheet/app-sheet-store";
+import { setAppSheetView } from "@/components/app-sheet/app-sheet-store";
 import { setInspectorOpen } from "@/components/network/inspector-store";
 import { reportAction } from "@/lib/app-actions";
 import { createSheetAwareHistory, setRecordSheetState } from "@/lib/sheet-aware-history";
@@ -48,6 +51,27 @@ function renderWorkspace({ isSplit }: { isSplit: boolean }) {
     createRoute({ getParentRoute: () => rootRoute, path: "/", component: () => null }),
     createRoute({ getParentRoute: () => rootRoute, path: "/analytics", component: () => null }),
     createRoute({ getParentRoute: () => rootRoute, path: "/settings", component: () => null }),
+    // Like the macOS app: a folder opens its first note.
+    createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/folders/$folderId",
+      component: function OpenFirstNote() {
+        const params = useParams({ strict: false }) as { folderId: string };
+        if (!isSplit) return null;
+        return (
+          <Navigate
+            to="/folders/$folderId/notes/$noteId"
+            params={{ folderId: params.folderId, noteId: "note-03" }}
+            replace
+          />
+        );
+      },
+    }),
+    createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/folders/$folderId/notes/$noteId",
+      component: () => null,
+    }),
   ]);
   const history = createSheetAwareHistory(createMemoryHistory({ initialEntries: ["/"] }));
   const router = createRouter({ routeTree, history });
@@ -142,6 +166,54 @@ describe("highlighting on phones (the app in a sheet)", () => {
     expect(getActiveSection()).toBe("rollbacks");
     await settle(router, () => sheet.close());
     expect(getActiveSection()).toBe("rollbacks");
+  });
+});
+
+describe("with the request inspector open", () => {
+  /** A sidebar click: report the action, then follow the link. */
+  const openFolder = (router: ReturnType<typeof renderWorkspace>["router"], folderId: string) => {
+    reportAction({ type: "folder.opened", folderId, smart: folderId === "all" });
+    return router.navigate({ to: "/folders/$folderId", params: { folderId } });
+  };
+
+  it("on wide screens, the guide follows the folders the reader opens", async () => {
+    const { router } = renderWorkspace({ isSplit: true });
+    await act(async () => {
+      root.render(<RouterProvider router={router} />);
+      await untilIdle(router);
+    });
+    await settle(router, () => router.navigate({ to: "/analytics" }));
+    expect(getActiveSection()).toBe("aggregations");
+    await settle(router, () => setInspectorOpen(true));
+    expect(getActiveSection()).toBe("sync");
+
+    await settle(router, () => openFolder(router, "personal"));
+    expect(router.state.location.pathname).toBe("/folders/personal/notes/note-03");
+    expect(getActiveSection()).toBe("collections");
+    await settle(router, () => openFolder(router, "all"));
+    expect(getActiveSection()).toBe("live-queries");
+  });
+
+  it("on phones, with the Network view open, navigating in the sheet still counts", async () => {
+    setRecordSheetState(true);
+    const { router } = renderWorkspace({ isSplit: false });
+    await act(async () => {
+      root.render(<RouterProvider router={router} />);
+      await untilIdle(router);
+    });
+    await settle(router, () => sheet.open("introduction", linkOptions({ to: "/" })));
+    await settle(router, () => setAppSheetView("network"));
+    expect(getActiveSection()).toBe("sync");
+    // Back to the app view, then into a folder (the iPhone layout shows its list).
+    await settle(router, () => setAppSheetView("app"));
+    await settle(router, () => openFolder(router, "personal"));
+    expect(getActiveSection()).toBe("collections");
+    // Back (the history entry before) while the Network view is open again.
+    await settle(router, () => setAppSheetView("network"));
+    await settle(router, () => router.navigate({ to: "/analytics" }));
+    expect(sheet.isOpen).toBe(true);
+    expect(getActiveSection()).toBe("aggregations");
+    setAppSheetView("app");
   });
 });
 

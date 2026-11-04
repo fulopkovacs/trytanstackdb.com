@@ -218,6 +218,34 @@ describe("the guide's sections, from app state", () => {
   });
 });
 
+describe("with the request inspector left open", () => {
+  // On macOS, opening a folder lands on its first note: the folder's route
+  // redirects straight to the note's.
+  const openFolder = (folderId: string, smart: boolean): AppStateInput[] => [
+    act({ type: "folder.opened", folderId, smart }),
+    navigate("/folders/$folderId", { folderId }),
+    navigate("/folders/$folderId/notes/$noteId", { folderId, noteId: "note-03" }),
+  ];
+
+  it("follows the folders the reader opens, from Analytics", () => {
+    expect(
+      highlights(
+        navigate("/analytics"),
+        { kind: "panel", panel: "inspector" },
+        ...openFolder("personal", false),
+        ...openFolder("all", true),
+      ).filter((_, index) => [0, 1, 4, 7].includes(index)),
+    ).toEqual(["aggregations", "sync", "collections", "live-queries"]);
+  });
+
+  it("follows them when the folder's route is skipped, too", () => {
+    const [click, , note] = openFolder("personal", false);
+    expect(
+      highlights(navigate("/analytics"), { kind: "panel", panel: "inspector" }, click!, note!),
+    ).toEqual(["aggregations", "sync", "sync", "collections"]);
+  });
+});
+
 describe("isSectionInView", () => {
   const view = { top: 0, bottom: 800 };
 

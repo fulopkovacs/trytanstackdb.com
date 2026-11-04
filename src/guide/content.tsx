@@ -114,6 +114,11 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
     shortTitle: "Collections",
     appStates: [
       { screen: "/folders/$folderId", lastAction: { type: "folder.opened", smart: false } },
+      // The macOS layout opens a folder on its first note.
+      {
+        screen: "/folders/$folderId/notes/$noteId",
+        lastAction: { type: "folder.opened", smart: false },
+      },
       { screen: "/folders/$folderId/notes/$noteId", lastAction: { type: "note.opened" } },
     ],
     tryIt: linkOptions({ to: "/" }),
@@ -153,6 +158,10 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
     shortTitle: "Live queries",
     appStates: [
       { screen: "/folders/$folderId", lastAction: { type: "folder.opened", smart: true } },
+      {
+        screen: "/folders/$folderId/notes/$noteId",
+        lastAction: { type: "folder.opened", smart: true },
+      },
       { lastAction: { type: "note.pinned" } },
       { screen: "/settings", lastAction: { type: "account.updated" } },
     ],
