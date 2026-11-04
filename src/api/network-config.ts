@@ -8,7 +8,7 @@ import { createStore, useStore } from "@/lib/store";
 export interface NetworkConfig {
   /** How long every request takes, in milliseconds. */
   latencyMs: number;
-  /** Fail the next request with a 500, then switch back off. */
+  /** Fail the next request sent with a 500, then switch back off. Requests already in flight aren't affected. */
   failNextRequest: boolean;
   /** Share of requests (0 to 1) that fail at random. */
   failureRate: number;

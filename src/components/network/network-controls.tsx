@@ -75,7 +75,7 @@ export function FailNextRequestControl({ className }: { className?: string }) {
           Fail the next request
         </label>
         <p id={descriptionId} className="text-[12px] text-muted-foreground">
-          The server answers it with a 500, then works again.
+          The next request the app sends gets a 500. Ones already on their way don't.
         </p>
       </div>
       <Switch
@@ -98,7 +98,7 @@ export function FailNextRequestToggle({ className }: { className?: string }) {
       size="sm"
       pressed={failNextRequest}
       onPressedChange={setFailNextRequest}
-      title="The server answers the next request with a 500, then works again"
+      title="The next request the app sends gets a 500. Ones already on their way don't."
       className={cn(
         "gap-1.5 data-[state=on]:border-red-600/40 data-[state=on]:bg-red-600/10 data-[state=on]:text-red-700 dark:data-[state=on]:text-red-400",
         className,

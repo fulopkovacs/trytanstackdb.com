@@ -302,8 +302,9 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
         <Callout variant="tip">
           Any change can fail. Turn on "Fail next" in the{" "}
           <ShowMe target="network-controls">network controls</ShowMe>, then pin a note or edit one:
-          the server answers that request with a 500, and your change rolls back. Set the latency to
-          2 s first to watch the change sit on screen while the request is pending.
+          the server answers the next request the app sends with a 500, and your change rolls back.
+          Set the latency to 2 s first to watch the change sit on screen while the request is
+          pending.
         </Callout>
       </>
     ),
