@@ -37,7 +37,6 @@ async function request<T>(
 export const api = {
   get: <T>(url: string, options?: { signal?: AbortSignal }) => request<T>("GET", url, options),
   post: <T>(url: string, body: unknown) => request<T>("POST", url, { body }),
-  patch: <T>(url: string, body: unknown, options?: { signal?: AbortSignal }) =>
-    request<T>("PATCH", url, { body, ...options }),
+  patch: <T>(url: string, body: unknown) => request<T>("PATCH", url, { body }),
   delete: (url: string) => request<void>("DELETE", url),
 };

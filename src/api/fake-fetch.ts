@@ -2,7 +2,6 @@ import { createSeedData } from "@/fixtures";
 import type { SeedData } from "@/fixtures";
 
 import { createFakeServer, errorBody } from "./fake-server";
-import type { NotesCommit } from "./fake-server";
 import { getNetworkConfig, takeInjectedFailure } from "./network-config";
 import { logRequestEnd, logRequestStart } from "./request-log";
 
@@ -63,31 +62,11 @@ function parseJsonBody(body: RequestInit["body"]): { ok: boolean; value: unknown
   }
 }
 
-const commitListeners = new Set<(commit: NotesCommit) => void>();
-
-function publishCommit(commit: NotesCommit) {
-  for (const listener of commitListeners) listener(commit);
-}
-
-let server = createFakeServer(createSeedData(), { onCommit: publishCommit });
+let server = createFakeServer(createSeedData());
 
 /** Starts the server over with fresh data (tests; a page reload does the same). */
 export function resetFakeServer(seed: SeedData = createSeedData()) {
-  server = createFakeServer(seed, { onCommit: publishCommit });
-}
-
-/**
- * The server's committed note writes, as they happen, and its notes right
- * now. Only the simulated Realtime stream uses these: the app itself talks
- * to the server through `fakeFetch` alone.
- */
-export function subscribeToNoteCommits(listener: (commit: NotesCommit) => void): () => void {
-  commitListeners.add(listener);
-  return () => commitListeners.delete(listener);
-}
-
-export function snapshotNotes() {
-  return server.notesSnapshot();
+  server = createFakeServer(seed);
 }
 
 function delay(ms: number, signal: AbortSignal | null | undefined): Promise<void> {

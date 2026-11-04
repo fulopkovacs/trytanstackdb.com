@@ -26,11 +26,7 @@ describe("app notifications", () => {
       history: createMemoryHistory(),
       context: { queryClient: undefined as never },
     });
-    for (const id of [
-      "/_workspace",
-      "/deep-dives/neon-realtime",
-      "/deep-dives/query-driven-sync",
-    ] as const) {
+    for (const id of ["/_workspace", "/deep-dives/query-driven-sync"] as const) {
       expect(router.routesById[id].parentRoute, id).toBe(routeTree);
     }
   });

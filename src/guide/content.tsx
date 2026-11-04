@@ -308,10 +308,8 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
           </li>
         </ul>
         <Callout variant="note">
-          Two deep dives go further:{" "}
-          <Link to="/deep-dives/query-driven-sync">query-driven sync</Link> loads only the notes a
-          query needs, and <Link to="/deep-dives/neon-realtime">Neon Realtime</Link> streams changes
-          from Postgres into a collection.
+          The <Link to="/deep-dives/query-driven-sync">query-driven sync</Link> deep dive goes
+          further: it loads only the notes a query needs.
         </Callout>
       </>
     ),
@@ -366,10 +364,6 @@ export const GUIDE_SECTIONS: GuideSectionContent[] = [
           <li>
             <Link to="/deep-dives/query-driven-sync">Query-driven sync</Link>: load only the notes a
             live query asks for, with <code>syncMode: "on-demand"</code>.
-          </li>
-          <li>
-            <Link to="/deep-dives/neon-realtime">Neon Realtime</Link>: stream changes from Postgres
-            into a collection.
           </li>
         </ul>
         <h3>Docs</h3>

@@ -13,7 +13,6 @@ import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as WorkspaceIndexRouteImport } from './routes/_workspace/index'
 import { Route as WorkspaceAnalyticsRouteImport } from './routes/_workspace/analytics'
 import { Route as WorkspaceSettingsRouteImport } from './routes/_workspace/settings'
-import { Route as DeepDivesNeonRealtimeRouteImport } from './routes/deep-dives/neon-realtime'
 import { Route as DeepDivesQueryDrivenSyncRouteImport } from './routes/deep-dives/query-driven-sync'
 import { Route as WorkspaceFoldersFolderIdRouteImport } from './routes/_workspace/folders.$folderId'
 import { Route as WorkspaceFoldersFolderIdIndexRouteImport } from './routes/_workspace/folders.$folderId.index'
@@ -37,11 +36,6 @@ const WorkspaceSettingsRoute = WorkspaceSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => WorkspaceRoute,
-} as any)
-const DeepDivesNeonRealtimeRoute = DeepDivesNeonRealtimeRouteImport.update({
-  id: '/deep-dives/neon-realtime',
-  path: '/deep-dives/neon-realtime',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const DeepDivesQueryDrivenSyncRoute =
   DeepDivesQueryDrivenSyncRouteImport.update({
@@ -72,7 +66,6 @@ export interface FileRoutesByFullPath {
   '/': typeof WorkspaceIndexRoute
   '/analytics': typeof WorkspaceAnalyticsRoute
   '/settings': typeof WorkspaceSettingsRoute
-  '/deep-dives/neon-realtime': typeof DeepDivesNeonRealtimeRoute
   '/deep-dives/query-driven-sync': typeof DeepDivesQueryDrivenSyncRoute
   '/folders/$folderId': typeof WorkspaceFoldersFolderIdRouteWithChildren
   '/folders/$folderId/': typeof WorkspaceFoldersFolderIdIndexRoute
@@ -81,7 +74,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/analytics': typeof WorkspaceAnalyticsRoute
   '/settings': typeof WorkspaceSettingsRoute
-  '/deep-dives/neon-realtime': typeof DeepDivesNeonRealtimeRoute
   '/deep-dives/query-driven-sync': typeof DeepDivesQueryDrivenSyncRoute
   '/': typeof WorkspaceIndexRoute
   '/folders/$folderId': typeof WorkspaceFoldersFolderIdIndexRoute
@@ -92,7 +84,6 @@ export interface FileRoutesById {
   '/_workspace': typeof WorkspaceRouteWithChildren
   '/_workspace/analytics': typeof WorkspaceAnalyticsRoute
   '/_workspace/settings': typeof WorkspaceSettingsRoute
-  '/deep-dives/neon-realtime': typeof DeepDivesNeonRealtimeRoute
   '/deep-dives/query-driven-sync': typeof DeepDivesQueryDrivenSyncRoute
   '/_workspace/': typeof WorkspaceIndexRoute
   '/_workspace/folders/$folderId': typeof WorkspaceFoldersFolderIdRouteWithChildren
@@ -105,7 +96,6 @@ export interface FileRouteTypes {
     | '/'
     | '/analytics'
     | '/settings'
-    | '/deep-dives/neon-realtime'
     | '/deep-dives/query-driven-sync'
     | '/folders/$folderId'
     | '/folders/$folderId/'
@@ -114,7 +104,6 @@ export interface FileRouteTypes {
   to:
     | '/analytics'
     | '/settings'
-    | '/deep-dives/neon-realtime'
     | '/deep-dives/query-driven-sync'
     | '/'
     | '/folders/$folderId'
@@ -124,7 +113,6 @@ export interface FileRouteTypes {
     | '/_workspace'
     | '/_workspace/analytics'
     | '/_workspace/settings'
-    | '/deep-dives/neon-realtime'
     | '/deep-dives/query-driven-sync'
     | '/_workspace/'
     | '/_workspace/folders/$folderId'
@@ -134,7 +122,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   WorkspaceRoute: typeof WorkspaceRouteWithChildren
-  DeepDivesNeonRealtimeRoute: typeof DeepDivesNeonRealtimeRoute
   DeepDivesQueryDrivenSyncRoute: typeof DeepDivesQueryDrivenSyncRoute
 }
 
@@ -167,13 +154,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings'
       preLoaderRoute: typeof WorkspaceSettingsRouteImport
       parentRoute: typeof WorkspaceRoute
-    }
-    '/deep-dives/neon-realtime': {
-      id: '/deep-dives/neon-realtime'
-      path: '/deep-dives/neon-realtime'
-      fullPath: '/deep-dives/neon-realtime'
-      preLoaderRoute: typeof DeepDivesNeonRealtimeRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/deep-dives/query-driven-sync': {
       id: '/deep-dives/query-driven-sync'
@@ -243,7 +223,6 @@ const WorkspaceRouteWithChildren = WorkspaceRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   WorkspaceRoute: WorkspaceRouteWithChildren,
-  DeepDivesNeonRealtimeRoute: DeepDivesNeonRealtimeRoute,
   DeepDivesQueryDrivenSyncRoute: DeepDivesQueryDrivenSyncRoute,
 }
 export const routeTree = rootRouteImport
