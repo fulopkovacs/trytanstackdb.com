@@ -14,7 +14,7 @@ import { logRequestEnd, logRequestStart } from "./request-log";
  */
 export async function fakeFetch(url: string, init: RequestInit = {}): Promise<Response> {
   const method = (init.method ?? "GET").toUpperCase();
-  const { pathname, search } = new URL(url, "https://notes.example");
+  const { pathname, search, searchParams } = new URL(url, "https://notes.example");
   const body = parseJsonBody(init.body);
   const logId = logRequestStart({ method, url: pathname + search, requestBody: body.value });
 
@@ -35,7 +35,7 @@ export async function fakeFetch(url: string, init: RequestInit = {}): Promise<Re
     ? { status: 500, body: errorBody("injected_failure", "The server failed (on purpose).") }
     : !body.ok
       ? { status: 400, body: errorBody("invalid_json", "The request body isn't valid JSON.") }
-      : server.handle({ method, path: pathname, body: body.value });
+      : server.handle({ method, path: pathname, query: searchParams, body: body.value });
 
   logRequestEnd(logId, {
     state: "done",
