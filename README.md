@@ -1,191 +1,88 @@
-Welcome to your new TanStack Start app!
+# trytanstackdb.com _(BETA version)_
 
-# Getting Started
+> Note that this project is still in its early stages.
 
-To run this application:
+An interactive guide for taking the first steps with
+[`@tanstack/db`](https://tanstack.com/db/latest/docs/overview) by
+[fuko](https://fulop.dev/).
 
-```bash
-pnpm install
-pnpm dev
+[🔗 trytanstackdb.com](https://trytanstackdb.com)
+
+## 🚀 Main goals, motivations
+
+It took a while for TanStack DB to "click" for me, but it's not because this
+library is too nieche. When I used it for a POC and showed that to my
+colleagues, they seemed to immediately understand the advantages of TanStack DB,
+because I could show exactly the things I explained.
+
+This project aims to bring the same interactive and practical learning
+experience to everybody elseon the internet.
+
+### Target audience
+
+There are two types of people in the target audience of this project:
+
+1. Devs, who just heard about TanStack DB, and want to understand what it is,
+   and see if it could be useful for their use cases.
+2. _(Future goal):_ People who want to build things with TanStack DB, and want
+   to see a reference implementation of the features it has.
+
+## Architecture
+
+The architecture was designed around the two things that I wanted to highlight
+in the interactive tutorial:
+
+1. TanStack DB can make applications feel incredibly fast, even when the network
+   latency is large
+2. contrary to conventional local-first approaches, this library doesn't require
+   big technical changes on the back end (works with any database, no need for
+   adding new libs to your backend, simple api endpoints work just fine)
+
+The guide runs next to a small Notes app built with TanStack DB. Its data lives
+in three query collections (folders, notes, account) that load from and save to
+a plain REST API.
+
+Databases are expensive, so instead of running one on a server, the "backend"
+is an in-memory database behind a small REST API that runs in the browser
+(`src/api/fake-server.ts`). It is seeded from `src/fixtures` and starts over
+when the page is reloaded.
+
+I wanted to make the syncing mechanisms observable. The app only talks to the
+API through `fakeFetch` (`src/api/fake-fetch.ts`), a `fetch`-like function that
+waits for the configured latency, can fail the next request on purpose, and
+records every request in a log. The network controls and the request inspector
+in the UI are built on top of it.
+
+```mermaid
+sequenceDiagram
+    participant App as Notes app (TanStack DB collections)
+    participant FakeFetch as fakeFetch (latency, failures, request log)
+    participant Server as Fake server (in-memory REST API)
+
+    App->>FakeFetch: API call
+    FakeFetch->>FakeFetch: Wait for the configured latency
+    FakeFetch->>Server: Forward request
+    Server->>FakeFetch: Return data
+    FakeFetch->>App: Respond to original request
 ```
 
-# Building For Production
+## Development
 
-To build this application for production:
+The project is a [TanStack Start](https://tanstack.com/start) app that uses
+[Vite+](https://viteplus.dev/) (the `vp` CLI) for tooling. See
+[AGENTS.md](./AGENTS.md) for more about Vite+.
 
-```bash
-pnpm build
+```sh
+vp install      # install dependencies
+vp run dev      # start the dev server on http://localhost:3000
+vp check        # format, lint and type check
+vp test         # run the unit tests
+vp run build    # build for production
 ```
 
-## Styling
+### Deployment
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
-
-## Deploy to Cloudflare Workers
-
-This project uses the Cloudflare Vite plugin (configured in `vite.config.ts`) and `wrangler.jsonc`:
-
-1. Install Wrangler: `npm install -g wrangler`
-2. Authenticate: `wrangler login`
-3. Deploy: `npx wrangler deploy`
-
-For production env vars, run `wrangler secret put MY_VAR` for each secret listed in `.env.example`. Public (non-secret) vars go in `wrangler.jsonc` under `vars`.
-
-KV, D1, R2, and Durable Object bindings are configured in `wrangler.jsonc` — see https://developers.cloudflare.com/workers/wrangler/configuration/.
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "My App" },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-});
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from "@tanstack/react-start";
-
-const getServerTime = createServerFn({
-  method: "GET",
-}).handler(async () => {
-  return new Date().toISOString();
-});
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState("");
-
-  useEffect(() => {
-    getServerTime().then(setTime);
-  }, []);
-
-  return <div>Server time: {time}</div>;
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from "@tanstack/react-router";
-import { json } from "@tanstack/react-start";
-
-export const Route = createFileRoute("/api/hello")({
-  server: {
-    handlers: {
-      GET: () => json({ message: "Hello, World!" }),
-    },
-  },
-});
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/people")({
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json();
-  },
-  component: PeopleComponent,
-});
-
-function PeopleComponent() {
-  const data = Route.useLoaderData();
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  );
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+The app is set up for Cloudflare Workers (`wrangler.jsonc` and the Cloudflare
+Vite plugin), and `vp run deploy` builds it and runs `wrangler deploy`. The
+worker name, domain and deploy setup for trytanstackdb.com are not configured
+yet.
