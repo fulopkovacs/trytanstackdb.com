@@ -1,10 +1,11 @@
 import { defineWorkflow, pullRequest, push } from "@tanstack-source/ci";
 
 // `setup.pnpm()` reads only the top-level `packageManager` field, but this
-// project names its pnpm in `devEngines.packageManager`.
+// project names its pnpm in `devEngines.packageManager`. The CI image already
+// has a pnpm, so `--force` replaces its `pnpm`/`pnpx` binaries.
 const setupPnpm = {
   name: "Set up pnpm",
-  run: `npm install --global "pnpm@$(node -p 'require("./package.json").devEngines.packageManager.version')"`,
+  run: `npm install --global --force "pnpm@$(node -p 'require("./package.json").devEngines.packageManager.version')"`,
 };
 const install = { name: "Install", run: "pnpm install --frozen-lockfile" };
 
