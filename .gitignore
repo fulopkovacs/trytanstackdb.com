@@ -3,17 +3,18 @@ node_modules
 dist
 dist-ssr
 *.local
-count.txt
 .env
 .nitro
 .tanstack
 .wrangler
+.cloudflare
 .output
 .vinxi
+__unconfig*
 todos.json
+!.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
 
-
-# My local notes
-notes.md
-.memelord/
-.codemogger
+# build brief
+trytanstackdb.com V2 — Build brief for coding agents.md

@@ -9,214 +9,221 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as MobileRouteImport } from './routes/mobile'
-import { Route as TutorialRouteImport } from './routes/_tutorial'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as TutorialDbRouteImport } from './routes/_tutorial._db'
-import { Route as TutorialDbProjectsRouteImport } from './routes/_tutorial._db.projects'
-import { Route as TutorialDbProjectRootRouteImport } from './routes/_tutorial._db.project-root'
-import { Route as TutorialDbProjectsIndexRouteImport } from './routes/_tutorial._db.projects.index'
-import { Route as TutorialDbProjectsProjectIdRouteImport } from './routes/_tutorial._db.projects.$projectId'
+import { Route as WorkspaceRouteImport } from './routes/_workspace'
+import { Route as WorkspaceIndexRouteImport } from './routes/_workspace/index'
+import { Route as WorkspaceAnalyticsRouteImport } from './routes/_workspace/analytics'
+import { Route as WorkspaceSettingsRouteImport } from './routes/_workspace/settings'
+import { Route as DeepDivesQueryDrivenSyncRouteImport } from './routes/deep-dives/query-driven-sync'
+import { Route as WorkspaceFoldersFolderIdRouteImport } from './routes/_workspace/folders.$folderId'
+import { Route as WorkspaceFoldersFolderIdIndexRouteImport } from './routes/_workspace/folders.$folderId.index'
+import { Route as WorkspaceFoldersFolderIdNotesNoteIdRouteImport } from './routes/_workspace/folders.$folderId.notes.$noteId'
 
-const MobileRoute = MobileRouteImport.update({
-  id: '/mobile',
-  path: '/mobile',
+const WorkspaceRoute = WorkspaceRouteImport.update({
+  id: '/_workspace',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TutorialRoute = TutorialRouteImport.update({
-  id: '/_tutorial',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const WorkspaceIndexRoute = WorkspaceIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
-const TutorialDbRoute = TutorialDbRouteImport.update({
-  id: '/_db',
-  getParentRoute: () => TutorialRoute,
+const WorkspaceAnalyticsRoute = WorkspaceAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => WorkspaceRoute,
 } as any)
-const TutorialDbProjectsRoute = TutorialDbProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => TutorialDbRoute,
+const WorkspaceSettingsRoute = WorkspaceSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => WorkspaceRoute,
 } as any)
-const TutorialDbProjectRootRoute = TutorialDbProjectRootRouteImport.update({
-  id: '/project-root',
-  path: '/project-root',
-  getParentRoute: () => TutorialDbRoute,
-} as any)
-const TutorialDbProjectsIndexRoute = TutorialDbProjectsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => TutorialDbProjectsRoute,
-} as any)
-const TutorialDbProjectsProjectIdRoute =
-  TutorialDbProjectsProjectIdRouteImport.update({
-    id: '/$projectId',
-    path: '/$projectId',
-    getParentRoute: () => TutorialDbProjectsRoute,
+const DeepDivesQueryDrivenSyncRoute =
+  DeepDivesQueryDrivenSyncRouteImport.update({
+    id: '/deep-dives/query-driven-sync',
+    path: '/deep-dives/query-driven-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const WorkspaceFoldersFolderIdRoute =
+  WorkspaceFoldersFolderIdRouteImport.update({
+    id: '/folders/$folderId',
+    path: '/folders/$folderId',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
+const WorkspaceFoldersFolderIdIndexRoute =
+  WorkspaceFoldersFolderIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => WorkspaceFoldersFolderIdRoute,
+  } as any)
+const WorkspaceFoldersFolderIdNotesNoteIdRoute =
+  WorkspaceFoldersFolderIdNotesNoteIdRouteImport.update({
+    id: '/notes/$noteId',
+    path: '/notes/$noteId',
+    getParentRoute: () => WorkspaceFoldersFolderIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/mobile': typeof MobileRoute
-  '/project-root': typeof TutorialDbProjectRootRoute
-  '/projects': typeof TutorialDbProjectsRouteWithChildren
-  '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
-  '/projects/': typeof TutorialDbProjectsIndexRoute
+  '/': typeof WorkspaceIndexRoute
+  '/analytics': typeof WorkspaceAnalyticsRoute
+  '/settings': typeof WorkspaceSettingsRoute
+  '/deep-dives/query-driven-sync': typeof DeepDivesQueryDrivenSyncRoute
+  '/folders/$folderId': typeof WorkspaceFoldersFolderIdRouteWithChildren
+  '/folders/$folderId/': typeof WorkspaceFoldersFolderIdIndexRoute
+  '/folders/$folderId/notes/$noteId': typeof WorkspaceFoldersFolderIdNotesNoteIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/mobile': typeof MobileRoute
-  '/project-root': typeof TutorialDbProjectRootRoute
-  '/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
-  '/projects': typeof TutorialDbProjectsIndexRoute
+  '/analytics': typeof WorkspaceAnalyticsRoute
+  '/settings': typeof WorkspaceSettingsRoute
+  '/deep-dives/query-driven-sync': typeof DeepDivesQueryDrivenSyncRoute
+  '/': typeof WorkspaceIndexRoute
+  '/folders/$folderId': typeof WorkspaceFoldersFolderIdIndexRoute
+  '/folders/$folderId/notes/$noteId': typeof WorkspaceFoldersFolderIdNotesNoteIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/_tutorial': typeof TutorialRouteWithChildren
-  '/mobile': typeof MobileRoute
-  '/_tutorial/_db': typeof TutorialDbRouteWithChildren
-  '/_tutorial/_db/project-root': typeof TutorialDbProjectRootRoute
-  '/_tutorial/_db/projects': typeof TutorialDbProjectsRouteWithChildren
-  '/_tutorial/_db/projects/$projectId': typeof TutorialDbProjectsProjectIdRoute
-  '/_tutorial/_db/projects/': typeof TutorialDbProjectsIndexRoute
+  '/_workspace': typeof WorkspaceRouteWithChildren
+  '/_workspace/analytics': typeof WorkspaceAnalyticsRoute
+  '/_workspace/settings': typeof WorkspaceSettingsRoute
+  '/deep-dives/query-driven-sync': typeof DeepDivesQueryDrivenSyncRoute
+  '/_workspace/': typeof WorkspaceIndexRoute
+  '/_workspace/folders/$folderId': typeof WorkspaceFoldersFolderIdRouteWithChildren
+  '/_workspace/folders/$folderId/': typeof WorkspaceFoldersFolderIdIndexRoute
+  '/_workspace/folders/$folderId/notes/$noteId': typeof WorkspaceFoldersFolderIdNotesNoteIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/mobile'
-    | '/project-root'
-    | '/projects'
-    | '/projects/$projectId'
-    | '/projects/'
+    | '/analytics'
+    | '/settings'
+    | '/deep-dives/query-driven-sync'
+    | '/folders/$folderId'
+    | '/folders/$folderId/'
+    | '/folders/$folderId/notes/$noteId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mobile' | '/project-root' | '/projects/$projectId' | '/projects'
+  to:
+    | '/analytics'
+    | '/settings'
+    | '/deep-dives/query-driven-sync'
+    | '/'
+    | '/folders/$folderId'
+    | '/folders/$folderId/notes/$noteId'
   id:
     | '__root__'
-    | '/'
-    | '/_tutorial'
-    | '/mobile'
-    | '/_tutorial/_db'
-    | '/_tutorial/_db/project-root'
-    | '/_tutorial/_db/projects'
-    | '/_tutorial/_db/projects/$projectId'
-    | '/_tutorial/_db/projects/'
+    | '/_workspace'
+    | '/_workspace/analytics'
+    | '/_workspace/settings'
+    | '/deep-dives/query-driven-sync'
+    | '/_workspace/'
+    | '/_workspace/folders/$folderId'
+    | '/_workspace/folders/$folderId/'
+    | '/_workspace/folders/$folderId/notes/$noteId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  TutorialRoute: typeof TutorialRouteWithChildren
-  MobileRoute: typeof MobileRoute
+  WorkspaceRoute: typeof WorkspaceRouteWithChildren
+  DeepDivesQueryDrivenSyncRoute: typeof DeepDivesQueryDrivenSyncRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/mobile': {
-      id: '/mobile'
-      path: '/mobile'
-      fullPath: '/mobile'
-      preLoaderRoute: typeof MobileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_tutorial': {
-      id: '/_tutorial'
+    '/_workspace': {
+      id: '/_workspace'
       path: ''
-      fullPath: ''
-      preLoaderRoute: typeof TutorialRouteImport
+      fullPath: '/'
+      preLoaderRoute: typeof WorkspaceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_workspace/': {
+      id: '/_workspace/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof WorkspaceIndexRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/analytics': {
+      id: '/_workspace/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof WorkspaceAnalyticsRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/settings': {
+      id: '/_workspace/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof WorkspaceSettingsRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/deep-dives/query-driven-sync': {
+      id: '/deep-dives/query-driven-sync'
+      path: '/deep-dives/query-driven-sync'
+      fullPath: '/deep-dives/query-driven-sync'
+      preLoaderRoute: typeof DeepDivesQueryDrivenSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_tutorial/_db': {
-      id: '/_tutorial/_db'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof TutorialDbRouteImport
-      parentRoute: typeof TutorialRoute
+    '/_workspace/folders/$folderId': {
+      id: '/_workspace/folders/$folderId'
+      path: '/folders/$folderId'
+      fullPath: '/folders/$folderId'
+      preLoaderRoute: typeof WorkspaceFoldersFolderIdRouteImport
+      parentRoute: typeof WorkspaceRoute
     }
-    '/_tutorial/_db/projects': {
-      id: '/_tutorial/_db/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof TutorialDbProjectsRouteImport
-      parentRoute: typeof TutorialDbRoute
-    }
-    '/_tutorial/_db/project-root': {
-      id: '/_tutorial/_db/project-root'
-      path: '/project-root'
-      fullPath: '/project-root'
-      preLoaderRoute: typeof TutorialDbProjectRootRouteImport
-      parentRoute: typeof TutorialDbRoute
-    }
-    '/_tutorial/_db/projects/': {
-      id: '/_tutorial/_db/projects/'
+    '/_workspace/folders/$folderId/': {
+      id: '/_workspace/folders/$folderId/'
       path: '/'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof TutorialDbProjectsIndexRouteImport
-      parentRoute: typeof TutorialDbProjectsRoute
+      fullPath: '/folders/$folderId/'
+      preLoaderRoute: typeof WorkspaceFoldersFolderIdIndexRouteImport
+      parentRoute: typeof WorkspaceFoldersFolderIdRoute
     }
-    '/_tutorial/_db/projects/$projectId': {
-      id: '/_tutorial/_db/projects/$projectId'
-      path: '/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof TutorialDbProjectsProjectIdRouteImport
-      parentRoute: typeof TutorialDbProjectsRoute
+    '/_workspace/folders/$folderId/notes/$noteId': {
+      id: '/_workspace/folders/$folderId/notes/$noteId'
+      path: '/notes/$noteId'
+      fullPath: '/folders/$folderId/notes/$noteId'
+      preLoaderRoute: typeof WorkspaceFoldersFolderIdNotesNoteIdRouteImport
+      parentRoute: typeof WorkspaceFoldersFolderIdRoute
     }
   }
 }
 
-interface TutorialDbProjectsRouteChildren {
-  TutorialDbProjectsProjectIdRoute: typeof TutorialDbProjectsProjectIdRoute
-  TutorialDbProjectsIndexRoute: typeof TutorialDbProjectsIndexRoute
+interface WorkspaceFoldersFolderIdRouteChildren {
+  WorkspaceFoldersFolderIdIndexRoute: typeof WorkspaceFoldersFolderIdIndexRoute
+  WorkspaceFoldersFolderIdNotesNoteIdRoute: typeof WorkspaceFoldersFolderIdNotesNoteIdRoute
 }
 
-const TutorialDbProjectsRouteChildren: TutorialDbProjectsRouteChildren = {
-  TutorialDbProjectsProjectIdRoute: TutorialDbProjectsProjectIdRoute,
-  TutorialDbProjectsIndexRoute: TutorialDbProjectsIndexRoute,
+const WorkspaceFoldersFolderIdRouteChildren: WorkspaceFoldersFolderIdRouteChildren =
+  {
+    WorkspaceFoldersFolderIdIndexRoute: WorkspaceFoldersFolderIdIndexRoute,
+    WorkspaceFoldersFolderIdNotesNoteIdRoute:
+      WorkspaceFoldersFolderIdNotesNoteIdRoute,
+  }
+
+const WorkspaceFoldersFolderIdRouteWithChildren =
+  WorkspaceFoldersFolderIdRoute._addFileChildren(
+    WorkspaceFoldersFolderIdRouteChildren,
+  )
+
+interface WorkspaceRouteChildren {
+  WorkspaceAnalyticsRoute: typeof WorkspaceAnalyticsRoute
+  WorkspaceSettingsRoute: typeof WorkspaceSettingsRoute
+  WorkspaceIndexRoute: typeof WorkspaceIndexRoute
+  WorkspaceFoldersFolderIdRoute: typeof WorkspaceFoldersFolderIdRouteWithChildren
 }
 
-const TutorialDbProjectsRouteWithChildren =
-  TutorialDbProjectsRoute._addFileChildren(TutorialDbProjectsRouteChildren)
-
-interface TutorialDbRouteChildren {
-  TutorialDbProjectRootRoute: typeof TutorialDbProjectRootRoute
-  TutorialDbProjectsRoute: typeof TutorialDbProjectsRouteWithChildren
+const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceAnalyticsRoute: WorkspaceAnalyticsRoute,
+  WorkspaceSettingsRoute: WorkspaceSettingsRoute,
+  WorkspaceIndexRoute: WorkspaceIndexRoute,
+  WorkspaceFoldersFolderIdRoute: WorkspaceFoldersFolderIdRouteWithChildren,
 }
 
-const TutorialDbRouteChildren: TutorialDbRouteChildren = {
-  TutorialDbProjectRootRoute: TutorialDbProjectRootRoute,
-  TutorialDbProjectsRoute: TutorialDbProjectsRouteWithChildren,
-}
-
-const TutorialDbRouteWithChildren = TutorialDbRoute._addFileChildren(
-  TutorialDbRouteChildren,
-)
-
-interface TutorialRouteChildren {
-  TutorialDbRoute: typeof TutorialDbRouteWithChildren
-}
-
-const TutorialRouteChildren: TutorialRouteChildren = {
-  TutorialDbRoute: TutorialDbRouteWithChildren,
-}
-
-const TutorialRouteWithChildren = TutorialRoute._addFileChildren(
-  TutorialRouteChildren,
+const WorkspaceRouteWithChildren = WorkspaceRoute._addFileChildren(
+  WorkspaceRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  TutorialRoute: TutorialRouteWithChildren,
-  MobileRoute: MobileRoute,
+  WorkspaceRoute: WorkspaceRouteWithChildren,
+  DeepDivesQueryDrivenSyncRoute: DeepDivesQueryDrivenSyncRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

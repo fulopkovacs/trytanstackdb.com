@@ -1,64 +1,31 @@
-# Package Manager Instructions
+<!--VITE PLUS START-->
 
-Always use pnpm instead of npm for all package management tasks:
+# Using Vite+, the Unified Toolchain for the Web
 
-- Use `pnpm install` instead of `npm install`
-- Use `pnpm add <package>` instead of `npm install <package>`
-- Use `pnpm add -D <package>` instead of `npm install --save-dev <package>`
-- Use `pnpm remove <package>` instead of `npm uninstall <package>`
-- Use `pnpm run <script>` instead of `npm run <script>`
-- Use `pnpm <command>` for any other npm commands
-- Use `pnpm dlx <command>` instead of `npx <command>`
-- Use `pnpm create <template>` instead of `npm create <template>`
+This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and `vp build`. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
 
-## Project-Specific Scripts
+Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
 
-When running scripts from package.json, always use:
+## Built-in Commands vs Scripts
 
-- `pnpm dev` for development server
-- `pnpm build` for production build
-- `pnpm run test` for running tests
-- `pnpm lint` for linting
-- `pnpm typecheck` for type checking
-- `pnpm format` for code formatting
+`vp <name>` runs a built-in command. `vp run <name>` runs a `package.json` script or a `vite.config.ts` task. Scripts cannot overwrite built-ins, so `vp dev` and `vp run dev` may do different things. Check `package.json` and `vite.config.ts` first, and run `vp run <name>` when the project defines a script or task with that name.
 
-## Database Commands
+## Running Scripts
 
-For database-related tasks:
+Run TypeScript and JavaScript files with `vpx <file>`, for example `vpx ./scripts/seed.ts --dry-run`. It handles enums, decorators, JSX, and tsconfig `paths`, so do not add `tsx` or `ts-node` to run scripts. `vpx --watch <file>` reruns the file when a file it uses changes, in place of `tsx watch`. `vp node <file>` runs plain Node.js.
 
-- `pnpm db.generate` to generate database migrations
-- `pnpm db.local.migrate` to apply local migrations
-- `pnpm db.prod.migrate` to apply production migrations
+## Tool Versions
 
-## Use pnpm
+Run `vp toolchain` to show versions and relationships in the active Vite+
+release. Add a tool name to select part of the graph. For example, run
+`vp toolchain vite`. Use `--global` to ignore the local `vite-plus` package. Use
+`vp why <package>` to show the package-manager dependency graph.
 
-Never use npm, yarn, or any other package manager in this project. All package operations should be performed with pnpm.
+## Review Checklist
 
-## Tech Stack
+- [ ] Run `vp install` after pulling remote changes and before getting started.
+- [ ] Run `vp check` and `vp test` to format, lint, type check and test changes.
+- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
+- [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
 
-This project uses TanStack Start. The root route is at `src/route/__root.tsx`.
-
-Here's the tech stack:
-
-- framework: TanStack Start (`@tanstack/start`) with `react`
-- router: TanStack Router (`@tanstack/router`)
-- ui: `shadcn/ui`
-- css: `tailwindcss` (v4)
-
-# Tests
-
-We use `vitest` for the tests.
-
-All tests are in `__test__/`.
-
-# Validating your code
-
-- NEVER run the dev server (e.g.: `pnpm dev`)!
-- always ensure no formatting/linting issues exist in your code
-  - this command automatically fixes these issues where possible: `pnpm check --fix`
-- NEVER deploy anything (e.g. with `pnpm preview.deploy`, or `pnpm run deploy`)
-
-# Coding style
-
-- Prefer functions over arrow functions for React components and everything else
-- Prefer `type`-s over `interface`-s
+<!--VITE PLUS END-->

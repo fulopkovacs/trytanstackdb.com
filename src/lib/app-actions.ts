@@ -1,0 +1,98 @@
+/**
+ * Things the reader does in the Notes app, as typed events. The guide
+ * listens to them: a section is marked done when its hands-on action happens
+ * (see `doneWhen` in `guide/content.tsx`), and the section that matches the
+ * last one lights up (see `lib/app-state.ts`).
+ *
+ * Mutations report up to three times: `applied` when the optimistic change
+ * shows up, then `confirmed` when the server accepted it or `rolled-back`
+ * when it didn't. Navigation actions only have `applied`.
+ */
+export type AppAction =
+  | { type: "folder.opened"; folderId: string; smart: boolean }
+  | { type: "note.opened"; noteId: string }
+  | { type: "note.created"; noteId: string; folderId: string }
+  | { type: "note.edited"; noteId: string }
+  | { type: "note.pinned"; noteId: string; pinned: boolean }
+  | { type: "note.moved"; noteId: string; folderId: string }
+  | { type: "note.deleted"; noteId: string; permanently: boolean }
+  | { type: "note.restored"; noteId: string }
+  | { type: "folder.renamed"; folderId: string; name: string }
+  | { type: "account.updated" }
+  | { type: "network.latency-set"; latencyMs: number }
+  | { type: "network.fail-next-set"; failNext: boolean };
+
+export type AppActionType = AppAction["type"];
+
+export type AppActionStatus = "applied" | "confirmed" | "rolled-back";
+
+export type AppActionEvent = AppAction & {
+  status: AppActionStatus;
+  /** Why the server rejected the change (`rolled-back` only). */
+  error?: Error;
+};
+
+/**
+ * Matches events by any of their fields, e.g. `{ type: "note.edited" }` or
+ * `{ status: "rolled-back" }`. All given fields must be equal.
+ */
+export type AppActionMatcher = {
+  [T in AppActionType]: Partial<Extract<AppAction, { type: T }>> & { type?: T };
+}[AppActionType] & { status?: AppActionStatus };
+
+export function matchesAppAction(matcher: AppActionMatcher, event: AppActionEvent): boolean {
+  return Object.entries(matcher).every(
+    ([key, value]) => (event as Record<string, unknown>)[key] === value,
+  );
+}
+
+type Listener = (event: AppActionEvent) => void;
+
+const listeners = new Set<Listener>();
+
+export function emitAppAction(event: AppActionEvent) {
+  for (const listener of listeners) listener(event);
+}
+
+export function subscribeToAppActions(listener: Listener): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+/** Reports something that doesn't go through the server, like opening a folder. */
+export function reportAction(action: AppAction) {
+  emitAppAction({ ...action, status: "applied" });
+}
+
+/**
+ * Reports a mutation: `applied` now, then `confirmed` or `rolled-back` once
+ * its transaction settles. One transaction can carry several actions (a
+ * paced mutation merges an edit and a pin made close together); each action
+ * is reported once per transaction, however often it repeats (keystrokes).
+ * A transaction the app cancelled itself isn't reported as rolled back.
+ */
+export function reportMutation(
+  action: AppAction,
+  transaction: { when: (state: "settled") => Promise<unknown> },
+) {
+  emitAppAction({ ...action, status: "applied" });
+  const reported = reportedActions.get(transaction) ?? new Set<string>();
+  reportedActions.set(transaction, reported);
+  const key = JSON.stringify(action);
+  if (reported.has(key)) return;
+  reported.add(key);
+  transaction.when("settled").then(
+    () => emitAppAction({ ...action, status: "confirmed" }),
+    (error: unknown) => {
+      // A rollback without an error is a cancellation, not a rejection.
+      if (error === undefined) return;
+      emitAppAction({
+        ...action,
+        status: "rolled-back",
+        error: error instanceof Error ? error : new Error("The change was rolled back."),
+      });
+    },
+  );
+}
+
+const reportedActions = new WeakMap<object, Set<string>>();

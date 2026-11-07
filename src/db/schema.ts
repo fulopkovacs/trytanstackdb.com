@@ -1,84 +1,59 @@
-import {
-  date,
-  index,
-  integer,
-  pgTable,
-  text,
-  unique,
-} from "drizzle-orm/pg-core";
+import { z } from "zod";
 
 /**
-  Stores the creation timestamp in milliseconds since epoch.
-*/
-const createdAt = date("created_at", { mode: "date" }).notNull();
+ * The records the API serves. The fixtures, the fake server and the
+ * collections all share these schemas, so there's one set of types.
+ */
 
-export const usersTable = pgTable(
-  "users",
-  {
-    id: text().primaryKey().notNull(), // nanoid
-    name: text().notNull(),
-    age: integer().notNull(),
-    email: text().notNull(),
-  },
-  (users) => [
-    unique("users_email_unique_tempdbid").on(users.email),
-    // tenantEmailUnique: index("users_tenant_email_unique")
-    //   .on(users.tempDbId, users.email)
-    //   .unique(),
-  ],
-);
+/** Folders with a role get special treatment in the sidebar. */
+export const folderRoleSchema = z.enum(["quick-notes", "default"]).nullable();
 
-export type UserRecord = typeof usersTable.$inferSelect;
-
-export const projectsTable = pgTable("projects", {
-  id: text().primaryKey(), // nanoid
-  name: text().notNull().unique(),
-  description: text().notNull(),
-  createdAt,
+export const folderSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  role: folderRoleSchema,
+  /** Sort order in the sidebar. */
+  position: z.number().int(),
+  createdAt: z.iso.datetime(),
 });
 
-export type ProjectRecord = typeof projectsTable.$inferSelect;
-
-export const boardsTable = pgTable("boards", {
-  id: text().primaryKey(), // nanoid
-  name: text().notNull(),
-  description: text(),
-  createdAt,
-  projectId: text("project_id")
-    .references(() => projectsTable.id, { onDelete: "cascade" })
-    .notNull(),
+export const noteSchema = z.object({
+  id: z.string(),
+  folderId: z.string(),
+  title: z.string(),
+  /**
+   * Plain text, one block per line:
+   * `# Heading`, `- bullet`, `[ ] todo`, `[x] done`, anything else is a paragraph.
+   */
+  body: z.string(),
+  pinned: z.boolean(),
+  shared: z.boolean(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  /** Set when the note is in Recently Deleted. */
+  deletedAt: z.iso.datetime().nullable(),
 });
 
-export type BoardRecord = typeof boardsTable.$inferSelect;
+export const sortNotesBySchema = z.enum(["dateEdited", "dateCreated", "title"]);
+export const newNoteStyleSchema = z.enum(["title", "heading", "body"]);
 
-export const todoItemsTable = pgTable(
-  "todo_items",
-  {
-    id: text().primaryKey(), // nanoid
-    title: text().notNull(),
-    description: text(),
-    createdAt,
-    boardId: text("board_id")
-      .references(() => boardsTable.id, { onDelete: "cascade" })
-      .notNull(),
-    projectId: text("project_id")
-      .references(() => projectsTable.id, { onDelete: "cascade" })
-      .notNull(),
-    priority: integer().default(0),
-    position: text().notNull(),
-  },
-  (table) => [
-    index("todo_items_board_id_position_idx").on(table.boardId, table.position),
-    index("todo_items_project_id_idx").on(table.projectId),
-  ],
-);
-
-export type TodoItemRecord = typeof todoItemsTable.$inferSelect;
-
-export const seedTable = pgTable("seed_script_runs", {
-  id: text().primaryKey(), // nanoid
-  createdAt,
-  // state: pgEnum("state", ["completed", "in_progress", "failed"])(),
-  // NOTE: pgEnum doesn't seem to work with pglite
-  state: text("state"),
+export const accountSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "Name can't be empty"),
+  email: z.email("Enter a valid email address"),
+  plan: z.string(),
+  storageUsedGb: z.number(),
+  storageTotalGb: z.number(),
+  defaultFolderId: z.string(),
+  sortNotesBy: sortNotesBySchema,
+  newNotesStartWith: newNoteStyleSchema,
+  groupNotesByDate: z.boolean(),
+  createdAt: z.iso.datetime(),
 });
+
+export type FolderRole = z.infer<typeof folderRoleSchema>;
+export type Folder = z.infer<typeof folderSchema>;
+export type Note = z.infer<typeof noteSchema>;
+export type SortNotesBy = z.infer<typeof sortNotesBySchema>;
+export type NewNoteStyle = z.infer<typeof newNoteStyleSchema>;
+export type Account = z.infer<typeof accountSchema>;

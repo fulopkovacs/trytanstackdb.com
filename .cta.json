@@ -1,25 +1,18 @@
 {
-  "projectName": "trytanstackdb.com",
+  "bundler": "vite",
+  "projectName": "trytanstackdb-v2",
   "mode": "file-router",
   "typescript": true,
-  "tailwind": true,
   "packageManager": "pnpm",
-  "addOnOptions": {
-    "drizzle": {
-      "database": "sqlite"
-    }
-  },
+  "includeExamples": false,
+  "tailwind": true,
+  "projectPreset": "default",
+  "routerOnly": false,
+  "addOnOptions": {},
   "git": true,
+  "install": false,
+  "intent": true,
   "version": 1,
-  "framework": "react-cra",
-  "chosenAddOns": [
-    "biome",
-    "cloudflare",
-    "start",
-    "shadcn",
-    "db",
-    "drizzle",
-    "tanstack-query",
-    "form"
-  ]
+  "framework": "react",
+  "chosenAddOns": ["cloudflare", "db", "form", "tanstack-query"]
 }

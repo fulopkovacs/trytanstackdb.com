@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.intent/hooks/intent-claude-gate.mjs"
+            ],
+            "timeout": 10,
+            "statusMessage": "Loading Intent skill catalog"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.intent/hooks/intent-claude-gate.mjs"
+            ],
+            "timeout": 10,
+            "statusMessage": "Checking Intent guidance"
+          }
+        ]
+      }
+    ]
+  }
+}
