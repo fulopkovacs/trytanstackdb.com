@@ -12,7 +12,9 @@ const config = defineConfig({
     ignorePatterns: ["src/routeTree.gen.ts", ".intent/**", ".claude/**", ".codex/**"],
   },
   lint: {
-    ignorePatterns: ["src/routeTree.gen.ts", ".intent/**", ".claude/**", ".codex/**"],
+    // `.source/` holds the TanStack Source CI workflows. They import
+    // `@tanstack-source/ci`, which the forge's runner provides; it is not on npm.
+    ignorePatterns: ["src/routeTree.gen.ts", ".intent/**", ".claude/**", ".codex/**", ".source/**"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },

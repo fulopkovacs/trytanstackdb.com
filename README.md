@@ -82,7 +82,13 @@ vp run build    # build for production
 
 ### Deployment
 
-The app is set up for Cloudflare Workers (`wrangler.jsonc` and the Cloudflare
-Vite plugin), and `vp run deploy` builds it and runs `wrangler deploy`. The
-worker name, domain and deploy setup for trytanstackdb.com are not configured
-yet.
+The app runs on Cloudflare Workers and deploys with the `cf` CLI. The worker
+(`trytanstackdb-v2`) and its custom domain (`v2.trytanstackdb.com`) are set in
+`cloudflare.config.ts`. `vp run deploy` runs `cf deploy`, which builds the app
+with the Cloudflare Vite plugin and uploads it. The domain lives on the
+Cloudflare account that owns the `trytanstackdb.com` zone, so `cf` must be
+logged in to that account.
+
+CI runs on TanStack Source (`.source/workflows/ci.ts`). It checks every pull
+request into `v2`, and deploys each push to `v2` with the
+`CLOUDFLARE_API_TOKEN` CI secret.
