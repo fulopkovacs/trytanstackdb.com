@@ -49,7 +49,7 @@ export function IosEditorScreen({ folderId, note }: { folderId: string; note: No
       trailing={
         <>
           <GlassPill>
-            <GlassPillButton aria-label="Share">
+            <GlassPillButton aria-label="Share" notImplemented>
               <Share />
             </GlassPillButton>
             <DropdownMenu>
@@ -89,10 +89,10 @@ export function IosEditorScreen({ folderId, note }: { folderId: string; note: No
             >
               <ListChecks />
             </GlassPillButton>
-            <GlassPillButton aria-label="Attach">
+            <GlassPillButton aria-label="Attach" notImplemented>
               <Paperclip />
             </GlassPillButton>
-            <GlassPillButton aria-label="Markup">
+            <GlassPillButton aria-label="Markup" notImplemented>
               <PenTool />
             </GlassPillButton>
           </GlassPill>

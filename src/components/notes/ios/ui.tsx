@@ -6,6 +6,8 @@ import { useCurrentEntrySheetOpen, usePreviousEntry } from "@/lib/history-tracke
 import { isRecordingSheetState } from "@/lib/sheet-aware-history";
 import { cn } from "@/lib/utils";
 
+import { NotImplemented } from "../not-implemented";
+
 /* iOS 26 "Liquid Glass": translucent capsules floating over the content. */
 const glass =
   "border border-ios-glass-border bg-ios-glass text-ios-text shadow-[0_6px_24px_rgb(0_0_0/0.12)] backdrop-blur-xl backdrop-saturate-150";
@@ -16,7 +18,7 @@ export function GlassCircle({ className, ...props }: ComponentProps<"button">) {
       type="button"
       className={cn(
         glass,
-        "grid size-11 shrink-0 place-items-center rounded-full [&_svg]:size-[22px]",
+        "grid size-11 shrink-0 place-items-center rounded-full disabled:cursor-not-allowed [&_svg]:size-[22px]",
         className,
       )}
       {...props}
@@ -83,14 +85,26 @@ export function GlassPill({ className, children }: { className?: string; childre
   );
 }
 
-export function GlassPillButton({ className, ...props }: ComponentProps<"button">) {
-  return (
+export function GlassPillButton({
+  className,
+  notImplemented,
+  ...props
+}: ComponentProps<"button"> & {
+  /** The feature isn't built: show a not-allowed cursor and a "Not implemented" tooltip. */
+  notImplemented?: boolean;
+}) {
+  const button = (
     <button
       type="button"
-      className={cn("grid h-11 min-w-11 place-items-center px-2 [&_svg]:size-[21px]", className)}
+      aria-disabled={notImplemented || undefined}
+      className={cn(
+        "grid h-11 min-w-11 place-items-center px-2 disabled:cursor-not-allowed aria-disabled:cursor-not-allowed [&_svg]:size-[21px]",
+        className,
+      )}
       {...props}
     />
   );
+  return notImplemented ? <NotImplemented>{button}</NotImplemented> : button;
 }
 
 interface IosScreenProps {
@@ -254,15 +268,24 @@ export function RowChevron() {
 export function SearchAndCompose({ onCompose }: { onCompose: (() => void) | undefined }) {
   return (
     <>
-      <label className={cn(glass, "flex h-12 min-w-0 flex-1 items-center gap-2 rounded-full px-4")}>
-        <Search className="size-5 shrink-0 text-ios-text" />
-        <input
-          type="search"
-          placeholder="Search"
-          className="min-w-0 flex-1 bg-transparent text-[17px] outline-none placeholder:text-ios-secondary"
-        />
-        <Mic className="size-5 shrink-0 text-ios-text" />
-      </label>
+      <NotImplemented>
+        <label
+          className={cn(
+            glass,
+            "flex h-12 min-w-0 flex-1 cursor-not-allowed items-center gap-2 rounded-full px-4",
+          )}
+        >
+          <Search className="size-5 shrink-0 text-ios-text" />
+          <input
+            type="search"
+            placeholder="Search"
+            readOnly
+            aria-disabled
+            className="min-w-0 flex-1 cursor-not-allowed bg-transparent text-[17px] outline-none placeholder:text-ios-secondary"
+          />
+          <Mic className="size-5 shrink-0 text-ios-text" />
+        </label>
+      </NotImplemented>
       <ComposeButton onCompose={onCompose} />
     </>
   );

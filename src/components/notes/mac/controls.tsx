@@ -1,18 +1,37 @@
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactElement, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { NotImplemented } from "../not-implemented";
+
+type MacButtonProps = ComponentProps<"button"> & {
+  /** The feature isn't built: show a not-allowed cursor and a "Not implemented" tooltip. */
+  notImplemented?: boolean;
+};
+
+/** Shared by the toolbar buttons: hover feedback only for buttons that do something. */
+const buttonStates =
+  "not-aria-disabled:not-disabled:hover:text-mac-text aria-disabled:cursor-not-allowed disabled:cursor-not-allowed";
+
+function withNotImplemented(button: ReactElement, notImplemented: boolean | undefined) {
+  return notImplemented ? <NotImplemented>{button}</NotImplemented> : button;
+}
+
 /** The round, slightly raised toolbar buttons of macOS 26. */
-export function MacCircleButton({ className, ...props }: ComponentProps<"button">) {
-  return (
+export function MacCircleButton({ className, notImplemented, title, ...props }: MacButtonProps) {
+  return withNotImplemented(
     <button
       type="button"
+      title={notImplemented ? undefined : title}
+      aria-disabled={notImplemented || undefined}
       className={cn(
-        "grid size-[34px] shrink-0 place-items-center rounded-full border border-mac-control-border bg-mac-control text-mac-icon shadow-[0_1px_1px_rgb(0_0_0/0.03)] transition-colors hover:text-mac-text [&_svg]:size-[17px] [&_svg]:stroke-[1.6]",
+        "grid size-[34px] shrink-0 place-items-center rounded-full border border-mac-control-border bg-mac-control text-mac-icon shadow-[0_1px_1px_rgb(0_0_0/0.03)] transition-colors [&_svg]:size-[17px] [&_svg]:stroke-[1.6]",
+        buttonStates,
         className,
       )}
       {...props}
-    />
+    />,
+    notImplemented,
   );
 }
 
@@ -30,16 +49,20 @@ export function MacPill({ className, children }: { className?: string; children:
   );
 }
 
-export function MacPillButton({ className, ...props }: ComponentProps<"button">) {
-  return (
+export function MacPillButton({ className, notImplemented, title, ...props }: MacButtonProps) {
+  return withNotImplemented(
     <button
       type="button"
+      title={notImplemented ? undefined : title}
+      aria-disabled={notImplemented || undefined}
       className={cn(
-        "grid h-[28px] w-[32px] place-items-center rounded-full transition-colors hover:text-mac-text [&_svg]:size-[17px] [&_svg]:stroke-[1.6]",
+        "grid h-[28px] w-[32px] place-items-center rounded-full transition-colors [&_svg]:size-[17px] [&_svg]:stroke-[1.6]",
+        buttonStates,
         className,
       )}
       {...props}
-    />
+    />,
+    notImplemented,
   );
 }
 

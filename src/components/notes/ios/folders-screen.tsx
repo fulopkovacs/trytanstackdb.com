@@ -11,6 +11,7 @@ import { isSmartFolderId } from "@/lib/notes/folder-views";
 import { cn } from "@/lib/utils";
 
 import { AccountAvatar, QuickNotesIcon, SharedIcon } from "../icons";
+import { NotImplemented } from "../not-implemented";
 import { canRenameFolder, RenameFolderDialog } from "../rename-folder-dialog";
 import { useComposeNote } from "../use-compose-note";
 import {
@@ -42,9 +43,11 @@ export function IosFoldersScreen() {
     <IosScreen
       trailing={
         <>
-          <GlassCircle aria-label="New folder">
-            <FolderPlus />
-          </GlassCircle>
+          <NotImplemented>
+            <GlassCircle aria-label="New folder" aria-disabled className="cursor-not-allowed">
+              <FolderPlus />
+            </GlassCircle>
+          </NotImplemented>
           <GlassPill className={cn("p-0", editing && "bg-notes-accent text-black")}>
             <button
               type="button"
