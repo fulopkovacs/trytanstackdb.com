@@ -28,6 +28,7 @@ import { useElementWidth } from "@/hooks/use-element-width";
 import { cn } from "@/lib/utils";
 
 import { notesMenuClassName } from "../menu-style";
+import { NotImplemented } from "../not-implemented";
 import { NoteActionItems } from "../note-actions";
 import { useComposeNote } from "../use-compose-note";
 
@@ -109,7 +110,7 @@ export function EditorToolbar({ note, onToggleChecklist }: EditorToolbarProps) {
                   {ITEMS[id].icon}
                 </MacPillButton>
               ) : (
-                <MacPillButton key={id} aria-label={ITEMS[id].label} title={ITEMS[id].label}>
+                <MacPillButton key={id} aria-label={ITEMS[id].label} notImplemented>
                   {ITEMS[id].icon}
                 </MacPillButton>
               ),
@@ -120,7 +121,7 @@ export function EditorToolbar({ note, onToggleChecklist }: EditorToolbarProps) {
 
       <div className="flex items-center justify-end" style={{ gap: TOOLBAR_METRICS.gap }}>
         {shown("collaborate") && (
-          <MacCircleButton aria-label={ITEMS.collaborate.label} title={ITEMS.collaborate.label}>
+          <MacCircleButton aria-label={ITEMS.collaborate.label} notImplemented>
             {ITEMS.collaborate.icon}
           </MacCircleButton>
         )}
@@ -134,7 +135,7 @@ export function EditorToolbar({ note, onToggleChecklist }: EditorToolbarProps) {
                   </MacPillButton>
                 </NoteMenu>
               ) : (
-                <MacPillButton key={id} aria-label={ITEMS[id].label} title={ITEMS[id].label}>
+                <MacPillButton key={id} aria-label={ITEMS[id].label} notImplemented>
                   {ITEMS[id].icon}
                 </MacPillButton>
               ),
@@ -177,17 +178,35 @@ function OverflowMenu({
         </MacCircleButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className={cn("min-w-44", notesMenuClassName)}>
-        {plain.map((id) => (
-          <DropdownMenuItem
-            key={id}
-            className="[&_svg]:text-muted-foreground"
-            disabled={id === "checklist" && !onToggleChecklist}
-            onSelect={id === "checklist" ? onToggleChecklist : undefined}
-          >
-            <span className="grid w-5 place-items-center [&>span]:text-xs">{ITEMS[id].icon}</span>
-            {ITEMS[id].label}
-          </DropdownMenuItem>
-        ))}
+        {plain.map((id) => {
+          const content = (
+            <>
+              <span className="grid w-5 place-items-center [&>span]:text-xs">{ITEMS[id].icon}</span>
+              {ITEMS[id].label}
+            </>
+          );
+          return id === "checklist" ? (
+            <DropdownMenuItem
+              key={id}
+              className="[&_svg]:text-muted-foreground"
+              disabled={!onToggleChecklist}
+              onSelect={onToggleChecklist}
+            >
+              {content}
+            </DropdownMenuItem>
+          ) : (
+            <NotImplemented key={id} side="left">
+              <DropdownMenuItem
+                aria-disabled
+                className="cursor-not-allowed [&_svg]:text-muted-foreground"
+                // Keep the menu open: nothing happened.
+                onSelect={(event) => event.preventDefault()}
+              >
+                {content}
+              </DropdownMenuItem>
+            </NotImplemented>
+          );
+        })}
         {items.includes("more") && note && (
           <>
             <DropdownMenuSeparator />
@@ -210,24 +229,26 @@ function OverflowMenu({
 function SearchControl({ field }: { field: boolean }) {
   if (!field) {
     return (
-      <MacCircleButton aria-label="Search" title="Search">
+      <MacCircleButton aria-label="Search" notImplemented>
         <Search />
       </MacCircleButton>
     );
   }
   return (
-    <label
-      className={cn(
-        "flex h-[34px] items-center gap-1.5 rounded-full border border-mac-control-border bg-mac-control px-3 text-mac-icon",
-      )}
-      style={{ width: TOOLBAR_METRICS.searchField }}
-    >
-      <Search className="size-[15px] shrink-0" />
-      <input
-        type="search"
-        placeholder="Search"
-        className="min-w-0 flex-1 bg-transparent text-[13px] text-mac-text outline-none placeholder:text-mac-text-secondary"
-      />
-    </label>
+    <NotImplemented>
+      <label
+        className="flex h-[34px] cursor-not-allowed items-center gap-1.5 rounded-full border border-mac-control-border bg-mac-control px-3 text-mac-icon"
+        style={{ width: TOOLBAR_METRICS.searchField }}
+      >
+        <Search className="size-[15px] shrink-0" />
+        <input
+          type="search"
+          placeholder="Search"
+          readOnly
+          aria-disabled
+          className="min-w-0 flex-1 cursor-not-allowed bg-transparent text-[13px] text-mac-text outline-none placeholder:text-mac-text-secondary"
+        />
+      </label>
+    </NotImplemented>
   );
 }

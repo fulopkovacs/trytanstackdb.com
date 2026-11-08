@@ -43,7 +43,7 @@ export function MacNoteList({ folderId }: { folderId: string }) {
             {notes.length} {notes.length === 1 ? "note" : "notes"}
           </p>
         </div>
-        <MacCircleButton aria-label="View options" title="View options">
+        <MacCircleButton aria-label="View options" notImplemented>
           <Ellipsis />
         </MacCircleButton>
       </MacColumnHeader>

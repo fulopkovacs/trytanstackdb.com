@@ -42,10 +42,10 @@ export function IosNoteListScreen({ folderId }: { folderId: string }) {
       leading={<BackLink to="/" aria-label="Folders" />}
       trailing={
         <GlassPill>
-          <GlassPillButton aria-label="Share">
+          <GlassPillButton aria-label="Share" notImplemented>
             <Share />
           </GlassPillButton>
-          <GlassPillButton aria-label="More">
+          <GlassPillButton aria-label="More" notImplemented>
             <Ellipsis />
           </GlassPillButton>
         </GlassPill>
