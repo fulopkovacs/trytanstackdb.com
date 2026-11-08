@@ -48,18 +48,22 @@
   --browser-field: #ececee;
 
   /* Apple Notes — macOS (sampled from reference screenshots) */
-  --mac-sidebar: #f2f2f2;
+  --mac-sidebar: #ededed;
   --mac-content: #ffffff;
   --mac-toolbar: #f6f6f6;
   --mac-text: #1d1d1f;
   --mac-text-secondary: #8a8a8e;
-  --mac-folder-selected: #e0e0e0;
-  --mac-row-selected: #dedede;
+  --mac-folder-selected: #d7d7d7;
+  --mac-row-selected: #ffe491;
   --mac-separator: #e5e5e5;
   --mac-column-border: #e6e6e6;
-  --mac-control: #f6f6f6;
+  --mac-control: #fafafa;
   --mac-control-border: #e3e3e3;
   --mac-icon: #6e6e73;
+  /* Menus: frosted glass, as in the macOS 26 reference */
+  --mac-menu: rgb(246 246 246 / 0.82);
+  --mac-menu-separator: rgb(0 0 0 / 0.1);
+  --mac-menu-hover: rgb(0 0 0 / 0.07);
 
   /* Apple Notes — iOS 26 */
   --ios-bg: #f2f2f7;
@@ -111,12 +115,15 @@
   --mac-text: #e8e8e8;
   --mac-text-secondary: #9a9a9a;
   --mac-folder-selected: #393939;
-  --mac-row-selected: #454545;
+  --mac-row-selected: #9a7f26;
   --mac-separator: #333333;
   --mac-column-border: #2f2f2f;
   --mac-control: #2b2b2b;
   --mac-control-border: #383838;
   --mac-icon: #a8a8ad;
+  --mac-menu: rgb(40 40 40 / 0.82);
+  --mac-menu-separator: rgb(255 255 255 / 0.1);
+  --mac-menu-hover: rgb(255 255 255 / 0.1);
 
   --ios-bg: #000000;
   --ios-card: #1c1c1e;

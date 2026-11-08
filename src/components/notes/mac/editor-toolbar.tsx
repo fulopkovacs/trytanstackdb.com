@@ -27,6 +27,7 @@ import type { Note } from "@/db/schema";
 import { useElementWidth } from "@/hooks/use-element-width";
 import { cn } from "@/lib/utils";
 
+import { notesMenuClassName } from "../menu-style";
 import { NoteActionItems } from "../note-actions";
 import { useComposeNote } from "../use-compose-note";
 
@@ -154,7 +155,7 @@ function NoteMenu({ note, children }: { note: Note | undefined; children: ReactN
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       {note && (
-        <DropdownMenuContent align="end" className="min-w-44">
+        <DropdownMenuContent align="end" className={cn("min-w-44", notesMenuClassName)}>
           <NoteActionItems note={note} menu="dropdown" />
         </DropdownMenuContent>
       )}
@@ -175,7 +176,7 @@ function OverflowMenu({
           <ChevronsRight />
         </MacCircleButton>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-44">
+      <DropdownMenuContent align="end" className={cn("min-w-44", notesMenuClassName)}>
         {plain.map((id) => (
           <DropdownMenuItem
             key={id}
@@ -195,7 +196,7 @@ function OverflowMenu({
                 <span className="grid w-5 place-items-center">{ITEMS.more.icon}</span>
                 Note
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="min-w-44">
+              <DropdownMenuSubContent className={cn("min-w-44", notesMenuClassName)}>
                 <NoteActionItems note={note} menu="dropdown" />
               </DropdownMenuSubContent>
             </DropdownMenuSub>

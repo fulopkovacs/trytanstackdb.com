@@ -14,6 +14,9 @@ import type { Folder as FolderRecord } from "@/db/schema";
 import { reportAction } from "@/lib/app-actions";
 import { isSmartFolderId } from "@/lib/notes/folder-views";
 
+import { cn } from "@/lib/utils";
+
+import { notesMenuClassName } from "../menu-style";
 import { AccountAvatar, QuickNotesIcon, SharedIcon } from "../icons";
 import { useNotesLayout } from "../notes-layout";
 import { canRenameFolder, RenameFolderDialog } from "../rename-folder-dialog";
@@ -147,7 +150,10 @@ function SidebarLink({
     <ContextMenu>
       <ContextMenuTrigger asChild>{link}</ContextMenuTrigger>
       {/* Don't hand focus back to the row: the rename dialog takes it. */}
-      <ContextMenuContent className="min-w-44" onCloseAutoFocus={(event) => event.preventDefault()}>
+      <ContextMenuContent
+        className={cn("min-w-44", notesMenuClassName)}
+        onCloseAutoFocus={(event) => event.preventDefault()}
+      >
         <ContextMenuItem onSelect={onRename}>
           <Pencil />
           Rename Folder…

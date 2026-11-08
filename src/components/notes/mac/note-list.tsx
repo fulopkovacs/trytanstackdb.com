@@ -11,6 +11,8 @@ import { noteDisplayTitle, noteSnippet } from "@/lib/notes/note-body";
 import { noteListSections } from "@/lib/notes/note-list";
 import { cn } from "@/lib/utils";
 
+import { notesMenuClassName } from "../menu-style";
+
 import { NoteActionItems } from "../note-actions";
 import { useNotesLayout } from "../notes-layout";
 import { MacCircleButton, MacColumnHeader } from "./controls";
@@ -161,7 +163,7 @@ function NoteRow({
           <NoteRowText note={note} showFolder={showFolder} now={now} />
         </Link>
       </ContextMenuTrigger>
-      <ContextMenuContent className="min-w-44">
+      <ContextMenuContent className={cn("min-w-44", notesMenuClassName)}>
         <NoteActionItems note={note} menu="context" />
       </ContextMenuContent>
     </ContextMenu>
