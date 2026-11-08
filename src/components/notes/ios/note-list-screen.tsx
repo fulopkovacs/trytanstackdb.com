@@ -9,7 +9,9 @@ import { reportAction } from "@/lib/app-actions";
 import { formatListDate } from "@/lib/notes/dates";
 import { noteDisplayTitle, noteSnippet } from "@/lib/notes/note-body";
 import { noteListSections } from "@/lib/notes/note-list";
+import { cn } from "@/lib/utils";
 
+import { notesMenuClassName } from "../menu-style";
 import { NoteActionItems } from "../note-actions";
 import { useComposeNote } from "../use-compose-note";
 
@@ -113,7 +115,7 @@ function NoteCard({
                 <NoteRowText note={note} showFolder={showFolder} now={now} />
               </Link>
             </ContextMenuTrigger>
-            <ContextMenuContent className="min-w-48">
+            <ContextMenuContent className={cn("min-w-48", notesMenuClassName)}>
               <NoteActionItems note={note} menu="context" />
             </ContextMenuContent>
           </ContextMenu>

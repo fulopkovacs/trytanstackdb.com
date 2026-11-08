@@ -23,6 +23,9 @@ import {
 } from "@/db/mutations";
 import { useFolders } from "@/db/queries";
 import type { Note } from "@/db/schema";
+import { cn } from "@/lib/utils";
+
+import { notesMenuClassName } from "./menu-style";
 
 /** The same items work in a right-click menu and in a "•••" dropdown. */
 const MENU_PARTS = {
@@ -80,7 +83,7 @@ export function NoteActionItems({ note, menu, onRemovedFromView }: NoteActionIte
           <FolderInput />
           Move to
         </SubTrigger>
-        <SubContent className="max-h-72 overflow-y-auto">
+        <SubContent className={cn("max-h-72 overflow-y-auto", notesMenuClassName)}>
           {moveTargets.map((folder) => (
             <Item
               key={folder.id}
