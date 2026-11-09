@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.intent/hooks/intent-codex-gate.mjs\"",
+            "timeout": 10,
+            "statusMessage": "Loading Intent skill catalog"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.intent/hooks/intent-codex-gate.mjs\"",
+            "timeout": 10,
+            "statusMessage": "Checking Intent guidance"
+          }
+        ]
+      }
+    ]
+  }
+}

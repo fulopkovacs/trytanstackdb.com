@@ -1,0 +1,51 @@
+[
+  {
+    "id": "quick-notes",
+    "name": "Quick Notes",
+    "role": "quick-notes",
+    "position": 0,
+    "createdAt": "2025-09-29T19:40:00.000Z"
+  },
+  {
+    "id": "notes",
+    "name": "Notes",
+    "role": "default",
+    "position": 1,
+    "createdAt": "2024-05-17T19:40:00.000Z"
+  },
+  {
+    "id": "work",
+    "name": "Work",
+    "role": null,
+    "position": 2,
+    "createdAt": "2025-06-21T19:40:00.000Z"
+  },
+  {
+    "id": "personal",
+    "name": "Personal",
+    "role": null,
+    "position": 3,
+    "createdAt": "2025-07-11T19:40:00.000Z"
+  },
+  {
+    "id": "recipes",
+    "name": "Recipes",
+    "role": null,
+    "position": 4,
+    "createdAt": "2026-01-07T19:40:00.000Z"
+  },
+  {
+    "id": "travel",
+    "name": "Travel",
+    "role": null,
+    "position": 5,
+    "createdAt": "2026-04-17T19:40:00.000Z"
+  },
+  {
+    "id": "side-projects",
+    "name": "Side Projects",
+    "role": null,
+    "position": 6,
+    "createdAt": "2026-07-06T19:40:00.000Z"
+  }
+]

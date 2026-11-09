@@ -1,318 +1,152 @@
-@import 'tailwindcss';
-@plugin "@tailwindcss/typography";
-
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/inter";
 
 @custom-variant dark (&:is(.dark *));
 
-body {
-  @apply m-0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* The shadcn "nova" components use state variants; map them to Radix's data-state attributes. */
+@custom-variant data-open (&:is([data-state="open"], [data-open]:not([data-open="false"])));
+@custom-variant data-closed (&:is([data-state="closed"], [data-closed]:not([data-closed="false"])));
+@custom-variant data-checked (&:is([data-state="checked"], [data-checked]:not([data-checked="false"])));
+@custom-variant data-unchecked (&:is([data-state="unchecked"], [data-unchecked]:not([data-unchecked="false"])));
+@custom-variant data-horizontal (&:is([data-orientation="horizontal"]));
+@custom-variant data-vertical (&:is([data-orientation="vertical"]));
 
-code {
-  font-family: var(--font-mono);
-  font-size: 1em;
-}
-
-/* Shiki code block styling */
-pre:has(code) {
-  position: relative;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  padding-top: 2rem;
-  overflow-x: auto;
-  border: 1px solid var(--border);
-}
-
-/* Language badge */
-pre[data-language]::before {
-  content: attr(data-language);
-  position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  font-size: 0.75rem;
-  font-family: var(--font-mono);
-  color: oklch(0.6 0 0);
-  text-transform: lowercase;
-}
-
-/* Shiki dual theme support - map inline style variables to actual colors */
-html:not(.dark) .shiki,
-html:not(.dark) .shiki span {
-  color: var(--shiki-light) !important;
-  background-color: var(--shiki-light-bg) !important;
-}
-
-html.dark .shiki,
-html.dark .shiki span {
-  color: var(--shiki-dark) !important;
-  background-color: var(--shiki-dark-bg) !important;
-}
-
-/* Shiki line highlighting */
-.shiki code {
-  display: grid;
-}
-
-/* Ensure empty lines are preserved */
-.shiki .line:empty::before {
-  content: " ";
-}
-
-.shiki .line.highlighted {
-  margin-left: -1rem;
-  margin-right: -1rem;
-  padding-left: calc(1rem - 3px);
-  padding-right: 1rem;
-  border-left: 3px solid var(--primary);
-  background-color: oklch(from var(--accent) l c h / 0.3) !important;
-}
-
-html:not(.dark) .shiki .line.highlighted span {
-  background-color: transparent !important;
-}
-
-html.dark .shiki .line.highlighted {
-  background-color: oklch(from var(--accent) l c h / 0.1) !important;
-}
-
-html.dark .shiki .line.highlighted span {
-  background-color: transparent !important;
-}
+/* -------------------------------------------------------------------------- */
+/* shadcn/ui tokens                                                           */
+/* -------------------------------------------------------------------------- */
 
 :root {
-  --background:
-    oklch(0.9789 0.0082 121.6272);
-  --foreground:
-    oklch(0 0 0);
-  --card:
-    oklch(1.0000 0 0);
-  --card-foreground:
-    oklch(0 0 0);
-  --popover:
-    oklch(1.0000 0 0);
-  --popover-foreground:
-    oklch(0 0 0);
-  --primary:
-    oklch(0.7500 0.1830 55.9340);
-  --primary-foreground:
-    oklch(0.1450 0 0);
-  --secondary:
-    oklch(0.8450 0.1430 164.9780);
-  --secondary-foreground:
-    oklch(0.1470 0.0040 49.2500);
-  --muted:
-    oklch(0.9551 0 0);
-  --muted-foreground:
-    oklch(0.553 0.013 58.071);
-  --accent:
-    oklch(0.9244 0.1203 95.8453);
-  --accent-foreground:
-    oklch(0.1470 0.0040 49.2500);
-  --destructive:
-    oklch(0.7040 0.1910 22.2160);
-  --destructive-foreground:
-    oklch(1.0000 0 0);
-  --border:
-    oklch(0 0 0);
-  --input:
-    oklch(0.5555 0 0);
-  --ring:
-    oklch(0.7853 0.1041 274.7134);
-  --chart-1:
-    oklch(0.7180 0.2020 349.7610);
-  --chart-2:
-    oklch(0.8450 0.1430 164.9780);
-  --chart-3:
-    oklch(0.8781 0.1688 91.8567);
-  --chart-4:
-    oklch(0.7850 0.1150 274.7130);
-  --chart-5:
-    oklch(0.8970 0.1960 126.6650);
-  --radius:
-    1rem;
-  --sidebar:
-    oklch(0.9789 0.0082 121.6272);
-  --sidebar-foreground:
-    oklch(0 0 0);
-  --sidebar-primary:
-    oklch(0.5106 0.2301 276.9656);
-  --sidebar-primary-foreground:
-    oklch(1.0000 0 0);
-  --sidebar-accent:
-    oklch(0.8790 0.1690 91.6050);
-  --sidebar-accent-foreground:
-    oklch(0 0 0);
-  --sidebar-border:
-    oklch(0 0 0);
-  --sidebar-ring:
-    oklch(0.7853 0.1041 274.7134);
-  --skeleton: oklch(87.9% 0 161.6);
-  --success: oklch(87.1% 0.15 154.449);
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
 
-  --tracking-normal:
-    -0.025em;
+  /* Guide accent (TanStack DB orange) */
+  --guide-accent: oklch(0.7 0.18 50);
+  --guide-accent-soft: oklch(0.97 0.03 60);
 
-  --shadow-color:
-    #1a1a1a;
+  /* Fake browser chrome */
+  --browser-frame: #e8e8ea;
+  --browser-toolbar: #f7f7f8;
+  --browser-tab: #ffffff;
+  --browser-field: #ececee;
 
-  --shadow-opacity:
-    0.05;
+  /* Apple Notes — macOS (sampled from reference screenshots) */
+  --mac-sidebar: #ededed;
+  --mac-content: #ffffff;
+  --mac-toolbar: #f6f6f6;
+  --mac-text: #1d1d1f;
+  --mac-text-secondary: #8a8a8e;
+  --mac-folder-selected: #d7d7d7;
+  --mac-row-selected: #ffe491;
+  --mac-separator: #e5e5e5;
+  --mac-column-border: #e6e6e6;
+  --mac-control: #fafafa;
+  --mac-control-border: #e3e3e3;
+  --mac-icon: #6e6e73;
+  /* Menus: frosted glass, as in the macOS 26 reference */
+  --mac-menu: rgb(246 246 246 / 0.82);
+  --mac-menu-separator: rgb(0 0 0 / 0.1);
+  --mac-menu-hover: rgb(0 0 0 / 0.07);
 
-  --shadow-blur:
-    0px;
+  /* Apple Notes — iOS 26 */
+  --ios-bg: #f2f2f7;
+  --ios-card: #ffffff;
+  --ios-plain: #ffffff;
+  --ios-text: #000000;
+  --ios-secondary: #8e8e93;
+  --ios-separator: #c6c6c8;
+  --ios-glass: rgb(255 255 255 / 0.72);
+  --ios-glass-border: rgb(0 0 0 / 0.06);
 
-  --shadow-spread:
-    0px;
-
-  --shadow-offset-x:
-    0px;
-
-  --shadow-offset-y:
-    0px;
-
-  --letter-spacing:
-    0em;
-
-  --spacing:
-    0.25rem;
-
-  --shadow-2xs:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.03);
-
-  --shadow-xs:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.03);
-
-  --shadow-sm:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 1px 2px -1px hsl(0 0% 10.1961% / 0.05);
-
-  --shadow:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 1px 2px -1px hsl(0 0% 10.1961% / 0.05);
-
-  --shadow-md:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 2px 4px -1px hsl(0 0% 10.1961% / 0.05);
-
-  --shadow-lg:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 4px 6px -1px hsl(0 0% 10.1961% / 0.05);
-
-  --shadow-xl:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 8px 10px -1px hsl(0 0% 10.1961% / 0.05);
-
-  --shadow-2xl:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.13);
-
-  --font-sans:
-    Space Grotesk, ui-sans-serif, sans-serif, system-ui;
-  --font-mono:
-    JetBrains Mono, monospace;
-  /* --font-serif: */
-  /*   DM Sans, sans-serif; */
+  /* Shared Notes accent */
+  --notes-accent: #e5b400;
+  --notes-quick: #f2c94c;
+  --notes-shared: #5ac8fa;
 }
 
 .dark {
-  --background:
-    oklch(0.216 0.006 56.043);
-  --foreground:
-    oklch(1.0000 0 0);
-  --card:
-    oklch(0.268 0.007 34.298);
-  --card-foreground:
-    oklch(1.0000 0 0);
-  --popover:
-    oklch(0.216 0.006 56.043);
-  --popover-foreground:
-    oklch(0.9789 0.0082 121.6272);
-  --primary:
-    oklch(0.7500 0.1830 55.9340);
-  --primary-foreground:
-    oklch(0.216 0.006 56.043);
-  --secondary:
-    oklch(0.7845 0.1325 181.9120);
-  --secondary-foreground:
-    oklch(0.216 0.006 56.043);
-  --muted:
-    oklch(0.2160 0.0060 56.0430);
-  --muted-foreground:
-    oklch(0.7090 0.0100 56.2590);
-  --accent:
-    oklch(0.8790 0.1690 91.6050);
-  --accent-foreground:
-    oklch(0.216 0.006 56.043);
-  --destructive:
-    oklch(63.7% 0.2078 25.3);
-  --destructive-foreground: oklch(0.216 0.006 56.043);
-  --border:
-    oklch(0.3740 0.0100 67.5580);
-  --input:
-    var(--border);
-  --ring:
-    oklch(0.6801 0.1583 276.9349);
-  --chart-1:
-    oklch(0.7253 0.1752 349.7607);
-  --chart-2:
-    oklch(0.7845 0.1325 181.9120);
-  --chart-3:
-    oklch(0.8790 0.1534 91.6054);
-  --chart-4:
-    oklch(0.6801 0.1583 276.9349);
-  --chart-5:
-    oklch(0.8003 0.1821 151.7110);
-  --sidebar:
-    oklch(0.216 0.006 56.043);
-  --sidebar-foreground:
-    var(--foreground);
-  --sidebar-primary: oklch(0.6801 0.1583 276.9349);
-  --sidebar-primary-foreground:
-    oklch(0.216 0.006 56.043);
-  --sidebar-accent:
-    var(--border);
-  --sidebar-accent-foreground:
-    var(--sidebar-foreground);
-  --sidebar-border:
-    oklch(1.0000 0 0);
-  --sidebar-ring:
-    oklch(0.6801 0.1583 276.9349);
-  --skeleton: oklch(0.3740 0.0100 67.5580);
-  --success: oklch(87.1% 0.15 154.449);
-  --radius:
-    1rem;
-  --shadow-color:
-    #1a1a1a;
-  --shadow-opacity:
-    0.05;
-  --shadow-blur:
-    0px;
-  --shadow-spread:
-    0px;
-  --shadow-offset-x:
-    0px;
-  --shadow-offset-y:
-    0px;
-  --letter-spacing:
-    0em;
-  --spacing:
-    0.25rem;
-  --shadow-2xs:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.03);
-  --shadow-xs:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.03);
-  --shadow-sm:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 1px 2px -1px hsl(0 0% 10.1961% / 0.05);
-  --shadow:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 1px 2px -1px hsl(0 0% 10.1961% / 0.05);
-  --shadow-md:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 2px 4px -1px hsl(0 0% 10.1961% / 0.05);
-  --shadow-lg:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 4px 6px -1px hsl(0 0% 10.1961% / 0.05);
-  --shadow-xl:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.05), 0px 8px 10px -1px hsl(0 0% 10.1961% / 0.05);
-  --shadow-2xl:
-    0px 0px 0px 0px hsl(0 0% 10.1961% / 0.13);
+  --background: oklch(0.17 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+
+  --guide-accent: oklch(0.75 0.17 55);
+  --guide-accent-soft: oklch(0.26 0.04 55);
+
+  --browser-frame: #1a1a1c;
+  --browser-toolbar: #2a2a2c;
+  --browser-tab: #2a2a2c;
+  --browser-field: #1e1e20;
+
+  --mac-sidebar: #242424;
+  --mac-content: #1e1e1e;
+  --mac-toolbar: #2b2b2b;
+  --mac-text: #e8e8e8;
+  --mac-text-secondary: #9a9a9a;
+  --mac-folder-selected: #393939;
+  --mac-row-selected: #9a7f26;
+  --mac-separator: #333333;
+  --mac-column-border: #2f2f2f;
+  --mac-control: #2b2b2b;
+  --mac-control-border: #383838;
+  --mac-icon: #a8a8ad;
+  --mac-menu: rgb(40 40 40 / 0.82);
+  --mac-menu-separator: rgb(255 255 255 / 0.1);
+  --mac-menu-hover: rgb(255 255 255 / 0.1);
+
+  --ios-bg: #000000;
+  --ios-card: #1c1c1e;
+  --ios-plain: #000000;
+  --ios-text: #ffffff;
+  --ios-secondary: #8e8e93;
+  --ios-separator: #38383a;
+  --ios-glass: rgb(40 40 42 / 0.72);
+  --ios-glass-border: rgb(255 255 255 / 0.08);
+
+  --notes-accent: #e6b32e;
 }
 
 @theme inline {
+  --font-sans:
+    "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -328,120 +162,43 @@ html.dark .shiki .line.highlighted span {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-skeleton: var(--skeleton);
-  --color-success: var(--success);
 
-  --tracking-tighter:
-    calc(var(--tracking-normal) - 0.05em);
-  --tracking-tight:
-    calc(var(--tracking-normal) - 0.025em);
-  --tracking-normal: var(--tracking-normal);
-  --tracking-wide:
-    calc(var(--tracking-normal) + 0.025em);
-  --tracking-wider:
-    calc(var(--tracking-normal) + 0.05em);
-  --tracking-widest:
-    calc(var(--tracking-normal) + 0.1em);
-  --radius:
-    1rem;
-  --shadow-2xl:
-    var(--shadow-2xl);
-  --shadow-xl:
-    var(--shadow-xl);
-  --shadow-lg:
-    var(--shadow-lg);
-  --shadow-md:
-    var(--shadow-md);
-  --shadow:
-    var(--shadow);
-  --shadow-sm:
-    var(--shadow-sm);
-  --shadow-xs:
-    var(--shadow-xs);
-  --shadow-2xs:
-    var(--shadow-2xs);
-  --spacing:
-    var(--spacing);
-  --letter-spacing:
-    var(--letter-spacing);
-  --shadow-offset-y:
-    var(--shadow-offset-y);
-  --shadow-offset-x:
-    var(--shadow-offset-x);
-  --shadow-spread:
-    var(--shadow-spread);
-  --shadow-blur:
-    var(--shadow-blur);
-  --shadow-opacity:
-    var(--shadow-opacity);
-  --color-shadow-color:
-    var(--shadow-color);
-  --radius-2xl:
-    calc(var(--radius) + 8px);
-  --radius-3xl:
-    calc(var(--radius) + 12px);
-  --radius-4xl:
-    calc(var(--radius) + 16px);
-}
+  --color-guide-accent: var(--guide-accent);
+  --color-guide-accent-soft: var(--guide-accent-soft);
 
-@keyframes progress-fill {
-  from {
-    width: 0%;
-  }
+  --color-browser-frame: var(--browser-frame);
+  --color-browser-toolbar: var(--browser-toolbar);
+  --color-browser-tab: var(--browser-tab);
+  --color-browser-field: var(--browser-field);
 
-  to {
-    width: 100%;
-  }
-}
+  --color-mac-sidebar: var(--mac-sidebar);
+  --color-mac-content: var(--mac-content);
+  --color-mac-toolbar: var(--mac-toolbar);
+  --color-mac-text: var(--mac-text);
+  --color-mac-text-secondary: var(--mac-text-secondary);
+  --color-mac-folder-selected: var(--mac-folder-selected);
+  --color-mac-row-selected: var(--mac-row-selected);
+  --color-mac-separator: var(--mac-separator);
+  --color-mac-column-border: var(--mac-column-border);
+  --color-mac-control: var(--mac-control);
+  --color-mac-control-border: var(--mac-control-border);
+  --color-mac-icon: var(--mac-icon);
 
+  --color-ios-bg: var(--ios-bg);
+  --color-ios-card: var(--ios-card);
+  --color-ios-plain: var(--ios-plain);
+  --color-ios-text: var(--ios-text);
+  --color-ios-secondary: var(--ios-secondary);
+  --color-ios-separator: var(--ios-separator);
+  --color-ios-glass: var(--ios-glass);
+  --color-ios-glass-border: var(--ios-glass-border);
 
-@theme {
-  @keyframes wiggle {
-
-    0%,
-    100% {
-      transform: rotate(-2deg);
-    }
-
-    50% {
-      transform: rotate(2deg);
-    }
-  }
-
-  @keyframes skeleton-pulse {
-    50% {
-      opacity: 0.6;
-    }
-  }
-
-  --animate-wiggle: wiggle 0.3s ease-in-out infinite;
-  --animate-skeleton-pulse: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.progress-animated {
-  animation: progress-fill 5s cubic-bezier(0.66, 0, 0.34, 1) forwards;
-  animation-fill-mode: forwards;
+  --color-notes-accent: var(--notes-accent);
+  --color-notes-quick: var(--notes-quick);
+  --color-notes-shared: var(--notes-shared);
 }
 
 @layer base {
@@ -449,51 +206,241 @@ html.dark .shiki .line.highlighted span {
     @apply border-border outline-ring/50;
   }
 
+  html,
   body {
-    @apply bg-background text-foreground;
-    letter-spacing:
-      var(--tracking-normal);
+    height: 100%;
   }
 
-  /* Custom scrollbar styles for Chrome/Safari */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 12px;
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    margin: 0;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Code highlighting (sugar-high)                                             */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --sh-class: #8250df;
+  --sh-identifier: #24292f;
+  --sh-sign: #57606a;
+  --sh-property: #0550ae;
+  --sh-entity: #8250df;
+  --sh-jsxliterals: #24292f;
+  --sh-string: #0a3069;
+  --sh-keyword: #cf222e;
+  --sh-comment: #6e7781;
+}
+
+.dark {
+  --sh-class: #d2a8ff;
+  --sh-identifier: #e6edf3;
+  --sh-sign: #8b949e;
+  --sh-property: #79c0ff;
+  --sh-entity: #d2a8ff;
+  --sh-jsxliterals: #e6edf3;
+  --sh-string: #a5d6ff;
+  --sh-keyword: #ff7b72;
+  --sh-comment: #8b949e;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Bottom sheet (the app on small screens)                                    */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  /* Open: ~450ms with a hint of overshoot, like a spring settling. Close: a bit faster. */
+  --sheet-open-duration: 450ms;
+  --sheet-open-easing: cubic-bezier(0.22, 1.15, 0.36, 1);
+  --sheet-close-duration: 320ms;
+  --sheet-close-easing: cubic-bezier(0.32, 0.72, 0, 1);
+  --sheet-fade-duration: 200ms;
+}
+
+@layer components {
+  .bottom-sheet {
+    transform: translate3d(0, calc(100% + 2rem), 0);
+    visibility: hidden;
+    transition:
+      transform var(--sheet-close-duration) var(--sheet-close-easing),
+      visibility 0s linear var(--sheet-close-duration);
+  }
+  .bottom-sheet[data-state="open"] {
+    transform: none;
+    visibility: visible;
+    transition:
+      transform var(--sheet-open-duration) var(--sheet-open-easing),
+      visibility 0s;
   }
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
+  .bottom-sheet-backdrop {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--sheet-close-duration) ease-out;
+  }
+  .bottom-sheet-backdrop[data-state="open"] {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: var(--sheet-open-duration);
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: oklch(0.7 0.01 286);
-    border-radius: 6px;
-    border: 1px solid transparent;
-    background-clip: content-box;
-    min-height: 40px;
+  /* Reduced motion: fade in place instead of sliding. */
+  @media (prefers-reduced-motion: reduce) {
+    .bottom-sheet,
+    .bottom-sheet[data-state="open"] {
+      transform: none;
+    }
+    .bottom-sheet {
+      opacity: 0;
+      transition:
+        opacity var(--sheet-fade-duration) ease-out,
+        visibility 0s linear var(--sheet-fade-duration);
+    }
+    .bottom-sheet[data-state="open"] {
+      opacity: 1;
+      transition:
+        opacity var(--sheet-fade-duration) ease-out,
+        visibility 0s;
+    }
+    .bottom-sheet-backdrop,
+    .bottom-sheet-backdrop[data-state="open"] {
+      transition-duration: var(--sheet-fade-duration);
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Guide code blocks on small screens                                         */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * In the small-screen guide ([data-wrap-code]) long lines soft-wrap instead of
+ * scrolling sideways, and each continuation hangs two characters past its
+ * line's own indentation (`--indent`, set per line by `withLineIndents`).
+ * Unlayered on purpose, so it overrides the block's utility classes.
+ */
+/* No hover on phones: keep the Copy button visible. */
+[data-wrap-code] .code-block-copy {
+  opacity: 1;
+}
+[data-wrap-code] .code-block-pre {
+  padding-inline: 0.875rem;
+  font-size: 12px;
+}
+[data-wrap-code] .code-block-pre code {
+  display: block;
+  /* The newlines between line blocks are just markup now. */
+  white-space: normal;
+}
+[data-wrap-code] .code-block-pre .sh__line {
+  --hang: calc(var(--indent, 0ch) + 2ch);
+  display: block;
+  min-height: 1lh;
+  padding-left: var(--hang);
+  text-indent: calc(-1 * var(--hang));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Apple-style hairline scrollbars inside the fake app */
+.notes-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 22%, transparent) transparent;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Guide typography                                                           */
+/* -------------------------------------------------------------------------- */
+
+@layer components {
+  .guide-prose {
+    @apply text-[15px] leading-7 text-foreground/85;
+  }
+  .guide-prose > p + p {
+    @apply mt-3;
+  }
+  .guide-prose h3 {
+    @apply mt-6 mb-2 text-base font-semibold text-foreground;
+  }
+  .guide-prose ul {
+    @apply my-3 list-disc space-y-1 pl-5 marker:text-muted-foreground;
+  }
+  .guide-prose ol {
+    @apply my-3 list-decimal space-y-1 pl-5 marker:text-muted-foreground;
+  }
+  .guide-prose :not(pre) > code {
+    @apply rounded-md bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground;
+  }
+  .guide-prose a {
+    @apply font-medium text-foreground underline decoration-guide-accent/60 underline-offset-4 hover:decoration-guide-accent;
+  }
+  .guide-prose strong {
+    @apply font-semibold text-foreground;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Spotlight (the guide pointing at part of the app)                          */
+/* -------------------------------------------------------------------------- */
+
+@layer components {
+  /* A ring around the target; its huge spread dims everything else. */
+  .spotlight-ring {
+    box-shadow:
+      0 0 0 3px var(--guide-accent),
+      0 0 0 9999px rgb(0 0 0 / 0.3);
+  }
+  .dark .spotlight-ring {
+    box-shadow:
+      0 0 0 3px var(--guide-accent),
+      0 0 0 9999px rgb(0 0 0 / 0.55);
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.6 0.01 286);
-    border: 3px solid transparent;
-    background-clip: content-box;
+  /* Motion only when the reader is fine with it: fade in, then pulse three times. */
+  @media (prefers-reduced-motion: no-preference) {
+    .spotlight-ring {
+      animation: spotlight-in 220ms ease-out;
+    }
+    .spotlight-ring::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      border: 3px solid var(--guide-accent);
+      animation: spotlight-pulse 1.2s ease-out 220ms 3 both;
+    }
+    .spotlight-label {
+      animation: spotlight-in 220ms ease-out;
+    }
   }
+}
 
-  /* Dark theme scrollbar styles */
-  .dark ::-webkit-scrollbar-thumb {
-    background: oklch(0.4 0.01 286);
+@keyframes spotlight-in {
+  from {
+    opacity: 0;
   }
+}
 
-  .dark ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.5 0.01 286);
+@keyframes spotlight-pulse {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
   }
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
 
-  /* Firefox scrollbar styles */
-  * {
-    scrollbar-color: oklch(0.7 0.01 286) transparent;
-  }
+/* -------------------------------------------------------------------------- */
+/* Charts (TanStack Charts inherits `color`; bars use its palette tokens)      */
+/* -------------------------------------------------------------------------- */
 
-  .dark * {
-    scrollbar-color: oklch(0.4 0.01 286) transparent;
-  }
+.analytics-chart {
+  /* A darker Notes yellow in light mode, so bars keep 3:1 contrast on white. */
+  --ts-chart-1: #b58900;
+}
+.dark .analytics-chart {
+  --ts-chart-1: var(--notes-accent);
 }

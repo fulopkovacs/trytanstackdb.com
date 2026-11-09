@@ -1,0 +1,305 @@
+import { createLink, useRouter } from "@tanstack/react-router";
+import { ChevronDown, ChevronLeft, ChevronRight, Mic, Search, SquarePen } from "lucide-react";
+import type { ComponentProps, ReactNode } from "react";
+
+import { useCurrentEntrySheetOpen, usePreviousEntry } from "@/lib/history-tracker";
+import { isRecordingSheetState } from "@/lib/sheet-aware-history";
+import { cn } from "@/lib/utils";
+
+import { NotImplemented } from "../not-implemented";
+
+/* iOS 26 "Liquid Glass": translucent capsules floating over the content. */
+const glass =
+  "border border-ios-glass-border bg-ios-glass text-ios-text shadow-[0_6px_24px_rgb(0_0_0/0.12)] backdrop-blur-xl backdrop-saturate-150";
+
+export function GlassCircle({ className, ...props }: ComponentProps<"button">) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        glass,
+        "grid size-11 shrink-0 place-items-center rounded-full disabled:cursor-not-allowed [&_svg]:size-[22px]",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/**
+ * Goes up the iPhone navigation stack to `href`: pops history when the parent
+ * screen is the previous entry, like a real navigation stack (so history
+ * doesn't grow and the parent's scroll is restored). Returns `false` when it
+ * can't, and the caller should navigate instead.
+ */
+export function usePopTo(): (href: string) => boolean {
+  const router = useRouter();
+  const previous = usePreviousEntry();
+  const sheetOpen = useCurrentEntrySheetOpen();
+
+  return (href) => {
+    // Not if that entry is from before the app sheet opened: popping it would close the sheet.
+    const parentIsPrevious =
+      previous?.pathname === new URL(href, window.location.href).pathname &&
+      (!isRecordingSheetState() || previous.sheetOpen === sheetOpen);
+    if (!parentIsPrevious) return false;
+    router.history.back();
+    return true;
+  };
+}
+
+function BackAnchor({ className, href, onClick, ...props }: ComponentProps<"a">) {
+  const popTo = usePopTo();
+
+  return (
+    <a
+      {...props}
+      href={href}
+      onClick={(event) => {
+        const plainClick = !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+        if (plainClick && href !== undefined && popTo(href)) {
+          event.preventDefault();
+          return;
+        }
+        // Opened directly (or from elsewhere): go to the parent screen.
+        onClick?.(event);
+      }}
+      className={cn(glass, "grid size-11 shrink-0 place-items-center rounded-full", className)}
+    >
+      <ChevronLeft className="size-6 -translate-x-px" strokeWidth={2.2} />
+    </a>
+  );
+}
+
+/**
+ * Round floating back button (top left of every pushed screen). A typed router
+ * link to the parent screen that pops history when the parent is the previous entry.
+ */
+export const BackLink = createLink(BackAnchor);
+
+export function GlassPill({ className, children }: { className?: string; children: ReactNode }) {
+  return (
+    <div className={cn(glass, "flex h-11 items-center rounded-full px-1.5", className)}>
+      {children}
+    </div>
+  );
+}
+
+export function GlassPillButton({
+  className,
+  notImplemented,
+  ...props
+}: ComponentProps<"button"> & {
+  /** The feature isn't built: show a not-allowed cursor and a "Not implemented" tooltip. */
+  notImplemented?: boolean;
+}) {
+  const button = (
+    <button
+      type="button"
+      aria-disabled={notImplemented || undefined}
+      className={cn(
+        "grid h-11 min-w-11 place-items-center px-2 disabled:cursor-not-allowed aria-disabled:cursor-not-allowed [&_svg]:size-[21px]",
+        className,
+      )}
+      {...props}
+    />
+  );
+  return notImplemented ? <NotImplemented>{button}</NotImplemented> : button;
+}
+
+interface IosScreenProps {
+  /** `grouped` for lists of inset cards, `plain` for the editor. */
+  background?: "grouped" | "plain";
+  leading?: ReactNode;
+  trailing?: ReactNode;
+  bottom?: ReactNode;
+  children: ReactNode;
+}
+
+/**
+ * One full-screen page of the iPhone navigation stack. The floating buttons
+ * sit on blurred bars (iOS 26's scroll edge effect), and the content is padded
+ * so its first and last rows can always scroll clear of them.
+ */
+export function IosScreen({
+  background = "grouped",
+  leading,
+  trailing,
+  bottom,
+  children,
+}: IosScreenProps) {
+  const grouped = background === "grouped";
+  return (
+    <div
+      className={cn(
+        "group/screen relative h-full font-sans text-ios-text",
+        // Height of the bottom bar: a 3rem pill, 1rem below it, plus the home indicator.
+        "[--ios-bottom-bar:calc(4rem+env(safe-area-inset-bottom))]",
+        grouped ? "bg-ios-bg" : "bg-ios-plain",
+      )}
+    >
+      <div
+        data-page-scroll
+        className={cn(
+          "notes-scroll h-full overflow-y-auto px-4 pt-[68px]",
+          bottom
+            ? "pb-[calc(var(--ios-bottom-bar)+1.5rem)]"
+            : "pb-[calc(2rem+env(safe-area-inset-bottom))]",
+        )}
+      >
+        {children}
+      </div>
+
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-0 h-[68px] mask-b-from-70% backdrop-blur-xl",
+          grouped ? "bg-ios-bg/85" : "bg-ios-plain/85",
+        )}
+      />
+      <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 px-4 pt-3">
+        <div className="flex items-center gap-2">{leading}</div>
+        <div className="flex items-center gap-2">{trailing}</div>
+      </div>
+
+      {bottom && (
+        <>
+          <div
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute inset-x-0 bottom-0 h-(--ios-bottom-bar) mask-t-from-50% backdrop-blur-md",
+              grouped ? "bg-ios-bg/70" : "bg-ios-plain/70",
+            )}
+          />
+          <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 px-5 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            {bottom}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function LargeTitle({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <header className="mb-4 px-1">
+      <h1 className="text-[32px] leading-tight font-bold tracking-[-0.02em]">{title}</h1>
+      {subtitle && <p className="text-[15px] text-ios-secondary">{subtitle}</p>}
+    </header>
+  );
+}
+
+export function SectionHeader({
+  children,
+  chevron,
+  onToggle,
+  open = true,
+}: {
+  children: ReactNode;
+  chevron?: boolean;
+  onToggle?: () => void;
+  open?: boolean;
+}) {
+  const content = (
+    <>
+      <span className="flex-1 text-left">{children}</span>
+      {chevron && (
+        <ChevronDown
+          className={cn("size-5 text-ios-secondary transition-transform", !open && "-rotate-90")}
+        />
+      )}
+    </>
+  );
+  const className = "flex w-full items-center px-1 pt-6 pb-2.5 text-[21px] font-bold";
+  return onToggle ? (
+    <button type="button" onClick={onToggle} aria-expanded={open} className={className}>
+      {content}
+    </button>
+  ) : (
+    <h2 className={className}>{content}</h2>
+  );
+}
+
+/** A rounded, inset grouped list card. */
+export function InsetCard({
+  className,
+  children,
+  ...props
+}: { className?: string; children: ReactNode } & { "data-spotlight"?: string }) {
+  return (
+    <ul className={cn("overflow-hidden rounded-[26px] bg-ios-card", className)} {...props}>
+      {children}
+    </ul>
+  );
+}
+
+/**
+ * A row in an inset card. The separator starts where the text starts
+ * (`separatorInset`), like UIKit's inset separators.
+ */
+export function InsetRow({
+  children,
+  first,
+  separatorInset = 16,
+}: {
+  children: ReactNode;
+  first?: boolean;
+  separatorInset?: number;
+}) {
+  return (
+    <li className="relative">
+      {!first && (
+        <span
+          aria-hidden
+          className="absolute top-0 right-4 h-px bg-ios-separator"
+          style={{ left: separatorInset }}
+        />
+      )}
+      {children}
+    </li>
+  );
+}
+
+export function RowChevron() {
+  return <ChevronRight className="size-[18px] shrink-0 text-ios-secondary/70" strokeWidth={2.4} />;
+}
+
+/** Bottom bar of list screens: search capsule + round compose button. */
+export function SearchAndCompose({ onCompose }: { onCompose: (() => void) | undefined }) {
+  return (
+    <>
+      <NotImplemented>
+        <label
+          className={cn(
+            glass,
+            "flex h-12 min-w-0 flex-1 cursor-not-allowed items-center gap-2 rounded-full px-4",
+          )}
+        >
+          <Search className="size-5 shrink-0 text-ios-text" />
+          <input
+            type="search"
+            placeholder="Search"
+            readOnly
+            aria-disabled
+            className="min-w-0 flex-1 cursor-not-allowed bg-transparent text-[17px] outline-none placeholder:text-ios-secondary"
+          />
+          <Mic className="size-5 shrink-0 text-ios-text" />
+        </label>
+      </NotImplemented>
+      <ComposeButton onCompose={onCompose} />
+    </>
+  );
+}
+
+export function ComposeButton({ onCompose }: { onCompose: (() => void) | undefined }) {
+  return (
+    <GlassCircle
+      aria-label="New note"
+      className="size-12 disabled:opacity-40"
+      disabled={!onCompose}
+      onClick={onCompose}
+    >
+      <SquarePen />
+    </GlassCircle>
+  );
+}
